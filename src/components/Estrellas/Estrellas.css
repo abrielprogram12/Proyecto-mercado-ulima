@@ -1,0 +1,55 @@
+.estrellas-wrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.estrellas-iconos {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.estrella-span,
+.estrella-btn {
+  color: #D8CFC8;
+  line-height: 1;
+}
+
+.estrella-span.activa,
+.estrella-btn.activa {
+  color: #C97A2B;
+}
+
+.estrella-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 2px;
+  transition: transform 0.1s ease;
+}
+
+.estrella-btn:hover {
+  transform: scale(1.12);
+}
+
+.estrellas-sm .estrella-span,
+.estrellas-sm .estrella-btn {
+  font-size: 14px;
+}
+
+.estrellas-md .estrella-span,
+.estrellas-md .estrella-btn {
+  font-size: 18px;
+}
+
+.estrellas-lg .estrella-span,
+.estrellas-lg .estrella-btn {
+  font-size: 32px;
+}
+
+.estrellas-etiqueta {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text);
+}

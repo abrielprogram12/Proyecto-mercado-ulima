@@ -1,0 +1,58 @@
+.notificacion-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 13px 18px;
+  border-radius: var(--radius-btn);
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--color-text);
+  border: 1px solid transparent;
+  margin-bottom: 20px;
+}
+
+.notif-exito {
+  background-color: var(--color-success-bg);
+  border-color: var(--color-success);
+}
+
+.notif-exito .notificacion-titulo {
+  color: var(--color-success);
+}
+
+.notif-error {
+  background-color: var(--color-error-bg);
+  border-color: var(--color-error);
+}
+
+.notif-error .notificacion-titulo {
+  color: var(--color-error);
+}
+
+.notif-advertencia {
+  background-color: var(--color-warning-bg);
+  border-color: var(--color-warning);
+}
+
+.notif-advertencia .notificacion-titulo {
+  color: var(--color-warning);
+}
+
+.notif-info {
+  background-color: var(--color-info-bg);
+  border-color: var(--color-info);
+}
+
+.notif-info .notificacion-titulo {
+  color: var(--color-info);
+}
+
+.notificacion-cerrar {
+  background: transparent;
+  border: none;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  font-size: 14px;
+  padding: 2px 6px;
+}
