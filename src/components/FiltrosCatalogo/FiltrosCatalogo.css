@@ -1,0 +1,79 @@
+.filtros-catalogo {
+  width: 265px;
+  padding: 22px 20px;
+  flex-shrink: 0;
+}
+
+.filtros-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.filtros-titulo {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.filtros-limpiar-btn {
+  background: transparent;
+  border: none;
+  color: var(--color-primary);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.filtro-bloque {
+  padding-top: 16px;
+  margin-top: 16px;
+  border-top: 1px solid var(--color-border);
+}
+
+.filtro-bloque:first-of-type {
+  border-top: none;
+  padding-top: 0;
+  margin-top: 0;
+}
+
+.filtro-lista-checks {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.filtro-check-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.filtro-check-left {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.filtro-check-left input[type='checkbox'] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--color-primary);
+}
+
+.filtro-check-count {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+.filtro-rango-inputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 10px;
+}

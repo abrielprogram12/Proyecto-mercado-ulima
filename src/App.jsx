@@ -1,27 +1,16 @@
-// src/App.jsx
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import Header from './components/Header'; // Importamos el componente compartido
-import Login from './pages/Login';
-import Catalogo from './pages/Catalogo';
+import { Outlet } from 'react-router-dom';
+import Header from './components/Header/Header';
+import Footer from './components/Footer/Footer';
+import './App.css';
 
-function App() {
+export default function App() {
   return (
-    <BrowserRouter>
-      {/* El Header se mostrará en TODAS las vistas, tal como dice el mockup */}
+    <div className="app-shell">
       <Header />
-
-      {/* El contenido principal que cambia según la ruta */}
-      <main style={{ padding: '20px' }}>
-        <Routes>
-          <Route path="/" element={<Catalogo />} />
-          <Route path="/login" element={<Login />} />
-          {/* Aquí el equipo irá agregando las demás rutas: /registro, /mis-publicaciones, etc. */}
-        </Routes>
+      <main className="app-main">
+        <Outlet />
       </main>
-    </BrowserRouter>
+      <Footer />
+    </div>
   );
 }
-
-export default App;
-
-
