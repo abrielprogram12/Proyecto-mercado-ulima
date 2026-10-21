@@ -1,0 +1,415 @@
+/* ==========================================================================
+   MÓDULO DE OFERTAS Y NEGOCIACIÓN (HU-4 — Integrante 4)
+   Vistas 4.1 (Ofertas recibidas), 4.2 (Ofertas enviadas), 4.3 (Estados vacíos)
+   y 4.4 / 4.5 (Hilo de negociación y contraofertas)
+   ========================================================================== */
+
+.of-page-title {
+  margin-bottom: 16px;
+}
+
+/* Pestañas superiores Recibidas / Enviadas */
+.of-tabs-nav {
+  display: flex;
+  gap: 24px;
+  border-bottom: 1px solid var(--color-border);
+  margin-bottom: 20px;
+}
+
+.of-tab-link {
+  padding: 10px 4px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  border-bottom: 3px solid transparent;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.of-tab-link:hover {
+  color: var(--color-primary);
+}
+
+.of-tab-link--active {
+  font-weight: 700;
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+}
+
+/* Barra de filtros por estado */
+.of-filters-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.of-filters-chips {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.of-filters-chips--spaced {
+  margin-bottom: 20px;
+}
+
+/* Grupos de ofertas recibidas por aviso (Vista 4.1) */
+.of-groups-list {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.of-group-card {
+  overflow: hidden;
+}
+
+.of-group-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background-color: var(--color-bg);
+  border-bottom: 1px solid var(--color-border);
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.of-group-aviso-info {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.of-group-thumb {
+  width: 56px;
+  height: 42px;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.of-group-aviso-link {
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--color-text);
+}
+
+.of-group-aviso-link:hover {
+  color: var(--color-primary);
+}
+
+.of-best-offer-box {
+  text-align: right;
+}
+
+.of-best-offer-label {
+  margin-bottom: 2px;
+  font-size: 10px;
+}
+
+.of-best-offer-amount {
+  color: var(--color-success);
+  font-size: 18px;
+}
+
+/* Listado de ofertas enviadas (Vista 4.2) */
+.of-sent-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 26px;
+}
+
+.of-sent-card {
+  padding: 16px 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  border-color: var(--color-border);
+  flex-wrap: wrap;
+}
+
+.of-sent-card--counter {
+  border-color: var(--color-warning);
+}
+
+.of-sent-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.of-sent-thumb {
+  width: 68px;
+  height: 52px;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.of-sent-right {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+.of-sent-price-box {
+  text-align: right;
+}
+
+.of-sent-price-main {
+  font-size: 18px;
+  display: block;
+}
+
+.of-sent-price-sub {
+  font-size: 12px;
+}
+
+.of-sent-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.of-btn-danger-text {
+  color: var(--color-error);
+}
+
+.of-footer-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.of-rules-banner {
+  background-color: var(--color-primary-soft);
+  padding: 16px 20px;
+  border-radius: var(--radius-btn);
+  font-size: 14px;
+}
+
+/* Hilo de negociación (Vista 4.4) */
+.of-thread-layout {
+  display: grid;
+  grid-template-columns: 1.85fr 1fr;
+  gap: 28px;
+  align-items: start;
+}
+
+.of-thread-main-card {
+  padding: 26px 28px;
+}
+
+.of-thread-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 22px;
+}
+
+.of-thread-title {
+  margin-bottom: 2px;
+}
+
+.of-timeline-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.of-timeline-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  flex-direction: row;
+}
+
+.of-timeline-item--seller {
+  flex-direction: row-reverse;
+}
+
+.of-timeline-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background-color: var(--color-primary-soft);
+  color: var(--color-primary);
+  font-weight: 700;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.of-timeline-avatar--seller {
+  background-color: var(--color-primary);
+  color: #FFFFFF;
+}
+
+.of-timeline-bubble {
+  flex: 1;
+  padding: 16px 20px;
+  border-radius: var(--radius-card);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+}
+
+.of-timeline-bubble--seller {
+  background-color: var(--color-primary-soft);
+}
+
+.of-timeline-bubble--seller-latest {
+  background-color: #FEF9F2;
+}
+
+.of-timeline-bubble--latest {
+  border: 1.5px solid var(--color-warning);
+}
+
+.of-timeline-bubble-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.of-timeline-author-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.of-timeline-amount-row {
+  margin-bottom: 6px;
+}
+
+.of-timeline-price {
+  font-size: 22px;
+}
+
+.of-timeline-msg {
+  font-size: 14px;
+}
+
+.of-timeline-expiry {
+  display: block;
+  margin-top: 6px;
+}
+
+.of-thread-actions-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 18px;
+  border-top: 1px solid var(--color-border);
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.of-thread-actions-btns {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* Columna lateral derecha del Hilo */
+.of-thread-side {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.of-side-card {
+  padding: 20px 22px;
+}
+
+.of-side-label {
+  margin-bottom: 10px;
+}
+
+.of-side-label--lg {
+  margin-bottom: 12px;
+}
+
+.of-side-aviso-banner {
+  height: 130px;
+  border-radius: var(--radius-btn);
+  margin-bottom: 12px;
+}
+
+.of-side-aviso-title {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.of-side-aviso-price {
+  font-size: 18px;
+  margin-bottom: 2px;
+}
+
+.of-counterpart-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.of-counterpart-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background-color: var(--color-primary-soft);
+  color: var(--color-primary);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.of-counterpart-name {
+  display: block;
+}
+
+.of-counterpart-link {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.of-summary-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  font-size: 14px;
+}
+
+.of-summary-row--divider {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.of-summary-row--highlight {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 10px;
+  font-size: 14px;
+}
+
+.of-summary-counter-value {
+  color: var(--color-warning);
+}
+
+@media (max-width: 900px) {
+  .of-thread-layout,
+  .of-footer-grid {
+    grid-template-columns: 1fr;
+  }
+}
