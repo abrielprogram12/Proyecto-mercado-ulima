@@ -8,7 +8,12 @@ import GaleriaFotos from '../../components/GaleriaFotos/GaleriaFotos';
 import BadgeEstado from '../../components/BadgeEstado/BadgeEstado';
 import Notificacion from '../../components/Notificacion/Notificacion';
 import ModalReporte from '../../components/Modales/ModalReporte';
+import './visitante.css';
 
+/**
+ * MÓDULO: Visitante y Acceso (Integrante 1 · HU-1)
+ * Vista 3.4 — Detalle de aviso para visitante sin sesión
+ */
 export default function DetalleAvisoVisitantePage() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -72,41 +77,19 @@ export default function DetalleAvisoVisitantePage() {
         />
       )}
 
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: '1.6fr 1fr',
-          gap: '32px',
-          alignItems: 'start'
-        }}
-      >
+      <div className="vis-detalle-columnas">
         {/* Columna izquierda: Galería + Descripción */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+        <div className="vis-pila">
           <GaleriaFotos
             fotos={aviso.fotos}
             vendido={aviso.estado === 'Vendido'}
           />
 
-          <div className="card-surface" style={{ padding: '24px 28px' }}>
-            <h2
-              className="title-section"
-              style={{ color: 'var(--color-primary)', marginBottom: '12px' }}
-            >
-              Descripción
-            </h2>
-            <p style={{ marginBottom: '20px', color: 'var(--color-text)' }}>
-              {aviso.descripcion}
-            </p>
+          <div className="card-surface vis-tarjeta">
+            <h2 className="title-section vis-titulo-primario">Descripción</h2>
+            <p className="vis-descripcion">{aviso.descripcion}</p>
 
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(4, 1fr)',
-                gap: '16px',
-                paddingTop: '16px',
-                borderTop: '1px solid var(--color-border)'
-              }}
-            >
+            <div className="vis-ficha-meta">
               <div>
                 <span className="label-upper">Categoría</span>
                 <strong>{aviso.categoria}</strong>
@@ -127,54 +110,38 @@ export default function DetalleAvisoVisitantePage() {
           </div>
         </div>
 
-        {/* Columna derecha: Ficha de precio sin sesión + Vendedor + Reportar (Vista 3.4) */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
-          <div className="card-surface" style={{ padding: '26px' }}>
-            <div style={{ marginBottom: '10px' }}>
+        {/* Columna derecha: Ficha de precio sin sesión + Vendedor + Reportar */}
+        <div className="vis-pila">
+          <div className="card-surface vis-tarjeta">
+            <div className="vis-espacio-abajo">
               <BadgeEstado estado={aviso.estado} />
             </div>
 
-            <h1 className="title-screen" style={{ marginBottom: '10px' }}>
-              {aviso.titulo}
-            </h1>
+            <h1 className="title-screen vis-espacio-abajo">{aviso.titulo}</h1>
 
-            <div
-              className="price-text"
-              style={{ fontSize: '30px', lineHeight: '36px', marginBottom: '4px' }}
-            >
+            <div className="price-text vis-precio-destacado">
               {formatearPrecio(aviso.precio)}
             </div>
 
             {aviso.aceptaOfertas && (
-              <p className="text-aux" style={{ marginBottom: '12px' }}>
+              <p className="text-aux">
                 Acepta ofertas desde {formatearPrecio(aviso.montoMinimo)}
               </p>
             )}
 
-            <div style={{ display: 'flex', gap: '8px', marginBottom: '18px' }}>
+            <div className="vis-chips-fila">
               <BadgeEstado estado={aviso.condicion} />
               {aviso.curso && <span className="chip">{aviso.curso}</span>}
             </div>
 
-            <div
-              style={{
-                backgroundColor: 'var(--color-info-bg)',
-                border: '1px solid #B7D4F0',
-                borderRadius: 'var(--radius-btn)',
-                padding: '14px 16px',
-                fontSize: '14px',
-                color: 'var(--color-text)',
-                marginBottom: '16px'
-              }}
-            >
+            <div className="vis-aviso-sesion">
               Inicia sesión con tu correo institucional para ofertar o guardar este
               aviso en favoritos.
             </div>
 
             <button
               type="button"
-              className="btn btn-primary"
-              style={{ width: '100%', marginBottom: '10px' }}
+              className="btn btn-primary vis-btn-bloque"
               onClick={() => navigate('/login')}
             >
               Ingresar para ofertar
@@ -182,8 +149,7 @@ export default function DetalleAvisoVisitantePage() {
 
             <button
               type="button"
-              className="btn btn-secondary"
-              style={{ width: '100%' }}
+              className="btn btn-secondary vis-btn-bloque"
               onClick={() => navigate('/login')}
             >
               ♥ Guardar en favoritos
@@ -191,36 +157,13 @@ export default function DetalleAvisoVisitantePage() {
           </div>
 
           {/* Tarjeta del vendedor */}
-          <div className="card-surface" style={{ padding: '22px 24px' }}>
-            <span className="label-upper" style={{ marginBottom: '12px' }}>
-              Vendedor
-            </span>
+          <div className="card-surface vis-tarjeta">
+            <span className="label-upper">Vendedor</span>
 
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '12px',
-                marginBottom: '12px'
-              }}
-            >
-              <div
-                style={{
-                  width: '42px',
-                  height: '42px',
-                  borderRadius: '50%',
-                  backgroundColor: 'var(--color-primary-soft)',
-                  color: 'var(--color-primary)',
-                  fontWeight: 700,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}
-              >
-                {inicialesVendedor}
-              </div>
+            <div className="vis-vendedor-encabezado">
+              <div className="vis-avatar">{inicialesVendedor}</div>
               <div>
-                <strong style={{ display: 'block' }}>
+                <strong className="vis-vendedor-nombre">
                   {vendedor
                     ? `${vendedor.nombres} ${vendedor.apellidos}`
                     : aviso.vendedorNombre}
@@ -233,17 +176,10 @@ export default function DetalleAvisoVisitantePage() {
               </div>
             </div>
 
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                marginBottom: '10px'
-              }}
-            >
-              <span style={{ fontSize: '14px' }}>
+            <div className="vis-vendedor-reputacion">
+              <span>
                 <strong>{vendedor?.reputacion || '4.8'}</strong>{' '}
-                <span style={{ color: '#C97A2B' }}>★★★★★</span>{' '}
+                <span className="vis-estrellas">★★★★★</span>{' '}
                 <span className="text-aux">
                   · {vendedor?.acuerdosCerrados || 12} acuerdos cerrados
                 </span>
@@ -251,31 +187,19 @@ export default function DetalleAvisoVisitantePage() {
               <BadgeEstado estado="Vendedor confiable" />
             </div>
 
-            <Link
-              to={`/vendedor/${aviso.vendedorId}`}
-              style={{ fontWeight: 600, fontSize: '14px' }}
-            >
+            <Link to={`/vendedor/${aviso.vendedorId}`} className="vis-link-fuerte">
               Ver perfil y sus otros 5 avisos →
             </Link>
           </div>
 
           {/* Bloque de reportar aviso */}
-          <div
-            className="card-surface"
-            style={{
-              padding: '14px 20px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between'
-            }}
-          >
+          <div className="card-surface vis-reportar-fila">
             <span className="text-aux">
               ¿Este aviso incumple las normas del tablón?
             </span>
             <button
               type="button"
-              className="btn btn-tertiary btn-sm"
-              style={{ color: 'var(--color-error)' }}
+              className="btn btn-tertiary btn-sm vis-btn-peligro-texto"
               onClick={() => setModalReporteAbierto(true)}
             >
               Reportar aviso

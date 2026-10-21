@@ -3,7 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth, validarPasswordSegura } from '../../../context/AuthContext';
 import { PUNTOS_ENCUENTRO, obtenerIniciales } from '../../../data/contratoDatos';
 import Notificacion from '../../../components/Notificacion/Notificacion';
+import './cuenta.css';
 
+/**
+ * MÓDULO: Mi cuenta (Integrante 1 · HU-1)
+ * Vista 1.5 — Edición de datos personales, contraseña y punto de encuentro preferido
+ */
 export default function MiCuentaPage() {
   const {
     usuarioActual,
@@ -132,11 +137,9 @@ export default function MiCuentaPage() {
 
   return (
     <div className="page-container">
-      <div style={{ marginBottom: '24px' }}>
-        <h1 className="title-screen" style={{ marginBottom: '4px' }}>
-          Mi cuenta
-        </h1>
-        <p className="text-aux" style={{ fontSize: '14px' }}>
+      <div className="cue-encabezado">
+        <h1 className="title-screen">Mi cuenta</h1>
+        <p className="text-aux cue-subtitulo">
           {usuarioActual?.nombres || 'Rosa María'}{' '}
           {usuarioActual?.apellidos || 'Quispe Ríos'} ·{' '}
           {usuarioActual?.carrera || 'Administración'},{' '}
@@ -155,27 +158,14 @@ export default function MiCuentaPage() {
       )}
 
       {/* Grilla de 3 columnas — Vista 1.5 */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: '1.1fr 1.1fr 0.85fr',
-          gap: '24px',
-          alignItems: 'start'
-        }}
-      >
+      <div className="cue-columnas">
         {/* Columna 1: Datos personales */}
         <form
           onSubmit={handleGuardarDatos}
-          className="card-surface"
-          style={{ padding: '26px 28px' }}
+          className="card-surface cue-tarjeta"
           noValidate
         >
-          <h2
-            className="title-section"
-            style={{ color: 'var(--color-primary)', marginBottom: '18px' }}
-          >
-            Datos personales
-          </h2>
+          <h2 className="title-section cue-titulo-seccion">Datos personales</h2>
 
           <div className="form-group">
             <label className="label-upper" htmlFor="cuenta-nombres">
@@ -243,7 +233,7 @@ export default function MiCuentaPage() {
             )}
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div className="cue-acciones">
             <button type="submit" className="btn btn-primary">
               Guardar cambios
             </button>
@@ -258,17 +248,13 @@ export default function MiCuentaPage() {
         </form>
 
         {/* Columna 2: Cambiar contraseña + Punto de encuentro preferido */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+        <div className="cue-pila">
           <form
             onSubmit={handleActualizarPassword}
-            className="card-surface"
-            style={{ padding: '26px 28px' }}
+            className="card-surface cue-tarjeta"
             noValidate
           >
-            <h2
-              className="title-section"
-              style={{ color: 'var(--color-primary)', marginBottom: '18px' }}
-            >
+            <h2 className="title-section cue-titulo-seccion">
               Cambiar contraseña
             </h2>
 
@@ -333,28 +319,21 @@ export default function MiCuentaPage() {
               )}
             </div>
 
-            <button
-              type="submit"
-              className="btn btn-primary"
-              style={{ width: '100%' }}
-            >
+            <button type="submit" className="btn btn-primary cue-btn-bloque">
               Actualizar contraseña
             </button>
           </form>
 
           {/* Punto de encuentro preferido */}
-          <div className="card-surface" style={{ padding: '24px 28px' }}>
-            <h2
-              className="title-section"
-              style={{ color: 'var(--color-primary)', marginBottom: '6px' }}
-            >
+          <div className="card-surface cue-tarjeta">
+            <h2 className="title-section cue-titulo-punto">
               Punto de encuentro preferido
             </h2>
-            <p className="text-aux" style={{ marginBottom: '16px' }}>
+            <p className="text-aux cue-nota-punto">
               Se propondrá por defecto al coordinar tus entregas.
             </p>
 
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+            <div className="cue-chips">
               {PUNTOS_ENCUENTRO.map((punto) => (
                 <button
                   key={punto}
@@ -372,30 +351,16 @@ export default function MiCuentaPage() {
         </div>
 
         {/* Columna 3: Tarjeta de perfil, Actividad del ciclo y Cerrar sesión */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          <div
-            className="card-surface"
-            style={{ padding: '28px 24px', textAlign: 'center' }}
-          >
-            <div
-              className="striped-placeholder"
-              style={{
-                width: '96px',
-                height: '96px',
-                borderRadius: '50%',
-                margin: '0 auto 14px',
-                fontWeight: 700,
-                fontSize: '22px',
-                color: 'var(--color-primary)'
-              }}
-            >
+        <div className="cue-pila">
+          <div className="card-surface cue-tarjeta-perfil">
+            <div className="striped-placeholder cue-avatar-grande">
               {iniciales}
             </div>
-            <h3 className="subtitle" style={{ marginBottom: '2px' }}>
+            <h3 className="subtitle cue-nombre-perfil">
               {usuarioActual?.nombres || 'Rosa María'}{' '}
               {usuarioActual?.apellidos || 'Quispe Ríos'}
             </h3>
-            <p className="text-aux" style={{ marginBottom: '16px' }}>
+            <p className="text-aux cue-resumen-perfil">
               Reputación {usuarioActual?.reputacion || 4.8} ·{' '}
               {usuarioActual?.acuerdosCerrados ?? 12} acuerdos cerrados
             </p>
@@ -414,60 +379,27 @@ export default function MiCuentaPage() {
             </button>
           </div>
 
-          <div className="card-surface" style={{ padding: '22px 24px' }}>
-            <span className="label-upper" style={{ marginBottom: '14px' }}>
+          <div className="card-surface cue-tarjeta-compacta">
+            <span className="label-upper cue-label-actividad">
               Actividad del ciclo
             </span>
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                padding: '8px 0',
-                borderBottom: '1px solid var(--color-border)',
-                fontSize: '14px'
-              }}
-            >
+            <div className="cue-fila-metrica">
               <span className="text-aux">Avisos publicados</span>
               <strong>{usuarioActual?.avisosPublicadosCount ?? 6}</strong>
             </div>
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                padding: '8px 0',
-                borderBottom: '1px solid var(--color-border)',
-                fontSize: '14px'
-              }}
-            >
+            <div className="cue-fila-metrica">
               <span className="text-aux">Acuerdos cerrados</span>
               <strong>{usuarioActual?.acuerdosCerrados ?? 12}</strong>
             </div>
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                paddingTop: '8px',
-                fontSize: '14px'
-              }}
-            >
+            <div className="cue-fila-metrica-ultima">
               <span className="text-aux">Entregas confirmadas</span>
               <strong>{usuarioActual?.entregasConfirmadasPct ?? 100} %</strong>
             </div>
           </div>
 
-          <div
-            className="card-surface"
-            style={{
-              padding: '20px 24px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between'
-            }}
-          >
+          <div className="card-surface cue-cerrar-card">
             <div>
-              <strong style={{ display: 'block', fontSize: '15px' }}>
-                Cerrar sesión
-              </strong>
+              <strong className="cue-cerrar-titulo">Cerrar sesión</strong>
               <span className="text-aux">En este dispositivo.</span>
             </div>
             <button

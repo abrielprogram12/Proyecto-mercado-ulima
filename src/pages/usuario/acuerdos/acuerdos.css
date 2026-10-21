@@ -1,0 +1,79 @@
+/* HU-5 · Acuerdos de entrega — usa las variables de index.css y las clases base de App.css */
+
+.acu-encabezado { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; }
+.acu-encabezado-titulo { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.acu-columnas { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+.acu-pila { display: flex; flex-direction: column; gap: 20px; }
+.acu-tarjeta { padding: 22px 24px; }
+.acu-tarjeta > .title-section, .acu-tarjeta > .label-upper { margin-bottom: 12px; }
+.acu-fuerte { font-weight: 600; color: var(--color-text); }
+
+/* Filtros */
+.acu-filtros { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.acu-filtros .form-select { width: auto; padding: 8px 12px; font-size: 14px; }
+.acu-seccion { margin-top: 24px; }
+.acu-lista { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+
+/* Fila de acuerdo */
+.acu-fila { display: flex; align-items: center; gap: 16px; padding: 14px 18px; flex-wrap: wrap; }
+.acu-fila-cerrada { background-color: #FBF8F5; }
+.acu-fila-cerrada .acu-fila-titulo, .acu-fila-cerrada .acu-fila-monto { color: var(--color-text-secondary); }
+.acu-fila-miniatura { width: 64px; height: 48px; border-radius: 8px; flex: none; }
+.acu-fila-info { flex: 1 1 260px; min-width: 0; }
+.acu-fila-titulo { display: block; font-size: 16px; line-height: 24px; font-weight: 600; color: var(--color-text); }
+.acu-fila-titulo:hover { color: var(--color-primary); }
+.acu-fila-monto { font-size: 18px; white-space: nowrap; }
+
+/* Tarjeta de trato cerrado (5.1) */
+.acu-centrado { max-width: 820px; margin: 0 auto; }
+.acu-exito { padding: 36px 40px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.acu-check { width: 60px; height: 60px; border-radius: 50%; background-color: var(--color-success); color: #fff; font-size: 30px; display: flex; align-items: center; justify-content: center; }
+.acu-exito .text-aux { max-width: 56ch; font-size: 15px; line-height: 22px; }
+.acu-resumen-aviso { width: 100%; display: flex; align-items: center; gap: 16px; padding: 14px; border: 1px solid var(--color-border); border-radius: var(--radius-btn); text-align: left; flex-wrap: wrap; }
+.acu-resumen-aviso .acu-miniatura { width: 88px; height: 66px; border-radius: 8px; flex: none; }
+.acu-resumen-texto { flex: 1 1 220px; }
+.acu-resumen-monto { text-align: right; }
+.acu-resumen-monto strong { display: block; font-size: 24px; line-height: 30px; }
+.acu-trio { width: 100%; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; text-align: left; }
+.acu-dato { border: 1px solid var(--color-border); border-radius: var(--radius-btn); padding: 14px; }
+.acu-codigo-acuerdo { font-size: 22px; line-height: 28px; font-weight: 700; font-family: ui-monospace, Menlo, Consolas, monospace; }
+.acu-acciones { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-top: 4px; }
+
+/* Datos del encuentro y partes */
+.acu-datos-encuentro { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-bottom: 16px; }
+.acu-partes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; padding-top: 16px; border-top: 1px solid var(--color-border); }
+.acu-parte { display: flex; align-items: center; gap: 12px; }
+.acu-avatar { width: 40px; height: 40px; border-radius: 50%; background-color: var(--color-primary-soft); color: var(--color-primary-hover); font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex: none; }
+.acu-aviso-card { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+.acu-aviso-card .acu-miniatura { width: 112px; height: 84px; border-radius: 8px; flex: none; }
+
+/* Código de entrega */
+.acu-codigo-entrega { font-size: 34px; line-height: 42px; font-weight: 700; letter-spacing: 3px; color: var(--color-primary-hover); font-family: ui-monospace, Menlo, Consolas, monospace; margin-bottom: 8px; }
+.acu-confirmaciones { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+.acu-confirmaciones .confirmado { color: var(--color-success); font-weight: 600; }
+.acu-botones-columna { display: flex; flex-direction: column; gap: 10px; }
+.acu-botones-columna .btn { width: 100%; }
+.btn-peligro-borde { background-color: var(--color-surface); color: var(--color-error); border-color: var(--color-error); }
+.btn-peligro-borde:hover:not(:disabled) { background-color: var(--color-error-bg); }
+.acu-cita { font-style: italic; color: var(--color-text-secondary); margin: 8px 0 12px; }
+
+/* Selección de punto y franja (5.2) */
+.acu-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.acu-chips .chip-selectable { font-family: inherit; }
+.acu-chips .chip-selectable:focus-visible, .acu-fila .btn:focus-visible { outline: 2px solid var(--color-text); outline-offset: 2px; }
+.acu-formulario .form-group { margin-bottom: 18px; }
+
+/* Trazabilidad */
+.acu-traza { list-style: none; display: flex; flex-direction: column; gap: 14px; border-left: 2px solid var(--color-border); margin-left: 5px; padding-left: 18px; }
+.acu-traza-item { position: relative; display: flex; flex-direction: column; gap: 2px; }
+.acu-traza-item::before { content: ''; position: absolute; left: -25px; top: 5px; width: 12px; height: 12px; border-radius: 50%; background-color: var(--color-text-secondary); border: 2px solid var(--color-surface); }
+.acu-traza-green::before { background-color: var(--color-success); }
+.acu-traza-blue::before { background-color: var(--color-info); }
+.acu-traza-orange::before { background-color: var(--color-warning); }
+.acu-traza-red::before { background-color: var(--color-error); }
+
+@media (max-width: 960px) {
+  .acu-columnas, .acu-trio, .acu-datos-encuentro, .acu-partes { grid-template-columns: 1fr; }
+  .acu-exito { padding: 24px 18px; }
+  .acu-resumen-monto { text-align: left; }
+}

@@ -52,6 +52,187 @@ export function AvisoProvider({ children }) {
     return avisos.filter((a) => a.estado === 'Publicado');
   };
 
+  const obtenerAvisosPorVendedor = (vendedorId) => {
+    return avisos.filter((a) => a.vendedorId === vendedorId);
+  };
+
+  /**
+   * Crear nuevo aviso como Publicado o Borrador (HU-2 · Vistas 2.3 y 2.4)
+   */
+  const crearAviso = (datos, estadoInicial = 'Publicado') => {
+    const fechaHoy = '17/10/2026';
+    const nuevo = {
+      id: `av-${Date.now()}`,
+      titulo: (datos.titulo || 'Aviso sin título').trim(),
+      descripcion: (datos.descripcion || '').trim(),
+      categoria: datos.categoria || 'Libros de texto',
+      curso: datos.curso || 'Cálculo I',
+      condicion: datos.condicion || 'Muy buen estado',
+      precio: Number(datos.precio || 0),
+      aceptaOfertas: Boolean(datos.aceptaOfertas),
+      montoMinimo: datos.aceptaOfertas
+        ? Number(datos.montoMinimo || datos.precio || 0)
+        : Number(datos.precio || 0),
+      estado: estadoInicial,
+      fechaPublicacion: estadoInicial === 'Borrador' ? 'Sin publicar' : fechaHoy,
+      vendedorId: datos.vendedorId || 'u-1',
+      vendedorNombre: datos.vendedorNombre || 'Rosa María Quispe Ríos',
+      fotos: Array.isArray(datos.fotos)
+        ? datos.fotos.map((f, idx) => ({ ...f, principal: idx === 0 }))
+        : [],
+      ofertasCount: 0
+    };
+
+    setAvisos((prev) => [nuevo, ...prev]);
+    return {
+      ok: true,
+      aviso: nuevo,
+      mensaje:
+        estadoInicial === 'Borrador'
+          ? 'Borrador guardado. Puedes completarlo y publicarlo cuando quieras.'
+          : 'Éxito. Tu aviso se publicó correctamente.'
+    };
+  };
+
+  /**
+   * Editar aviso existente (HU-2)
+   */
+  const editarAviso = (id, cambios) => {
+    let avisoActualizado = null;
+    setAvisos((prev) =>
+      prev.map((a) => {
+        if (a.id !== id) return a;
+        const nuevoEstado = cambios.estado || a.estado;
+        const fechaPublicacion =
+          a.estado === 'Borrador' && nuevoEstado === 'Publicado'
+            ? '17/10/2026'
+            : a.fechaPublicacion;
+        avisoActualizado = {
+          ...a,
+          ...cambios,
+          precio:
+            cambios.precio !== undefined ? Number(cambios.precio) : a.precio,
+          montoMinimo:
+            cambios.montoMinimo !== undefined
+              ? Number(cambios.montoMinimo)
+              : a.montoMinimo,
+          fechaPublicacion
+        };
+        return avisoActualizado;
+      })
+    );
+
+    return {
+      ok: Boolean(avisoActualizado),
+      aviso: avisoActualizado,
+      mensaje: 'Éxito. Los cambios del aviso se guardaron correctamente.'
+    };
+  };
+
+  /**
+   * Cambiar estado del aviso: Publicado, Pausado, Vendido, Borrador (HU-2 · Vista 2.6)
+   */
+  const cambiarEstadoAviso = (id, nuevoEstado) => {
+    let avisoObjetivo = null;
+    setAvisos((prev) =>
+      prev.map((a) => {
+        if (a.id !== id) return a;
+        avisoObjetivo = {
+          ...a,
+          estado: nuevoEstado,
+          fechaPublicacion:
+            a.fechaPublicacion === 'Sin publicar' && nuevoEstado === 'Publicado'
+              ? '17/10/2026'
+              : a.fechaPublicacion,
+          fechaVenta: nuevoEstado === 'Vendido' ? '17/10/2026' : a.fechaVenta
+        };
+        return avisoObjetivo;
+      })
+    );
+
+    const mensajes = {
+      Vendido: 'Éxito. El aviso se marcó como vendido y salió del catálogo.',
+      Pausado: 'Aviso pausado temporalmente. No aparecerá en las búsquedas hasta que lo reactives.',
+      Publicado: 'Éxito. El aviso se reactivó y volvió al catálogo.'
+    };
+
+    return {
+      ok: Boolean(avisoObjetivo),
+      aviso: avisoObjetivo,
+      mensaje: mensajes[nuevoEstado] || `El estado cambió a ${nuevoEstado}.`
+    };
+  };
+
+  /**
+   * Duplicar un aviso existente como nuevo borrador (HU-2)
+   */
+  const duplicarAvisoComoBorrador = (id) => {
+    const original = obtenerAvisoPorId(id);
+    if (!original) {
+      return { ok: false, error: 'No se encontró el aviso a duplicar.' };
+    }
+
+    const copia = {
+      ...original,
+      id: `av-${Date.now()}`,
+      titulo: `${original.titulo} (Copia)`,
+      estado: 'Borrador',
+      fechaPublicacion: 'Sin publicar',
+      ofertasCount: 0
+    };
+
+    setAvisos((prev) => [copia, ...prev]);
+    return {
+      ok: true,
+      aviso: copia,
+      mensaje: `Éxito. Se creó un nuevo borrador a partir de «${original.titulo}».`
+    };
+  };
+
+  /**
+   * Eliminar aviso (HU-2 · Vista 2.6)
+   */
+  const eliminarAviso = (id) => {
+    const original = obtenerAvisoPorId(id);
+    if (!original) {
+      return { ok: false, error: 'El aviso no existe.' };
+    }
+    const ofertasActivas = Number(original.ofertasCount || 0);
+    setAvisos((prev) => prev.filter((a) => a.id !== id));
+
+    return {
+      ok: true,
+      ofertasRechazadas: ofertasActivas,
+      mensaje:
+        ofertasActivas > 0
+          ? `Aviso eliminado. Se rechazaron ${ofertasActivas} ofertas activas y se notificó a los compradores.`
+          : `Aviso eliminado. «${original.titulo}» fue retirado de tus publicaciones.`
+    };
+  };
+
+  /**
+   * Guardar y reordenar fotografías del aviso (HU-2 · Vista 2.5)
+   */
+  const actualizarFotosAviso = (id, nuevasFotos = []) => {
+    const normalizadas = nuevasFotos.slice(0, 6).map((f, idx) => ({
+      ...f,
+      principal: idx === 0
+    }));
+
+    setAvisos((prev) =>
+      prev.map((a) => (a.id === id ? { ...a, fotos: normalizadas } : a))
+    );
+
+    return {
+      ok: true,
+      fotos: normalizadas,
+      mensaje: `Éxito. Se guardaron ${normalizadas.length} fotografías. La primera será la portada del aviso.`
+    };
+  };
+
+  /**
+   * Gestión de favoritos por usuario (HU-3)
+   */
   const toggleFavorito = (usuarioId, avisoId) => {
     if (!usuarioId) return false;
     setFavoritosPorUsuario((prev) => {
@@ -78,6 +259,13 @@ export function AvisoProvider({ children }) {
         favoritosPorUsuario,
         obtenerAvisoPorId,
         obtenerAvisosPublicados,
+        obtenerAvisosPorVendedor,
+        crearAviso,
+        editarAviso,
+        cambiarEstadoAviso,
+        duplicarAvisoComoBorrador,
+        eliminarAviso,
+        actualizarFotosAviso,
         toggleFavorito,
         esFavorito
       }}

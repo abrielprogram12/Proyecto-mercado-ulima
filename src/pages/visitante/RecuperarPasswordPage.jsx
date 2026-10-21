@@ -2,7 +2,13 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth, validarPasswordSegura } from '../../context/AuthContext';
 import Notificacion from '../../components/Notificacion/Notificacion';
+import { PASOS_RECUPERACION, formatearTiempoMMSS } from './visitanteUtils';
+import './visitante.css';
 
+/**
+ * MÓDULO: Visitante y Acceso (Integrante 1 · HU-1)
+ * Vista 1.4 y 1.8 — Flujo de 3 pasos para recuperar contraseña
+ */
 export default function RecuperarPasswordPage() {
   const { solicitarEnlaceRecuperacion, restablecerPassword } = useAuth();
   const navigate = useNavigate();
@@ -28,12 +34,6 @@ export default function RecuperarPasswordPage() {
     }, 1000);
     return () => clearInterval(timer);
   }, [paso, segundosRestantes]);
-
-  const formatearTiempo = (totalSeg) => {
-    const min = String(Math.floor(totalSeg / 60)).padStart(2, '0');
-    const seg = String(totalSeg % 60).padStart(2, '0');
-    return `${min}:${seg}`;
-  };
 
   const handleEnviarEnlace = (e) => {
     e.preventDefault();
@@ -83,35 +83,16 @@ export default function RecuperarPasswordPage() {
   const infoSeguridad = validarPasswordSegura(nuevaPassword);
 
   return (
-    <div className="page-container" style={{ maxWidth: '580px' }}>
+    <div className="page-container vis-contenedor-recuperar">
       {/* Barra de progreso de 3 pasos — Vista 1.4 */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr 1fr',
-          gap: '12px',
-          marginBottom: '24px'
-        }}
-      >
-        {[
-          { num: 1, texto: 'Paso 1 · Correo' },
-          { num: 2, texto: 'Paso 2 · Enlace' },
-          { num: 3, texto: 'Paso 3 · Nueva contraseña' }
-        ].map((item) => {
-          const activo = paso === item.num;
-          const completado = paso > item.num;
+      <div className="vis-pasos-barra">
+        {PASOS_RECUPERACION.map((item) => {
+          const estadoClase =
+            paso === item.num ? 'activo' : paso > item.num ? 'completado' : '';
           return (
             <div
               key={item.num}
-              style={{
-                borderTop: `3px solid ${
-                  activo || completado ? 'var(--color-primary)' : 'var(--color-border)'
-                }`,
-                paddingTop: '8px',
-                fontSize: '12px',
-                fontWeight: activo ? 700 : 400,
-                color: activo ? 'var(--color-primary)' : 'var(--color-text-secondary)'
-              }}
+              className={`vis-paso-indicador ${estadoClase}`}
             >
               {item.texto}
             </div>
@@ -128,14 +109,12 @@ export default function RecuperarPasswordPage() {
         />
       )}
 
-      <div className="card-surface" style={{ padding: '40px 38px' }}>
+      <div className="card-surface vis-tarjeta-amplia">
         {/* PASO 1 · Correo (Vista 1.4) */}
         {paso === 1 && (
           <form onSubmit={handleEnviarEnlace} noValidate>
-            <h1 className="title-screen" style={{ marginBottom: '10px' }}>
-              Ingresa tu correo institucional
-            </h1>
-            <p className="text-aux" style={{ fontSize: '14px', marginBottom: '24px' }}>
+            <h1 className="title-screen">Ingresa tu correo institucional</h1>
+            <p className="text-aux vis-subtitulo-form">
               Te enviaremos un enlace para crear una nueva contraseña. El enlace vence
               en 30 minutos.
             </p>
@@ -155,15 +134,11 @@ export default function RecuperarPasswordPage() {
               {errorCorreo && <span className="field-error">{errorCorreo}</span>}
             </div>
 
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                marginTop: '28px'
-              }}
-            >
-              <Link to="/login" className="btn btn-tertiary" style={{ paddingLeft: 0 }}>
+            <div className="vis-acciones-entre">
+              <Link
+                to="/login"
+                className="btn btn-tertiary vis-btn-sin-padding-izq"
+              >
                 Volver al inicio de sesión
               </Link>
               <button type="submit" className="btn btn-primary">
@@ -176,52 +151,25 @@ export default function RecuperarPasswordPage() {
         {/* PASO 2 · Revisa tu correo (Vista 1.8) */}
         {paso === 2 && (
           <div>
-            <div
-              style={{
-                width: '48px',
-                height: '48px',
-                borderRadius: '50%',
-                backgroundColor: 'var(--color-info-bg)',
-                color: 'var(--color-info)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '20px',
-                marginBottom: '16px'
-              }}
-            >
-              ✉
-            </div>
+            <div className="vis-circulo-correo">✉</div>
 
-            <h1 className="title-screen" style={{ marginBottom: '8px' }}>
-              Revisa tu correo
-            </h1>
-            <p className="text-aux" style={{ fontSize: '14px', marginBottom: '20px' }}>
+            <h1 className="title-screen">Revisa tu correo</h1>
+            <p className="text-aux vis-subtitulo-form">
               Enviamos el enlace a{' '}
-              <strong style={{ color: 'var(--color-text)' }}>{correo}</strong>. Si no
-              lo ves, revisa la carpeta de correo no deseado.
+              <strong className="vis-texto-resaltado">{correo}</strong>. Si no lo ves,
+              revisa la carpeta de correo no deseado.
             </p>
 
-            <div
-              style={{
-                backgroundColor: 'var(--color-primary-soft)',
-                padding: '12px 16px',
-                borderRadius: 'var(--radius-btn)',
-                fontSize: '14px',
-                color: 'var(--color-text)',
-                marginBottom: '24px'
-              }}
-            >
+            <div className="vis-caja-reenvio">
               {segundosRestantes > 0 ? (
                 <>
                   Puedes reenviar el enlace en{' '}
-                  <strong>{formatearTiempo(segundosRestantes)}</strong>.
+                  <strong>{formatearTiempoMMSS(segundosRestantes)}</strong>.
                 </>
               ) : (
                 <button
                   type="button"
-                  className="btn btn-tertiary"
-                  style={{ padding: 0 }}
+                  className="btn btn-tertiary vis-btn-sin-padding-izq"
                   onClick={() => setSegundosRestantes(161)}
                 >
                   Reenviar enlace ahora
@@ -229,19 +177,10 @@ export default function RecuperarPasswordPage() {
               )}
             </div>
 
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                paddingTop: '14px',
-                borderTop: '1px dashed var(--color-border)'
-              }}
-            >
+            <div className="vis-pie-simulacion">
               <button
                 type="button"
-                className="btn btn-tertiary"
-                style={{ paddingLeft: 0 }}
+                className="btn btn-tertiary vis-btn-sin-padding-izq"
                 onClick={() =>
                   setNotificacion({
                     tipo: 'error',
@@ -269,7 +208,7 @@ export default function RecuperarPasswordPage() {
         {/* PASO 3 · Crea tu nueva contraseña (Vista 1.8) */}
         {paso === 3 && (
           <form onSubmit={handleGuardarPassword} noValidate>
-            <h1 className="title-screen" style={{ marginBottom: '20px' }}>
+            <h1 className="title-screen vis-espacio-abajo">
               Crea tu nueva contraseña
             </h1>
 
@@ -278,61 +217,33 @@ export default function RecuperarPasswordPage() {
                 Nueva contraseña
               </label>
               <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  border: `1px solid ${
-                    errorPass ? 'var(--color-error)' : 'var(--color-border)'
-                  }`,
-                  borderRadius: 'var(--radius-input)',
-                  overflow: 'hidden',
-                  marginBottom: '8px'
-                }}
+                className={`vis-pass-grupo ${errorPass ? 'con-error' : ''}`}
               >
                 <input
                   id="rec-nueva-pass"
                   type={mostrarNueva ? 'text' : 'password'}
                   value={nuevaPassword}
                   onChange={(e) => setNuevaPassword(e.target.value)}
-                  style={{
-                    flex: 1,
-                    padding: '12px 14px',
-                    border: 'none',
-                    outline: 'none'
-                  }}
+                  className="vis-pass-input"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setMostrarNueva((p) => !p)}
-                  style={{
-                    padding: '0 14px',
-                    border: 'none',
-                    background: 'transparent',
-                    color: 'var(--color-primary)',
-                    fontWeight: 600,
-                    fontSize: '13px',
-                    cursor: 'pointer'
-                  }}
+                  className="vis-pass-toggle"
                 >
                   {mostrarNueva ? 'Ocultar' : 'Mostrar'}
                 </button>
               </div>
 
               {/* Barra de fortaleza de 4 segmentos (Vista 1.8) */}
-              <div style={{ display: 'flex', gap: '6px', marginBottom: '6px' }}>
+              <div className="vis-fortaleza-barra">
                 {[1, 2, 3, 4].map((seg) => (
                   <div
                     key={seg}
-                    style={{
-                      flex: 1,
-                      height: '4px',
-                      borderRadius: '2px',
-                      backgroundColor:
-                        infoSeguridad.puntaje >= seg
-                          ? 'var(--color-success)'
-                          : 'var(--color-border)'
-                    }}
+                    className={`vis-fortaleza-segmento ${
+                      infoSeguridad.puntaje >= seg ? 'activo' : ''
+                    }`}
                   />
                 ))}
               </div>
@@ -356,11 +267,7 @@ export default function RecuperarPasswordPage() {
               {errorPass && <span className="field-error">{errorPass}</span>}
             </div>
 
-            <button
-              type="submit"
-              className="btn btn-primary"
-              style={{ width: '100%', marginTop: '8px' }}
-            >
+            <button type="submit" className="btn btn-primary vis-btn-bloque">
               Guardar contraseña
             </button>
           </form>
@@ -368,10 +275,7 @@ export default function RecuperarPasswordPage() {
       </div>
 
       {paso === 1 && (
-        <p
-          className="text-aux"
-          style={{ textAlign: 'center', marginTop: '24px' }}
-        >
+        <p className="text-aux vis-nota-pie">
           Si no recibes el correo en 5 minutos, revisa la carpeta de correo no deseado
           o escribe a <a href="mailto:tablon@ulima.edu.pe">tablon@ulima.edu.pe</a>.
         </p>
