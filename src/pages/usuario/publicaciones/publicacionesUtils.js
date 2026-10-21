@@ -1,5 +1,6 @@
 /**
  * Utilidades y constantes del módulo de Publicaciones (Integrante 2 · HU-2)
+ * Vistas 2.1 a 2.6 — Gestión de avisos, formulario y fotografías
  */
 
 export const PESTANAS_MIS_AVISOS = [
