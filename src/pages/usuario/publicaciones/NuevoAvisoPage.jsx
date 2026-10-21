@@ -9,7 +9,16 @@ import {
 } from '../../../data/contratoDatos';
 import TarjetaAviso from '../../../components/TarjetaAviso/TarjetaAviso';
 import Notificacion from '../../../components/Notificacion/Notificacion';
+import {
+  FOTOS_INICIALES_FORMULARIO,
+  validarFormularioAviso
+} from './publicacionesUtils';
+import './publicaciones.css';
 
+/**
+ * MÓDULO: Publicaciones (Integrante 2 · HU-2)
+ * Vistas 2.3 y 2.4 — Formulario crear/editar aviso con vista previa y validación
+ */
 export default function NuevoAvisoPage() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -41,11 +50,7 @@ export default function NuevoAvisoPage() {
     avisoExistente?.montoMinimo ?? 70.0
   );
   const [fotos, setFotos] = useState(
-    avisoExistente?.fotos || [
-      { id: 'f-new-1', etiqueta: 'fotografía principal', principal: true },
-      { id: 'f-new-2', etiqueta: 'lomo del libro', principal: false },
-      { id: 'f-new-3', etiqueta: 'hojas interiores', principal: false }
-    ]
+    avisoExistente?.fotos || FOTOS_INICIALES_FORMULARIO
   );
 
   const [errores, setErrores] = useState({});
@@ -64,30 +69,6 @@ export default function NuevoAvisoPage() {
       setFotos(avisoExistente.fotos || []);
     }
   }, [avisoExistente]);
-
-  const validarParaPublicar = () => {
-    const errs = {};
-
-    if (!titulo || titulo.trim().length < 15) {
-      errs.titulo =
-        'El título debe tener al menos 15 caracteres e incluir autor o modelo.';
-    }
-    if (!categoria) {
-      errs.categoria = 'Este campo es obligatorio.';
-    }
-    if (!precio || Number(precio) <= 0) {
-      errs.precio = 'Ingresa un precio válido mayor a S/ 0.00.';
-    }
-    if (aceptaOfertas && Number(montoMinimo) > Number(precio)) {
-      errs.montoMinimo = 'El mínimo no puede ser mayor que el precio pedido.';
-    }
-    if (!fotos || fotos.length === 0) {
-      errs.fotos = 'Necesitas al menos una fotografía para publicar.';
-    }
-
-    setErrores(errs);
-    return errs;
-  };
 
   const handleAgregarFoto = () => {
     if (fotos.length >= 6) return;
@@ -116,7 +97,15 @@ export default function NuevoAvisoPage() {
 
   const handlePublicar = (e) => {
     e.preventDefault();
-    const errs = validarParaPublicar();
+    const errs = validarFormularioAviso({
+      titulo,
+      categoria,
+      precio,
+      aceptaOfertas,
+      montoMinimo,
+      fotos
+    });
+    setErrores(errs);
     if (Object.keys(errs).length > 0) {
       return;
     }
@@ -204,15 +193,8 @@ export default function NuevoAvisoPage() {
 
   return (
     <div className="page-container">
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '8px'
-        }}
-      >
-        <div className="breadcrumbs" style={{ marginBottom: 0 }}>
+      <div className="pub-barra-superior">
+        <div className="breadcrumbs">
           <Link to="/mis-publicaciones">Mis publicaciones</Link>
           <span>›</span>
           <span>{modoEdicion ? 'Editar aviso' : 'Nuevo aviso'}</span>
@@ -227,7 +209,7 @@ export default function NuevoAvisoPage() {
         </button>
       </div>
 
-      <h1 className="title-screen" style={{ marginBottom: '20px' }}>
+      <h1 className="title-screen pub-titulo-pagina">
         {modoEdicion ? 'Editar aviso' : 'Nuevo aviso'}
       </h1>
 
@@ -248,25 +230,11 @@ export default function NuevoAvisoPage() {
       )}
 
       {/* Grilla de 3 columnas — Vistas 2.3 y 2.4 */}
-      <form
-        onSubmit={handlePublicar}
-        noValidate
-        style={{
-          display: 'grid',
-          gridTemplateColumns: '1.2fr 1.1fr 0.9fr',
-          gap: '24px',
-          alignItems: 'start'
-        }}
-      >
+      <form onSubmit={handlePublicar} noValidate className="pub-form-columnas">
         {/* Columna 1: 1 · Producto + 2 · Condición */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          <div className="card-surface" style={{ padding: '24px 26px' }}>
-            <h2
-              className="title-section"
-              style={{ color: 'var(--color-primary)', marginBottom: '16px' }}
-            >
-              1 · Producto
-            </h2>
+        <div className="pub-pila">
+          <div className="card-surface pub-tarjeta">
+            <h2 className="title-section pub-titulo-seccion">1 · Producto</h2>
 
             <div className="form-group">
               <label className="label-upper">Título del aviso</label>
@@ -297,13 +265,7 @@ export default function NuevoAvisoPage() {
               />
             </div>
 
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: '1fr 1fr',
-                gap: '14px'
-              }}
-            >
+            <div className="pub-grid-dos">
               <div>
                 <label className="label-upper">Categoría</label>
                 <select
@@ -343,23 +305,10 @@ export default function NuevoAvisoPage() {
             </div>
           </div>
 
-          <div className="card-surface" style={{ padding: '24px 26px' }}>
-            <h2
-              className="title-section"
-              style={{ color: 'var(--color-primary)', marginBottom: '12px' }}
-            >
-              2 · Condición
-            </h2>
+          <div className="card-surface pub-tarjeta">
+            <h2 className="title-section pub-titulo-condicion">2 · Condición</h2>
             <span className="label-upper">Estado del producto</span>
-            <div
-              style={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                gap: '8px',
-                marginTop: '8px',
-                marginBottom: '10px'
-              }}
-            >
+            <div className="pub-chips-condicion">
               {CONDICIONES_PRODUCTO.map((c) => (
                 <button
                   key={c}
@@ -380,14 +329,9 @@ export default function NuevoAvisoPage() {
         </div>
 
         {/* Columna 2: 3 · Precio + 4 · Fotografías */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          <div className="card-surface" style={{ padding: '24px 26px' }}>
-            <h2
-              className="title-section"
-              style={{ color: 'var(--color-primary)', marginBottom: '16px' }}
-            >
-              3 · Precio
-            </h2>
+        <div className="pub-pila">
+          <div className="card-surface pub-tarjeta">
+            <h2 className="title-section pub-titulo-seccion">3 · Precio</h2>
 
             <div className="form-group">
               <label className="label-upper">Precio pedido (S/)</label>
@@ -404,33 +348,20 @@ export default function NuevoAvisoPage() {
               </span>
             </div>
 
-            <div className="form-group" style={{ marginBottom: '14px' }}>
-              <label
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '10px',
-                  cursor: 'pointer',
-                  fontWeight: 600,
-                  fontSize: '14px'
-                }}
-              >
+            <div className="form-group pub-grupo-check">
+              <label className="pub-check-label">
                 <input
                   type="checkbox"
                   checked={aceptaOfertas}
                   onChange={(e) => setAceptaOfertas(e.target.checked)}
-                  style={{
-                    width: '18px',
-                    height: '18px',
-                    accentColor: 'var(--color-primary)'
-                  }}
+                  className="pub-check-input"
                 />
                 <span>Acepto ofertas por un monto menor</span>
               </label>
             </div>
 
             {aceptaOfertas && (
-              <div className="form-group" style={{ marginBottom: 0 }}>
+              <div className="form-group pub-grupo-sin-margen">
                 <label className="label-upper">
                   Monto mínimo que aceptarás (S/)
                 </label>
@@ -451,31 +382,20 @@ export default function NuevoAvisoPage() {
             )}
           </div>
 
-          <div className="card-surface" style={{ padding: '24px 26px' }}>
-            <h2
-              className="title-section"
-              style={{ color: 'var(--color-primary)', marginBottom: '16px' }}
-            >
-              4 · Fotografías
-            </h2>
+          <div className="card-surface pub-tarjeta">
+            <h2 className="title-section pub-titulo-seccion">4 · Fotografías</h2>
 
             {fotos.length === 0 ? (
               <div
-                style={{
-                  border: `1px dashed ${
-                    errores.fotos ? 'var(--color-error)' : 'var(--color-primary)'
-                  }`,
-                  backgroundColor: 'var(--color-primary-soft)',
-                  borderRadius: 'var(--radius-btn)',
-                  padding: '32px 20px',
-                  textAlign: 'center'
-                }}
+                className={`pub-dropzone-vacia ${
+                  errores.fotos ? 'con-error' : ''
+                }`}
               >
-                <p style={{ fontWeight: 600, marginBottom: '6px' }}>
+                <p className="pub-dropzone-titulo">
                   Arrastra tus fotografías aquí o selecciónalas
                 </p>
                 {errores.fotos && (
-                  <span className="field-error" style={{ marginBottom: '10px' }}>
+                  <span className="field-error pub-error-bloque">
                     {errores.fotos}
                   </span>
                 )}
@@ -489,60 +409,23 @@ export default function NuevoAvisoPage() {
               </div>
             ) : (
               <>
-                <div
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns: '1fr 1fr',
-                    gap: '12px',
-                    marginBottom: '12px'
-                  }}
-                >
+                <div className="pub-miniaturas-grid">
                   {fotos.map((f, idx) => (
                     <div
                       key={f.id}
-                      className="striped-placeholder"
-                      style={{
-                        position: 'relative',
-                        height: '100px',
-                        borderRadius: 'var(--radius-btn)',
-                        border:
-                          idx === 0
-                            ? '2px solid var(--color-primary)'
-                            : '1px solid var(--color-border)'
-                      }}
+                      className={`striped-placeholder pub-miniatura-item ${
+                        idx === 0 ? 'es-principal' : ''
+                      }`}
                     >
                       {idx === 0 && (
-                        <span
-                          style={{
-                            position: 'absolute',
-                            bottom: '8px',
-                            left: '8px',
-                            backgroundColor: 'var(--color-primary)',
-                            color: '#FFFFFF',
-                            fontSize: '11px',
-                            fontWeight: 700,
-                            padding: '2px 8px',
-                            borderRadius: '999px'
-                          }}
-                        >
+                        <span className="pub-badge-principal-abajo">
                           Principal
                         </span>
                       )}
                       <button
                         type="button"
                         onClick={() => handleQuitarFoto(f.id)}
-                        style={{
-                          position: 'absolute',
-                          top: '6px',
-                          right: '6px',
-                          width: '22px',
-                          height: '22px',
-                          borderRadius: '50%',
-                          border: '1px solid var(--color-border)',
-                          backgroundColor: '#FFFFFF',
-                          cursor: 'pointer',
-                          fontSize: '11px'
-                        }}
+                        className="pub-btn-quitar-mini"
                       >
                         ✕
                       </button>
@@ -553,15 +436,7 @@ export default function NuevoAvisoPage() {
                     <button
                       type="button"
                       onClick={handleAgregarFoto}
-                      style={{
-                        height: '100px',
-                        borderRadius: 'var(--radius-btn)',
-                        border: '1px dashed var(--color-primary)',
-                        backgroundColor: 'var(--color-primary-soft)',
-                        color: 'var(--color-primary)',
-                        fontWeight: 600,
-                        cursor: 'pointer'
-                      }}
+                      className="pub-btn-agregar-mini"
                     >
                       + Agregar foto
                     </button>
@@ -577,18 +452,11 @@ export default function NuevoAvisoPage() {
         </div>
 
         {/* Columna 3: Resumen de errores (2.4) + Vista previa en vivo + Botones */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+        <div className="pub-pila-compacta">
           {listaErrores.length > 0 && (
-            <div className="card-surface" style={{ padding: '18px 22px' }}>
+            <div className="card-surface pub-tarjeta-errores">
               <span className="label-upper">Campos por corregir</span>
-              <ul
-                style={{
-                  paddingLeft: '18px',
-                  color: 'var(--color-error)',
-                  fontSize: '14px',
-                  marginTop: '6px'
-                }}
-              >
+              <ul className="pub-lista-errores">
                 {errores.titulo && <li>Título del aviso</li>}
                 {errores.categoria && <li>Categoría</li>}
                 {errores.montoMinimo && <li>Monto mínimo</li>}
@@ -598,7 +466,7 @@ export default function NuevoAvisoPage() {
           )}
 
           <div>
-            <span className="label-upper" style={{ marginBottom: '8px' }}>
+            <span className="label-upper pub-label-preview">
               Vista previa de la tarjeta
             </span>
             <TarjetaAviso
@@ -614,49 +482,35 @@ export default function NuevoAvisoPage() {
             />
           </div>
 
-          <div
-            className="card-surface"
-            style={{
-              padding: '16px 18px',
-              backgroundColor: 'var(--color-bg)'
-            }}
-          >
-            <strong style={{ display: 'block', marginBottom: '4px' }}>
-              Antes de publicar
-            </strong>
+          <div className="card-surface pub-tarjeta-consejo">
+            <strong className="pub-consejo-titulo">Antes de publicar</strong>
             <p className="text-aux">
               Toma las fotos con luz natural, muestra la portada y el estado real
               de las hojas. Un aviso con 3 fotografías recibe el doble de ofertas.
             </p>
           </div>
 
-          <button
-            type="submit"
-            className="btn btn-primary"
-            style={{ width: '100%' }}
-          >
+          <button type="submit" className="btn btn-primary pub-btn-bloque">
             Publicar
           </button>
 
           <button
             type="button"
-            className="btn btn-secondary"
-            style={{ width: '100%' }}
+            className="btn btn-secondary pub-btn-bloque"
             onClick={handleGuardarBorrador}
           >
             Guardar borrador
           </button>
 
           {listaErrores.length > 0 && (
-            <span className="field-hint" style={{ textAlign: 'center' }}>
+            <span className="field-hint pub-hint-centrado">
               El borrador sí se guarda con errores.
             </span>
           )}
 
           <button
             type="button"
-            className="btn btn-tertiary"
-            style={{ width: '100%' }}
+            className="btn btn-tertiary pub-btn-bloque"
             onClick={() => navigate('/mis-publicaciones')}
           >
             Cancelar

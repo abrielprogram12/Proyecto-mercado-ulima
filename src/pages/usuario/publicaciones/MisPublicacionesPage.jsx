@@ -7,7 +7,17 @@ import BadgeEstado from '../../../components/BadgeEstado/BadgeEstado';
 import EstadoVacio from '../../../components/EstadoVacio/EstadoVacio';
 import Notificacion from '../../../components/Notificacion/Notificacion';
 import ModalEstadoAviso from '../../../components/Modales/ModalEstadoAviso';
+import {
+  PESTANAS_MIS_AVISOS,
+  calcularConteosAvisos,
+  filtrarAvisosVendedor
+} from './publicacionesUtils';
+import './publicaciones.css';
 
+/**
+ * MÓDULO: Publicaciones (Integrante 2 · HU-2)
+ * Vistas 2.1, 2.2 y 2.6 — Mis publicaciones, estado vacío y gestión de estado/eliminación
+ */
 export default function MisPublicacionesPage() {
   const { usuarioActual } = useAuth();
   const {
@@ -36,15 +46,7 @@ export default function MisPublicacionesPage() {
     return avisos.filter((a) => a.vendedorId === vendedorId);
   }, [avisos, vendedorId]);
 
-  const conteos = useMemo(() => {
-    return {
-      Todos: misAvisos.length,
-      Publicado: misAvisos.filter((a) => a.estado === 'Publicado').length,
-      Pausado: misAvisos.filter((a) => a.estado === 'Pausado').length,
-      Borrador: misAvisos.filter((a) => a.estado === 'Borrador').length,
-      Vendido: misAvisos.filter((a) => a.estado === 'Vendido').length
-    };
-  }, [misAvisos]);
+  const conteos = useMemo(() => calcularConteosAvisos(misAvisos), [misAvisos]);
 
   const totalOfertasPorResponder = useMemo(() => {
     return misAvisos
@@ -52,19 +54,10 @@ export default function MisPublicacionesPage() {
       .reduce((acc, a) => acc + Number(a.ofertasCount || 0), 0);
   }, [misAvisos]);
 
-  const avisosFiltrados = useMemo(() => {
-    return misAvisos.filter((a) => {
-      const cumpleEstado =
-        filtroEstado === 'Todos' || a.estado === filtroEstado;
-      const termino = busqueda.trim().toLowerCase();
-      const cumpleBusqueda =
-        !termino ||
-        a.titulo.toLowerCase().includes(termino) ||
-        (a.curso || '').toLowerCase().includes(termino) ||
-        (a.categoria || '').toLowerCase().includes(termino);
-      return cumpleEstado && cumpleBusqueda;
-    });
-  }, [misAvisos, filtroEstado, busqueda]);
+  const avisosFiltrados = useMemo(
+    () => filtrarAvisosVendedor(misAvisos, filtroEstado, busqueda),
+    [misAvisos, filtroEstado, busqueda]
+  );
 
   const handleDuplicar = (aviso) => {
     setMenuAbiertoId(null);
@@ -112,18 +105,9 @@ export default function MisPublicacionesPage() {
   return (
     <div className="page-container">
       {/* Encabezado — Vistas 2.1 y 2.2 */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          marginBottom: '20px'
-        }}
-      >
+      <div className="pub-encabezado">
         <div>
-          <h1 className="title-screen" style={{ marginBottom: '4px' }}>
-            Mis publicaciones
-          </h1>
+          <h1 className="title-screen">Mis publicaciones</h1>
           <p className="text-aux">
             {misAvisos.length === 0
               ? 'Ningún aviso todavía'
@@ -145,24 +129,9 @@ export default function MisPublicacionesPage() {
       )}
 
       {/* Pestañas de filtro por estado + Buscador */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: '16px',
-          flexWrap: 'wrap',
-          marginBottom: '18px'
-        }}
-      >
-        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-          {[
-            { clave: 'Todos', etiqueta: 'Todos' },
-            { clave: 'Publicado', etiqueta: 'Publicados' },
-            { clave: 'Pausado', etiqueta: 'Pausados' },
-            { clave: 'Borrador', etiqueta: 'Borradores' },
-            { clave: 'Vendido', etiqueta: 'Vendidos' }
-          ].map((tab) => (
+      <div className="pub-barra-filtros">
+        <div className="pub-chips">
+          {PESTANAS_MIS_AVISOS.map((tab) => (
             <button
               key={tab.clave}
               type="button"
@@ -179,8 +148,7 @@ export default function MisPublicacionesPage() {
         {misAvisos.length > 0 && (
           <input
             type="search"
-            className="form-input"
-            style={{ maxWidth: '280px', padding: '8px 14px' }}
+            className="form-input pub-buscador"
             placeholder="Buscar en mis avisos…"
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
@@ -200,45 +168,17 @@ export default function MisPublicacionesPage() {
           rutaEnlaceSecundario="/#como-funciona"
         />
       ) : (
-        <div className="card-surface" style={{ overflow: 'visible' }}>
-          <table
-            style={{
-              width: '100%',
-              borderCollapse: 'collapse',
-              textAlign: 'left'
-            }}
-          >
+        <div className="card-surface pub-tabla-contenedor">
+          <table className="pub-tabla">
             <thead>
-              <tr
-                style={{
-                  borderBottom: '1px solid var(--color-border)',
-                  backgroundColor: 'var(--color-bg)'
-                }}
-              >
-                <th style={{ padding: '12px 20px' }} className="label-upper">
-                  Foto
-                </th>
-                <th style={{ padding: '12px 16px' }} className="label-upper">
-                  Aviso
-                </th>
-                <th style={{ padding: '12px 16px' }} className="label-upper">
-                  Precio
-                </th>
-                <th style={{ padding: '12px 16px' }} className="label-upper">
-                  Estado
-                </th>
-                <th style={{ padding: '12px 16px' }} className="label-upper">
-                  Ofertas
-                </th>
-                <th style={{ padding: '12px 16px' }} className="label-upper">
-                  Publicado
-                </th>
-                <th
-                  style={{ padding: '12px 20px', textAlign: 'right' }}
-                  className="label-upper"
-                >
-                  Acciones
-                </th>
+              <tr className="pub-tabla-head">
+                <th className="label-upper pub-th-izq">Foto</th>
+                <th className="label-upper pub-th">Aviso</th>
+                <th className="label-upper pub-th">Precio</th>
+                <th className="label-upper pub-th">Estado</th>
+                <th className="label-upper pub-th">Ofertas</th>
+                <th className="label-upper pub-th">Publicado</th>
+                <th className="label-upper pub-th-der">Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -248,41 +188,26 @@ export default function MisPublicacionesPage() {
                 const esBorrador = aviso.estado === 'Borrador';
                 const tieneFoto =
                   Array.isArray(aviso.fotos) && aviso.fotos.length > 0;
+                const clasesFila = [
+                  'pub-fila',
+                  esPausado ? 'pub-fila-pausada' : '',
+                  esVendido ? 'pub-fila-vendida' : ''
+                ]
+                  .filter(Boolean)
+                  .join(' ');
 
                 return (
-                  <tr
-                    key={aviso.id}
-                    style={{
-                      borderBottom: '1px solid var(--color-border)',
-                      backgroundColor: esPausado
-                        ? '#FDF2EC'
-                        : 'var(--color-surface)',
-                      opacity: esVendido ? 0.78 : 1
-                    }}
-                  >
-                    <td style={{ padding: '14px 20px', width: '90px' }}>
-                      <div
-                        className="striped-placeholder"
-                        style={{
-                          width: '68px',
-                          height: '52px',
-                          borderRadius: '6px',
-                          fontSize: '11px'
-                        }}
-                      >
+                  <tr key={aviso.id} className={clasesFila}>
+                    <td className="pub-td-foto">
+                      <div className="striped-placeholder pub-miniatura-tabla">
                         {!tieneFoto ? 'sin foto' : ''}
                       </div>
                     </td>
 
-                    <td style={{ padding: '14px 16px' }}>
+                    <td className="pub-td">
                       <Link
                         to={`/aviso/${aviso.id}`}
-                        style={{
-                          fontWeight: 600,
-                          color: 'var(--color-text)',
-                          display: 'block',
-                          marginBottom: '2px'
-                        }}
+                        className="pub-link-titulo"
                       >
                         {aviso.titulo}
                       </Link>
@@ -292,23 +217,23 @@ export default function MisPublicacionesPage() {
                       </span>
                     </td>
 
-                    <td style={{ padding: '14px 16px' }}>
-                      <span className="price-text" style={{ fontSize: '16px' }}>
+                    <td className="pub-td">
+                      <span className="price-text pub-precio-celda">
                         {formatearPrecio(aviso.precio)}
                       </span>
                     </td>
 
-                    <td style={{ padding: '14px 16px' }}>
+                    <td className="pub-td">
                       <BadgeEstado estado={aviso.estado} />
                     </td>
 
-                    <td style={{ padding: '14px 16px', fontSize: '14px' }}>
+                    <td className="pub-td-ofertas">
                       {esBorrador ? (
                         <span className="text-aux">—</span>
                       ) : esVendido ? (
                         <span className="text-aux">Cerrado con 1</span>
                       ) : Number(aviso.ofertasCount || 0) > 0 ? (
-                        <Link to="/ofertas" style={{ fontWeight: 600 }}>
+                        <Link to="/ofertas" className="pub-link-ofertas">
                           {aviso.ofertasCount} ofertas
                         </Link>
                       ) : (
@@ -316,17 +241,11 @@ export default function MisPublicacionesPage() {
                       )}
                     </td>
 
-                    <td style={{ padding: '14px 16px' }}>
+                    <td className="pub-td">
                       <span className="text-aux">{aviso.fechaPublicacion}</span>
                     </td>
 
-                    <td
-                      style={{
-                        padding: '14px 20px',
-                        textAlign: 'right',
-                        position: 'relative'
-                      }}
-                    >
+                    <td className="pub-td-acciones">
                       <button
                         type="button"
                         className="btn btn-outline btn-sm"
@@ -340,20 +259,7 @@ export default function MisPublicacionesPage() {
                       </button>
 
                       {menuAbiertoId === aviso.id && (
-                        <div
-                          className="card-surface"
-                          style={{
-                            position: 'absolute',
-                            right: '20px',
-                            top: '56px',
-                            minWidth: '210px',
-                            padding: '6px',
-                            zIndex: 80,
-                            display: 'flex',
-                            flexDirection: 'column',
-                            textAlign: 'left'
-                          }}
-                        >
+                        <div className="card-surface pub-menu-acciones">
                           <button
                             type="button"
                             className="dropdown-item"
@@ -400,20 +306,11 @@ export default function MisPublicacionesPage() {
             </tbody>
           </table>
 
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              padding: '14px 20px',
-              fontSize: '13px',
-              color: 'var(--color-text-secondary)'
-            }}
-          >
+          <div className="pub-paginacion">
             <span>
               Mostrando {avisosFiltrados.length} de {misAvisos.length} avisos
             </span>
-            <div style={{ display: 'flex', gap: '6px' }}>
+            <div className="pub-paginacion-botones">
               <button type="button" className="btn btn-outline btn-sm" disabled>
                 ‹
               </button>
