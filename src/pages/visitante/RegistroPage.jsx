@@ -3,7 +3,13 @@ import { Link } from 'react-router-dom';
 import { useAuth, validarPasswordSegura } from '../../context/AuthContext';
 import { CARRERAS_ULIMA, CICLOS_ULIMA } from '../../data/contratoDatos';
 import Notificacion from '../../components/Notificacion/Notificacion';
+import { validarFormularioRegistro } from './visitanteUtils';
+import './visitante.css';
 
+/**
+ * MÓDULO: Visitante y Acceso (Integrante 1 · HU-1)
+ * Vista 1.3 y 1.8 — Registro de cuenta institucional y pantalla de confirmación
+ */
 export default function RegistroPage() {
   const { registrarUsuario } = useAuth();
 
@@ -27,59 +33,17 @@ export default function RegistroPage() {
 
   const infoPassword = validarPasswordSegura(formData.password);
 
-  const validarEnLinea = (datos) => {
-    const nuevosErrores = {};
-
-    if (!datos.nombres.trim()) {
-      nuevosErrores.nombres = 'Ingresa tus nombres.';
-    }
-    if (!datos.apellidos.trim()) {
-      nuevosErrores.apellidos = 'Ingresa tus apellidos.';
-    }
-    if (!datos.correo.trim()) {
-      nuevosErrores.correo = 'El correo institucional es obligatorio.';
-    } else if (!datos.correo.trim().toLowerCase().endsWith('@aloe.ulima.edu.pe')) {
-      nuevosErrores.correo = 'El correo debe terminar en @aloe.ulima.edu.pe.';
-    }
-
-    if (!datos.password) {
-      nuevosErrores.password = 'Ingresa una contraseña.';
-    } else if (!validarPasswordSegura(datos.password).esValida) {
-      nuevosErrores.password =
-        'Debe tener al menos 8 caracteres, una mayúscula y un número.';
-    }
-
-    if (!datos.confirmarPassword || datos.confirmarPassword !== datos.password) {
-      nuevosErrores.confirmarPassword = 'Las contraseñas no coinciden.';
-    }
-
-    if (!datos.carrera) {
-      nuevosErrores.carrera = 'Selecciona tu carrera.';
-    }
-
-    if (!datos.ciclo) {
-      nuevosErrores.ciclo = 'Selecciona tu ciclo.';
-    }
-
-    if (!datos.aceptaNormas) {
-      nuevosErrores.aceptaNormas =
-        'Debes aceptar las normas de convivencia del tablón.';
-    }
-
-    return nuevosErrores;
-  };
-
   const handleChange = (campo, valor) => {
     const actualizado = { ...formData, [campo]: valor };
     setFormData(actualizado);
     if (Object.keys(errores).length > 0) {
-      setErrores(validarEnLinea(actualizado));
+      setErrores(validarFormularioRegistro(actualizado, validarPasswordSegura));
     }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const errs = validarEnLinea(formData);
+    const errs = validarFormularioRegistro(formData, validarPasswordSegura);
     setErrores(errs);
 
     if (Object.keys(errs).length > 0) {
@@ -108,35 +72,14 @@ export default function RegistroPage() {
   // Vista 1.8 — CUENTA CREADA · CONFIRMACIÓN
   if (cuentaCreada) {
     return (
-      <div className="page-container" style={{ maxWidth: '540px' }}>
-        <div
-          className="card-surface"
-          style={{ padding: '44px 36px', textAlign: 'center' }}
-        >
-          <div
-            style={{
-              width: '56px',
-              height: '56px',
-              borderRadius: '50%',
-              backgroundColor: 'var(--color-success-bg)',
-              color: 'var(--color-success)',
-              fontSize: '26px',
-              fontWeight: 700,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              margin: '0 auto 18px'
-            }}
-          >
-            ✓
-          </div>
+      <div className="page-container vis-contenedor-confirmacion">
+        <div className="card-surface vis-tarjeta-confirmacion">
+          <div className="vis-circulo-exito">✓</div>
 
-          <h1 className="title-screen" style={{ marginBottom: '12px' }}>
-            Cuenta creada
-          </h1>
-          <p className="text-aux" style={{ fontSize: '15px', marginBottom: '26px' }}>
+          <h1 className="title-screen">Cuenta creada</h1>
+          <p className="text-aux vis-texto-confirmacion">
             Enviamos un enlace de confirmación a{' '}
-            <strong style={{ color: 'var(--color-text)' }}>{correoRegistrado}</strong>.
+            <strong className="vis-texto-resaltado">{correoRegistrado}</strong>.
             Tienes 24 horas para activarla.
           </p>
 
@@ -148,17 +91,13 @@ export default function RegistroPage() {
             />
           )}
 
-          <Link
-            to="/login"
-            className="btn btn-primary"
-            style={{ width: '100%', marginBottom: '14px' }}
-          >
+          <Link to="/login" className="btn btn-primary vis-btn-bloque">
             Ir a iniciar sesión
           </Link>
 
           <button
             type="button"
-            className="btn btn-tertiary"
+            className="btn btn-tertiary vis-btn-bloque"
             onClick={() =>
               setNotifReenvio(
                 `Éxito. Reenviamos el enlace de confirmación a ${correoRegistrado}.`
@@ -173,14 +112,18 @@ export default function RegistroPage() {
   }
 
   const totalErrores = Object.keys(errores).length;
+  const claseGrupoPass = [
+    'vis-pass-grupo',
+    errores.password ? 'con-error' : infoPassword.esValida ? 'con-exito' : ''
+  ]
+    .filter(Boolean)
+    .join(' ');
 
   return (
-    <div className="page-container" style={{ maxWidth: '820px' }}>
-      <div className="card-surface" style={{ padding: '40px 44px' }}>
-        <h1 className="title-screen" style={{ marginBottom: '6px' }}>
-          Crear cuenta
-        </h1>
-        <p className="text-aux" style={{ fontSize: '14px', marginBottom: '24px' }}>
+    <div className="page-container vis-contenedor-registro">
+      <div className="card-surface vis-tarjeta-amplia">
+        <h1 className="title-screen">Crear cuenta</h1>
+        <p className="text-aux vis-subtitulo-form">
           Solo para estudiantes con correo institucional. La cuenta se activa al
           confirmar el correo.
         </p>
@@ -196,15 +139,9 @@ export default function RegistroPage() {
         )}
 
         <form onSubmit={handleSubmit} noValidate>
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr',
-              gap: '20px'
-            }}
-          >
+          <div className="vis-registro-grid">
             {/* Nombres */}
-            <div className="form-group" style={{ marginBottom: 0 }}>
+            <div className="form-group">
               <label className="label-upper" htmlFor="reg-nombres">
                 Nombres
               </label>
@@ -221,7 +158,7 @@ export default function RegistroPage() {
             </div>
 
             {/* Apellidos */}
-            <div className="form-group" style={{ marginBottom: 0 }}>
+            <div className="form-group">
               <label className="label-upper" htmlFor="reg-apellidos">
                 Apellidos
               </label>
@@ -238,7 +175,7 @@ export default function RegistroPage() {
             </div>
 
             {/* Correo institucional */}
-            <div className="form-group" style={{ gridColumn: 'span 2', marginBottom: 0 }}>
+            <div className="form-group vis-col-completa">
               <label className="label-upper" htmlFor="reg-correo">
                 Correo institucional
               </label>
@@ -256,60 +193,25 @@ export default function RegistroPage() {
             </div>
 
             {/* Contraseña */}
-            <div className="form-group" style={{ marginBottom: 0 }}>
+            <div className="form-group">
               <label className="label-upper" htmlFor="reg-pass">
                 Contraseña
               </label>
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  border: `1px solid ${
-                    errores.password
-                      ? 'var(--color-error)'
-                      : infoPassword.esValida
-                        ? 'var(--color-success)'
-                        : 'var(--color-border)'
-                  }`,
-                  borderRadius: 'var(--radius-input)',
-                  overflow: 'hidden'
-                }}
-              >
+              <div className={claseGrupoPass}>
                 <input
                   id="reg-pass"
                   type={mostrarPass ? 'text' : 'password'}
                   value={formData.password}
                   onChange={(e) => handleChange('password', e.target.value)}
-                  style={{
-                    flex: 1,
-                    padding: '12px 14px',
-                    border: 'none',
-                    outline: 'none'
-                  }}
+                  className="vis-pass-input"
                 />
                 {infoPassword.esValida && (
-                  <span
-                    style={{
-                      color: 'var(--color-success)',
-                      fontWeight: 700,
-                      marginRight: '8px'
-                    }}
-                  >
-                    ✓
-                  </span>
+                  <span className="vis-pass-check">✓</span>
                 )}
                 <button
                   type="button"
                   onClick={() => setMostrarPass((p) => !p)}
-                  style={{
-                    padding: '0 12px',
-                    border: 'none',
-                    background: 'transparent',
-                    color: 'var(--color-primary)',
-                    fontWeight: 600,
-                    fontSize: '13px',
-                    cursor: 'pointer'
-                  }}
+                  className="vis-pass-toggle"
                 >
                   {mostrarPass ? 'Ocultar' : 'Mostrar'}
                 </button>
@@ -328,47 +230,26 @@ export default function RegistroPage() {
             </div>
 
             {/* Confirmar contraseña */}
-            <div className="form-group" style={{ marginBottom: 0 }}>
+            <div className="form-group">
               <label className="label-upper" htmlFor="reg-confirmar">
                 Confirmar contraseña
               </label>
               <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  border: `1px solid ${
-                    errores.confirmarPassword
-                      ? 'var(--color-error)'
-                      : 'var(--color-border)'
-                  }`,
-                  borderRadius: 'var(--radius-input)',
-                  overflow: 'hidden'
-                }}
+                className={`vis-pass-grupo ${
+                  errores.confirmarPassword ? 'con-error' : ''
+                }`}
               >
                 <input
                   id="reg-confirmar"
                   type={mostrarConfirmar ? 'text' : 'password'}
                   value={formData.confirmarPassword}
                   onChange={(e) => handleChange('confirmarPassword', e.target.value)}
-                  style={{
-                    flex: 1,
-                    padding: '12px 14px',
-                    border: 'none',
-                    outline: 'none'
-                  }}
+                  className="vis-pass-input"
                 />
                 <button
                   type="button"
                   onClick={() => setMostrarConfirmar((p) => !p)}
-                  style={{
-                    padding: '0 12px',
-                    border: 'none',
-                    background: 'transparent',
-                    color: 'var(--color-primary)',
-                    fontWeight: 600,
-                    fontSize: '13px',
-                    cursor: 'pointer'
-                  }}
+                  className="vis-pass-toggle"
                 >
                   {mostrarConfirmar ? 'Ocultar' : 'Mostrar'}
                 </button>
@@ -379,7 +260,7 @@ export default function RegistroPage() {
             </div>
 
             {/* Carrera */}
-            <div className="form-group" style={{ marginBottom: 0 }}>
+            <div className="form-group">
               <label className="label-upper" htmlFor="reg-carrera">
                 Carrera
               </label>
@@ -401,7 +282,7 @@ export default function RegistroPage() {
             </div>
 
             {/* Ciclo */}
-            <div className="form-group" style={{ marginBottom: 0 }}>
+            <div className="form-group">
               <label className="label-upper" htmlFor="reg-ciclo">
                 Ciclo
               </label>
@@ -423,25 +304,13 @@ export default function RegistroPage() {
             </div>
 
             {/* Normas de convivencia */}
-            <div style={{ gridColumn: 'span 2', marginTop: '4px' }}>
-              <label
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '10px',
-                  cursor: 'pointer',
-                  fontSize: '14px'
-                }}
-              >
+            <div className="vis-col-completa">
+              <label className="vis-check-label">
                 <input
                   type="checkbox"
                   checked={formData.aceptaNormas}
                   onChange={(e) => handleChange('aceptaNormas', e.target.checked)}
-                  style={{
-                    width: '17px',
-                    height: '17px',
-                    accentColor: 'var(--color-primary)'
-                  }}
+                  className="vis-check-input"
                 />
                 <span>
                   Acepto las normas de convivencia del tablón y el registro de mis
@@ -454,15 +323,7 @@ export default function RegistroPage() {
             </div>
           </div>
 
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'flex-end',
-              alignItems: 'center',
-              gap: '20px',
-              marginTop: '28px'
-            }}
-          >
+          <div className="vis-acciones-derecha">
             <Link to="/login" className="btn btn-tertiary">
               Cancelar
             </Link>

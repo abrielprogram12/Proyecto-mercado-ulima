@@ -1,0 +1,125 @@
+/* HU-1 · Mi cuenta — usa las variables de index.css y las clases base de App.css */
+
+.cue-encabezado {
+  margin-bottom: 24px;
+}
+
+.cue-encabezado .title-screen {
+  margin-bottom: 4px;
+}
+
+.cue-subtitulo {
+  font-size: 14px;
+}
+
+.cue-columnas {
+  display: grid;
+  grid-template-columns: 1.1fr 1.1fr 0.85fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.cue-pila {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.cue-tarjeta {
+  padding: 26px 28px;
+}
+
+.cue-tarjeta-compacta {
+  padding: 22px 24px;
+}
+
+.cue-tarjeta-perfil {
+  padding: 28px 24px;
+  text-align: center;
+}
+
+.cue-titulo-seccion {
+  color: var(--color-primary);
+  margin-bottom: 18px;
+}
+
+.cue-titulo-punto {
+  color: var(--color-primary);
+  margin-bottom: 6px;
+}
+
+.cue-nota-punto {
+  margin-bottom: 16px;
+}
+
+.cue-acciones {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.cue-btn-bloque {
+  width: 100%;
+}
+
+.cue-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.cue-avatar-grande {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  margin: 0 auto 14px;
+  font-weight: 700;
+  font-size: 22px;
+  color: var(--color-primary);
+}
+
+.cue-nombre-perfil {
+  margin-bottom: 2px;
+}
+
+.cue-resumen-perfil {
+  margin-bottom: 16px;
+}
+
+.cue-label-actividad {
+  margin-bottom: 14px;
+}
+
+.cue-fila-metrica {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--color-border);
+  font-size: 14px;
+}
+
+.cue-fila-metrica-ultima {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 8px;
+  font-size: 14px;
+}
+
+.cue-cerrar-card {
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.cue-cerrar-titulo {
+  display: block;
+  font-size: 15px;
+}
+
+@media (max-width: 960px) {
+  .cue-columnas {
+    grid-template-columns: 1fr;
+  }
+}
