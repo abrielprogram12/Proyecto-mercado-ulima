@@ -3,9 +3,19 @@ import { useSearchParams } from 'react-router-dom';
 import { useAviso } from '../../../context/AvisoContext';
 import FiltrosCatalogo from '../../../components/FiltrosCatalogo/FiltrosCatalogo';
 import TarjetaAviso from '../../../components/TarjetaAviso/TarjetaAviso';
-import EstadoVacio from '../../../components/EstadoVacio/EstadoVacio';
 import Notificacion from '../../../components/Notificacion/Notificacion';
+import {
+  ITEMS_POR_PAGINA_CATALOGO,
+  FILTROS_INICIALES_CATALOGO,
+  filtrarYOrdenarCatalogo,
+  construirChipsActivos
+} from './catalogoUtils';
+import './catalogo.css';
 
+/**
+ * MÓDULO: Catálogo y Búsqueda (Integrante 3 · HU-3)
+ * Vistas 3.1, 3.2 y 3.3 — Catálogo con filtros laterales, sin resultados y esqueletos de carga
+ */
 export default function CatalogoPage() {
   const { avisos } = useAviso();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -14,11 +24,9 @@ export default function CatalogoPage() {
     searchParams.get('q') || ''
   );
   const [filtros, setFiltros] = useState({
+    ...FILTROS_INICIALES_CATALOGO,
     categoria: searchParams.get('categoria') || '',
-    curso: searchParams.get('curso') || '',
-    precioMin: '',
-    precioMax: '',
-    condicion: ''
+    curso: searchParams.get('curso') || ''
   });
 
   const [orden, setOrden] = useState('recientes');
@@ -39,82 +47,25 @@ export default function CatalogoPage() {
     return avisos.filter((a) => a.estado === 'Publicado');
   }, [avisos]);
 
-  const avisosFiltradosYOrdenados = useMemo(() => {
-    const resultado = avisosPublicados.filter((a) => {
-      if (filtros.categoria && a.categoria !== filtros.categoria) return false;
-      if (filtros.curso && a.curso !== filtros.curso) return false;
-      if (filtros.condicion && a.condicion !== filtros.condicion) return false;
-      if (
-        filtros.precioMin !== '' &&
-        Number(a.precio) < Number(filtros.precioMin)
-      ) {
-        return false;
-      }
-      if (
-        filtros.precioMax !== '' &&
-        Number(a.precio) > Number(filtros.precioMax)
-      ) {
-        return false;
-      }
-      if (busquedaTexto.trim()) {
-        const q = busquedaTexto.trim().toLowerCase();
-        const coincideTitulo = a.titulo.toLowerCase().includes(q);
-        const coincideDesc = (a.descripcion || '').toLowerCase().includes(q);
-        const coincideCurso = (a.curso || '').toLowerCase().includes(q);
-        if (!coincideTitulo && !coincideDesc && !coincideCurso) return false;
-      }
-      return true;
-    });
+  const avisosFiltradosYOrdenados = useMemo(
+    () =>
+      filtrarYOrdenarCatalogo(avisosPublicados, filtros, busquedaTexto, orden),
+    [avisosPublicados, filtros, busquedaTexto, orden]
+  );
 
-    if (orden === 'precio_asc') {
-      resultado.sort((a, b) => Number(a.precio) - Number(b.precio));
-    } else if (orden === 'precio_desc') {
-      resultado.sort((a, b) => Number(b.precio) - Number(a.precio));
-    }
-    return resultado;
-  }, [avisosPublicados, filtros, busquedaTexto, orden]);
-
-  const ITEMS_POR_PAGINA = 12;
   const totalPaginas = Math.max(
     1,
-    Math.ceil(avisosFiltradosYOrdenados.length / ITEMS_POR_PAGINA)
+    Math.ceil(avisosFiltradosYOrdenados.length / ITEMS_POR_PAGINA_CATALOGO)
   );
   const avisosPaginados = avisosFiltradosYOrdenados.slice(
-    (paginaActual - 1) * ITEMS_POR_PAGINA,
-    paginaActual * ITEMS_POR_PAGINA
+    (paginaActual - 1) * ITEMS_POR_PAGINA_CATALOGO,
+    paginaActual * ITEMS_POR_PAGINA_CATALOGO
   );
 
-  const chipsActivos = [];
-  if (filtros.categoria) {
-    chipsActivos.push({
-      clave: 'categoria',
-      etiqueta: filtros.categoria
-    });
-  }
-  if (filtros.curso) {
-    chipsActivos.push({
-      clave: 'curso',
-      etiqueta: filtros.curso
-    });
-  }
-  if (filtros.precioMin || filtros.precioMax) {
-    chipsActivos.push({
-      clave: 'rangoPrecio',
-      etiqueta: `S/ ${filtros.precioMin || 0} – S/ ${filtros.precioMax || '∞'}`
-    });
-  }
-  if (filtros.condicion) {
-    chipsActivos.push({
-      clave: 'condicion',
-      etiqueta: filtros.condicion
-    });
-  }
-  if (busquedaTexto.trim()) {
-    chipsActivos.push({
-      clave: 'busqueda',
-      etiqueta: `«${busquedaTexto.trim()}»`
-    });
-  }
+  const chipsActivos = useMemo(
+    () => construirChipsActivos(filtros, busquedaTexto),
+    [filtros, busquedaTexto]
+  );
 
   const quitarChip = (clave) => {
     if (clave === 'rangoPrecio') {
@@ -129,13 +80,7 @@ export default function CatalogoPage() {
   };
 
   const limpiarTodo = () => {
-    setFiltros({
-      categoria: '',
-      curso: '',
-      precioMin: '',
-      precioMax: '',
-      condicion: ''
-    });
+    setFiltros(FILTROS_INICIALES_CATALOGO);
     setBusquedaTexto('');
     setSearchParams({});
     setPaginaActual(1);
@@ -158,7 +103,7 @@ export default function CatalogoPage() {
         />
       )}
 
-      <div style={{ display: 'flex', gap: '28px', alignItems: 'flex-start' }}>
+      <div className="cat-layout">
         {/* Sidebar de Filtros (Vista 3.1) */}
         <FiltrosCatalogo
           filtros={filtros}
@@ -170,26 +115,10 @@ export default function CatalogoPage() {
         />
 
         {/* Contenido principal */}
-        <div style={{ flex: 1 }}>
+        <div className="cat-contenido">
           {/* Barra superior de chips de filtros activos (Vista 3.1 y 3.2) */}
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              flexWrap: 'wrap',
-              gap: '10px',
-              marginBottom: '14px'
-            }}
-          >
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                flexWrap: 'wrap'
-              }}
-            >
+          <div className="cat-barra-chips">
+            <div className="cat-chips-activos">
               {chipsActivos.length > 0 && (
                 <>
                   <span className="text-aux">Filtros activos:</span>
@@ -199,13 +128,7 @@ export default function CatalogoPage() {
                       <button
                         type="button"
                         onClick={() => quitarChip(chip.clave)}
-                        style={{
-                          border: 'none',
-                          background: 'transparent',
-                          color: 'var(--color-primary)',
-                          cursor: 'pointer',
-                          fontWeight: 700
-                        }}
+                        className="cat-btn-quitar-chip"
                       >
                         ✕
                       </button>
@@ -222,7 +145,7 @@ export default function CatalogoPage() {
               )}
             </div>
 
-            <div style={{ display: 'flex', gap: '8px' }}>
+            <div className="cat-demos-fila">
               <button
                 type="button"
                 className="chip chip-selectable"
@@ -250,21 +173,12 @@ export default function CatalogoPage() {
           </div>
 
           {/* Encabezado de conteo y ordenamiento */}
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              marginBottom: '20px',
-              paddingBottom: '12px',
-              borderBottom: '1px solid var(--color-border)'
-            }}
-          >
+          <div className="cat-barra-orden">
             <div>
-              <strong style={{ fontSize: '18px' }}>
+              <strong className="cat-conteo-num">
                 {avisosFiltradosYOrdenados.length}
               </strong>{' '}
-              <span className="text-aux" style={{ fontSize: '15px' }}>
+              <span className="text-aux cat-conteo-texto">
                 avisos encontrados
                 {busquedaTexto.trim()
                   ? ` para «${busquedaTexto.trim()}»`
@@ -272,11 +186,10 @@ export default function CatalogoPage() {
               </span>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div className="cat-orden-grupo">
               <span className="text-aux">Ordenar por</span>
               <select
-                className="form-select"
-                style={{ width: 'auto', padding: '7px 14px' }}
+                className="form-select cat-select-orden"
                 value={orden}
                 onChange={(e) => setOrden(e.target.value)}
               >
@@ -290,59 +203,19 @@ export default function CatalogoPage() {
           {/* Vista 3.3 — Esqueletos de carga */}
           {cargandoEsqueletos ? (
             <div>
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(4, 1fr)',
-                  gap: '18px',
-                  marginBottom: '24px'
-                }}
-              >
+              <div className="cat-esqueletos-grid">
                 {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
-                  <div
-                    key={n}
-                    className="card-surface"
-                    style={{ overflow: 'hidden', paddingBottom: '16px' }}
-                  >
-                    <div
-                      style={{
-                        height: '160px',
-                        backgroundColor: '#EFECE6',
-                        marginBottom: '14px'
-                      }}
-                    />
-                    <div style={{ padding: '0 16px' }}>
-                      <div
-                        style={{
-                          height: '12px',
-                          width: '85%',
-                          backgroundColor: '#EFECE6',
-                          borderRadius: '6px',
-                          marginBottom: '8px'
-                        }}
-                      />
-                      <div
-                        style={{
-                          height: '18px',
-                          width: '45%',
-                          backgroundColor: '#E5DDD5',
-                          borderRadius: '6px',
-                          marginBottom: '10px'
-                        }}
-                      />
-                      <div
-                        style={{
-                          height: '10px',
-                          width: '65%',
-                          backgroundColor: '#EFECE6',
-                          borderRadius: '6px'
-                        }}
-                      />
+                  <div key={n} className="card-surface cat-esqueleto-card">
+                    <div className="cat-esqueleto-foto" />
+                    <div className="cat-esqueleto-cuerpo">
+                      <div className="cat-esqueleto-linea-1" />
+                      <div className="cat-esqueleto-linea-2" />
+                      <div className="cat-esqueleto-linea-3" />
                     </div>
                   </div>
                 ))}
               </div>
-              <p className="text-aux" style={{ textAlign: 'center' }}>
+              <p className="text-aux cat-texto-centrado">
                 Buscando avisos… los esqueletos mantienen la altura de la
                 tarjeta real para evitar saltos de maquetación.
               </p>
@@ -350,41 +223,17 @@ export default function CatalogoPage() {
           ) : avisosPaginados.length === 0 ? (
             /* Vista 3.2 — Catálogo sin resultados + Quizá te interese */
             <div>
-              <div
-                className="card-surface"
-                style={{
-                  padding: '48px 32px',
-                  textAlign: 'center',
-                  marginBottom: '32px'
-                }}
-              >
-                <div
-                  style={{
-                    width: '56px',
-                    height: '56px',
-                    borderRadius: '14px',
-                    backgroundColor: 'var(--color-primary-soft)',
-                    margin: '0 auto 16px'
-                  }}
-                />
-                <h2 className="title-section" style={{ marginBottom: '8px' }}>
+              <div className="card-surface cat-vacio-card">
+                <div className="cat-vacio-icono" />
+                <h2 className="title-section cat-vacio-titulo">
                   Ningún aviso coincide con tu búsqueda
                 </h2>
-                <p
-                  className="text-aux"
-                  style={{ maxWidth: '460px', margin: '0 auto 22px' }}
-                >
+                <p className="text-aux cat-vacio-desc">
                   Prueba con menos filtros o amplía el rango de precio. También
                   puedes crear una alerta y te avisamos cuando alguien publique
                   algo parecido.
                 </p>
-                <div
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    gap: '12px'
-                  }}
-                >
+                <div className="cat-vacio-acciones">
                   <button
                     type="button"
                     className="btn btn-primary"
@@ -408,16 +257,10 @@ export default function CatalogoPage() {
                 </div>
               </div>
 
-              <span className="label-upper" style={{ marginBottom: '14px' }}>
+              <span className="label-upper cat-label-sugerencias">
                 Quizá te interese
               </span>
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(4, 1fr)',
-                  gap: '16px'
-                }}
-              >
+              <div className="cat-sugerencias-grid">
                 {sugerenciasQuizaTeInterese.map((av) => (
                   <TarjetaAviso key={av.id} aviso={av} />
                 ))}
@@ -426,34 +269,19 @@ export default function CatalogoPage() {
           ) : (
             /* Vista 3.1 — Grilla de resultados con paginación */
             <>
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fill, minmax(225px, 1fr))',
-                  gap: '18px',
-                  marginBottom: '28px'
-                }}
-              >
+              <div className="cat-resultados-grid">
                 {avisosPaginados.map((aviso) => (
                   <TarjetaAviso key={aviso.id} aviso={aviso} />
                 ))}
               </div>
 
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  fontSize: '13px',
-                  color: 'var(--color-text-secondary)'
-                }}
-              >
+              <div className="cat-paginacion">
                 <span>
                   Mostrando 1–{avisosPaginados.length} de{' '}
                   {avisosFiltradosYOrdenados.length} resultados
                 </span>
 
-                <div style={{ display: 'flex', gap: '6px' }}>
+                <div className="cat-paginacion-botones">
                   <button
                     type="button"
                     className="btn btn-outline btn-sm"

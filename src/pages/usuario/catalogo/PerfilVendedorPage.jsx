@@ -10,7 +10,12 @@ import TarjetaAviso from '../../../components/TarjetaAviso/TarjetaAviso';
 import Estrellas from '../../../components/Estrellas/Estrellas';
 import Notificacion from '../../../components/Notificacion/Notificacion';
 import ModalReporte from '../../../components/Modales/ModalReporte';
+import './catalogo.css';
 
+/**
+ * MÓDULO: Catálogo y Búsqueda (Integrante 3 · HU-3)
+ * Vista 3.8 — Perfil público del vendedor con avisos publicados y calificaciones
+ */
 export default function PerfilVendedorPage() {
   const { id } = useParams();
   const { obtenerUsuarioPorId, usuarioActual } = useAuth();
@@ -22,7 +27,8 @@ export default function PerfilVendedorPage() {
   const [modalReporteAbierto, setModalReporteAbierto] = useState(false);
   const [notificacion, setNotificacion] = useState(null);
 
-  const vendedor = obtenerUsuarioPorId(id || 'u-1') || obtenerUsuarioPorId('u-1');
+  const vendedor =
+    obtenerUsuarioPorId(id || 'u-1') || obtenerUsuarioPorId('u-1');
 
   const avisosDelVendedor = useMemo(() => {
     return avisos.filter(
@@ -92,62 +98,33 @@ export default function PerfilVendedorPage() {
       )}
 
       {/* Cabecera del vendedor — Vista 3.8 */}
-      <div
-        className="card-surface"
-        style={{
-          padding: '28px 32px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: '24px',
-          flexWrap: 'wrap',
-          marginBottom: '28px'
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-          <div
-            className="striped-placeholder"
-            style={{
-              width: '84px',
-              height: '84px',
-              borderRadius: '50%',
-              fontWeight: 700,
-              fontSize: '20px',
-              color: 'var(--color-primary)'
-            }}
-          >
+      <div className="card-surface cat-perfil-cabecera">
+        <div className="cat-perfil-identidad">
+          <div className="striped-placeholder cat-avatar-grande">
             {obtenerIniciales(vendedor?.nombres, vendedor?.apellidos)}
           </div>
 
           <div>
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px',
-                marginBottom: '4px'
-              }}
-            >
+            <div className="cat-perfil-nombre-fila">
               <h1 className="title-screen">
                 {vendedor?.nombres} {vendedor?.apellidos}
               </h1>
               {confiable && <BadgeEstado estado="Vendedora confiable" />}
             </div>
 
-            <p className="text-aux" style={{ marginBottom: '8px' }}>
+            <p className="text-aux cat-perfil-carrera">
               {vendedor?.carrera} · {(vendedor?.ciclo || 'Cuarto').toLowerCase()}{' '}
               ciclo · {vendedor?.antiguedadTexto}
             </p>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <strong style={{ fontSize: '18px' }}>
+            <div className="cat-perfil-reputacion-fila">
+              <strong className="cat-reputacion-num">
                 {vendedor?.reputacion || 4.8}
               </strong>
               <Estrellas valor={vendedor?.reputacion || 5} tamano="sm" />
               <Link
                 to={`/reputacion/${vendedor?.id}`}
-                className="text-aux"
-                style={{ textDecoration: 'underline' }}
+                className="text-aux cat-link-subrayado"
               >
                 ({vendedor?.totalCalificaciones || 11} calificaciones recibidas)
               </Link>
@@ -155,21 +132,21 @@ export default function PerfilVendedorPage() {
           </div>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
-          <div style={{ textAlign: 'center' }}>
-            <strong style={{ fontSize: '24px', display: 'block' }}>
+        <div className="cat-perfil-metricas">
+          <div className="cat-metrica-caja">
+            <strong className="cat-metrica-valor">
               {vendedor?.acuerdosCerrados || 12}
             </strong>
             <span className="text-aux">acuerdos cerrados</span>
           </div>
-          <div style={{ textAlign: 'center' }}>
-            <strong style={{ fontSize: '24px', display: 'block' }}>
+          <div className="cat-metrica-caja">
+            <strong className="cat-metrica-valor">
               {avisosDelVendedor.filter((a) => a.estado !== 'Vendido').length}
             </strong>
             <span className="text-aux">avisos activos</span>
           </div>
-          <div style={{ textAlign: 'center' }}>
-            <strong style={{ fontSize: '24px', display: 'block' }}>
+          <div className="cat-metrica-caja">
+            <strong className="cat-metrica-valor">
               {vendedor?.tiempoRespuesta || '1 d'}
             </strong>
             <span className="text-aux">responde en</span>
@@ -177,8 +154,7 @@ export default function PerfilVendedorPage() {
 
           <button
             type="button"
-            className="btn btn-tertiary btn-sm"
-            style={{ color: 'var(--color-error)' }}
+            className="btn btn-tertiary btn-sm cat-btn-peligro-texto"
             onClick={() => setModalReporteAbierto(true)}
           >
             Reportar usuario
@@ -187,23 +163,13 @@ export default function PerfilVendedorPage() {
       </div>
 
       {/* Avisos publicados del vendedor */}
-      <div style={{ marginBottom: '32px' }}>
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            marginBottom: '16px'
-          }}
-        >
-          <h2
-            className="title-section"
-            style={{ color: 'var(--color-primary)' }}
-          >
+      <div className="cat-seccion-vendedor">
+        <div className="cat-seccion-header">
+          <h2 className="title-section cat-titulo-sin-margen">
             Avisos publicados
           </h2>
 
-          <div style={{ display: 'flex', gap: '8px' }}>
+          <div className="cat-demos-fila">
             {[
               { clave: 'Todos', count: avisosDelVendedor.length },
               {
@@ -231,13 +197,7 @@ export default function PerfilVendedorPage() {
           </div>
         </div>
 
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(195px, 1fr))',
-            gap: '14px'
-          }}
-        >
+        <div className="cat-vendedor-avisos-grid">
           {avisosMostrados.map((av) => (
             <TarjetaAviso key={av.id} aviso={av} mostrarCorazon={false} />
           ))}
@@ -246,40 +206,18 @@ export default function PerfilVendedorPage() {
 
       {/* Últimas calificaciones recibidas */}
       <div>
-        <h2
-          className="title-section"
-          style={{ color: 'var(--color-primary)', marginBottom: '16px' }}
-        >
+        <h2 className="title-section cat-titulo-primario">
           Últimas calificaciones recibidas
         </h2>
 
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(3, 1fr)',
-            gap: '16px'
-          }}
-        >
+        <div className="cat-calificaciones-grid">
           {calificacionesRecibidas.slice(0, 3).map((cal) => (
-            <div
-              key={cal.id}
-              className="card-surface"
-              style={{ padding: '18px 20px' }}
-            >
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  marginBottom: '8px'
-                }}
-              >
+            <div key={cal.id} className="card-surface cat-calificacion-card">
+              <div className="cat-calificacion-head">
                 <Estrellas valor={cal.puntaje} tamano="sm" />
                 <span className="text-aux">{cal.fecha}</span>
               </div>
-              <p style={{ fontSize: '14px', marginBottom: '10px' }}>
-                {cal.comentario}
-              </p>
+              <p className="cat-calificacion-comentario">{cal.comentario}</p>
               <span className="text-aux">
                 {cal.emisorNombre} · {cal.emisorCarrera}
               </span>

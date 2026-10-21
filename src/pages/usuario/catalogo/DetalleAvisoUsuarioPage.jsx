@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useParams, useNavigate } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { useAviso } from '../../../context/AvisoContext';
 import { useAuth } from '../../../context/AuthContext';
 import { useOferta } from '../../../context/OfertaContext';
@@ -11,10 +11,15 @@ import TarjetaAviso from '../../../components/TarjetaAviso/TarjetaAviso';
 import Notificacion from '../../../components/Notificacion/Notificacion';
 import ModalOferta from '../../../components/Modales/ModalOferta';
 import ModalReporte from '../../../components/Modales/ModalReporte';
+import { crearObjetoNuevaOferta } from './catalogoUtils';
+import './catalogo.css';
 
+/**
+ * MÓDULO: Catálogo y Búsqueda (Integrante 3 · HU-3)
+ * Vistas 3.5 y 3.6 — Detalle de aviso para estudiante autenticado (disponible y vendido)
+ */
 export default function DetalleAvisoUsuarioPage() {
   const { id } = useParams();
-  const navigate = useNavigate();
   const { obtenerAvisoPorId, avisos, toggleFavorito, esFavorito } = useAviso();
   const { usuarioActual, obtenerUsuarioPorId } = useAuth();
   const { ofertas, setOfertas } = useOferta();
@@ -45,37 +50,13 @@ export default function DetalleAvisoUsuarioPage() {
     .slice(0, 3);
 
   const handleConfirmarOferta = ({ monto, mensaje }) => {
-    const nuevaOferta = {
-      id: `of-${Date.now()}`,
-      avisoId: aviso.id,
-      avisoTitulo: aviso.titulo,
-      precioPedido: aviso.precio,
-      montoMinimo: aviso.montoMinimo,
-      vendedorId: aviso.vendedorId,
-      vendedorNombre: aviso.vendedorNombre,
-      compradorId: usuarioId,
-      compradorNombre: usuarioActual
-        ? `${usuarioActual.nombres} ${usuarioActual.apellidos}`
-        : 'Diego Alonso Vargas Huamán',
-      compradorCarrera: usuarioActual?.carrera || 'Ing. de Sistemas',
-      compradorReputacion: usuarioActual?.reputacion || 4.6,
-      monto: Number(monto),
-      mensaje: mensaje || '¿Podemos coordinar la entrega en el campus?',
-      estado: 'Enviada',
-      fecha: '17/10/2026',
-      movimientos: [
-        {
-          id: `m-${Date.now()}`,
-          autorId: usuarioId,
-          autorNombre: usuarioActual?.nombres || 'Comprador',
-          rolAutor: 'comprador',
-          tipo: 'Oferta enviada',
-          monto: Number(monto),
-          mensaje: mensaje || '',
-          fechaHora: '17/10/2026 · 10:00'
-        }
-      ]
-    };
+    const nuevaOferta = crearObjetoNuevaOferta({
+      aviso,
+      usuarioActual,
+      usuarioId,
+      monto,
+      mensaje
+    });
 
     setOfertas((prev) => [nuevaOferta, ...prev]);
     setModalOfertaAbierto(false);
@@ -142,33 +123,17 @@ export default function DetalleAvisoUsuarioPage() {
         />
       )}
 
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: '1.6fr 1fr',
-          gap: '32px',
-          alignItems: 'start'
-        }}
-      >
+      <div className="cat-detalle-columnas">
         {/* Columna izquierda: Galería + Descripción o Similares (Vistas 3.5 y 3.6) */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+        <div className="cat-pila">
           <GaleriaFotos fotos={aviso.fotos} vendido={estaVendido} />
 
           {estaVendido && avisosSimilares.length > 0 && (
             <div>
-              <h2
-                className="title-section"
-                style={{ color: 'var(--color-primary)', marginBottom: '14px' }}
-              >
+              <h2 className="title-section cat-titulo-primario">
                 Avisos similares del mismo curso
               </h2>
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(3, 1fr)',
-                  gap: '14px'
-                }}
-              >
+              <div className="cat-similares-grid">
                 {avisosSimilares.map((sim) => (
                   <TarjetaAviso key={sim.id} aviso={sim} mostrarCorazon={false} />
                 ))}
@@ -176,24 +141,11 @@ export default function DetalleAvisoUsuarioPage() {
             </div>
           )}
 
-          <div className="card-surface" style={{ padding: '24px 28px' }}>
-            <h2
-              className="title-section"
-              style={{ color: 'var(--color-primary)', marginBottom: '12px' }}
-            >
-              Descripción
-            </h2>
-            <p style={{ marginBottom: '20px' }}>{aviso.descripcion}</p>
+          <div className="card-surface cat-tarjeta">
+            <h2 className="title-section cat-titulo-primario">Descripción</h2>
+            <p className="cat-descripcion-texto">{aviso.descripcion}</p>
 
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(4, 1fr)',
-                gap: '16px',
-                paddingTop: '16px',
-                borderTop: '1px solid var(--color-border)'
-              }}
-            >
+            <div className="cat-ficha-meta">
               <div>
                 <span className="label-upper">Categoría</span>
                 <strong>{aviso.categoria}</strong>
@@ -215,9 +167,9 @@ export default function DetalleAvisoUsuarioPage() {
         </div>
 
         {/* Columna derecha: Panel dinámico según estado (Vistas 3.5 y 3.6) */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
-          <div className="card-surface" style={{ padding: '26px' }}>
-            <div style={{ marginBottom: '10px' }}>
+        <div className="cat-pila-derecha">
+          <div className="card-surface cat-tarjeta-ficha">
+            <div className="cat-espacio-abajo">
               <BadgeEstado
                 estado={
                   estaVendido
@@ -227,29 +179,16 @@ export default function DetalleAvisoUsuarioPage() {
               />
             </div>
 
-            <h1 className="title-screen" style={{ marginBottom: '10px' }}>
-              {aviso.titulo}
-            </h1>
+            <h1 className="title-screen cat-espacio-abajo">{aviso.titulo}</h1>
 
-            <div
-              className="price-text"
-              style={{ fontSize: '30px', lineHeight: '36px', marginBottom: '6px' }}
-            >
+            <div className="price-text cat-precio-grande">
               {formatearPrecio(aviso.precio)}
             </div>
 
             {estaVendido ? (
               /* Vista 3.6 — Aviso vendido */
               <>
-                <div
-                  className="card-surface"
-                  style={{
-                    padding: '14px 16px',
-                    backgroundColor: 'var(--color-bg)',
-                    marginBottom: '16px',
-                    fontSize: '14px'
-                  }}
-                >
+                <div className="card-surface cat-aviso-cerrado">
                   Este aviso ya se cerró y no acepta ofertas. Puedes ver avisos
                   parecidos del mismo curso o crear una alerta de búsqueda.
                 </div>
@@ -258,16 +197,14 @@ export default function DetalleAvisoUsuarioPage() {
                   to={`/catalogo?curso=${encodeURIComponent(
                     aviso.curso || 'Física II'
                   )}`}
-                  className="btn btn-primary"
-                  style={{ width: '100%', marginBottom: '10px' }}
+                  className="btn btn-primary cat-btn-bloque"
                 >
                   Ver avisos de {aviso.curso || 'Física II'}
                 </Link>
 
                 <button
                   type="button"
-                  className="btn btn-secondary"
-                  style={{ width: '100%' }}
+                  className="btn btn-secondary cat-btn-bloque"
                   onClick={() =>
                     setNotificacion({
                       tipo: 'exito',
@@ -283,55 +220,31 @@ export default function DetalleAvisoUsuarioPage() {
               /* Vista 3.5 — Aviso activo (con o sin oferta activa propia) */
               <>
                 {aviso.aceptaOfertas && (
-                  <p className="text-aux" style={{ marginBottom: '14px' }}>
+                  <p className="text-aux cat-nota-minimo">
                     Acepta ofertas desde {formatearPrecio(aviso.montoMinimo)}
                   </p>
                 )}
 
                 {ofertaActivaPropia && (
-                  <div
-                    style={{
-                      backgroundColor: 'var(--color-info-bg)',
-                      border: '1px solid #B7D4F0',
-                      borderRadius: 'var(--radius-btn)',
-                      padding: '16px',
-                      marginBottom: '16px'
-                    }}
-                  >
-                    <div
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '10px',
-                        marginBottom: '8px'
-                      }}
-                    >
+                  <div className="cat-oferta-activa-box">
+                    <div className="cat-oferta-activa-head">
                       <BadgeEstado estado="Oferta enviada" />
                       <span className="text-aux">{ofertaActivaPropia.fecha}</span>
                     </div>
 
-                    <div style={{ marginBottom: '6px' }}>
-                      <strong
-                        className="price-text"
-                        style={{ fontSize: '22px' }}
-                      >
+                    <div className="cat-oferta-activa-monto">
+                      <strong className="price-text cat-precio-oferta">
                         {formatearPrecio(ofertaActivaPropia.monto)}
                       </strong>{' '}
                       <span className="text-aux">tu oferta activa</span>
                     </div>
 
-                    <p
-                      style={{
-                        fontSize: '13px',
-                        color: 'var(--color-text)',
-                        marginBottom: '12px'
-                      }}
-                    >
+                    <p className="cat-oferta-activa-nota">
                       El vendedor todavía no responde. Solo se admite una oferta
                       activa por aviso.
                     </p>
 
-                    <div style={{ display: 'flex', gap: '8px' }}>
+                    <div className="cat-oferta-activa-botones">
                       <Link
                         to={`/ofertas/${ofertaActivaPropia.id}/hilo`}
                         className="btn btn-primary btn-sm"
@@ -351,27 +264,22 @@ export default function DetalleAvisoUsuarioPage() {
 
                 <button
                   type="button"
-                  className="btn btn-primary"
+                  className="btn btn-primary cat-btn-bloque"
                   disabled={Boolean(ofertaActivaPropia)}
-                  style={{ width: '100%', marginBottom: '6px' }}
                   onClick={() => setModalOfertaAbierto(true)}
                 >
                   Ofertar
                 </button>
 
                 {ofertaActivaPropia && (
-                  <span
-                    className="field-hint"
-                    style={{ marginBottom: '12px', display: 'block' }}
-                  >
+                  <span className="field-hint cat-hint-retirar">
                     Retira tu oferta actual para enviar otro monto.
                   </span>
                 )}
 
                 <button
                   type="button"
-                  className="btn btn-secondary"
-                  style={{ width: '100%', marginTop: '6px' }}
+                  className="btn btn-secondary cat-btn-favorito"
                   onClick={() => toggleFavorito(usuarioId, aviso.id)}
                 >
                   ♥ {guardadoFav ? 'Guardado en favoritos' : 'Guardar en favoritos'}
@@ -381,36 +289,13 @@ export default function DetalleAvisoUsuarioPage() {
           </div>
 
           {/* Ficha del vendedor */}
-          <div className="card-surface" style={{ padding: '20px 24px' }}>
-            <span className="label-upper" style={{ marginBottom: '10px' }}>
-              Vendedor
-            </span>
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                gap: '12px'
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <div
-                  style={{
-                    width: '40px',
-                    height: '40px',
-                    borderRadius: '50%',
-                    backgroundColor: 'var(--color-primary-soft)',
-                    color: 'var(--color-primary)',
-                    fontWeight: 700,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }}
-                >
-                  {inicialesVendedor}
-                </div>
+          <div className="card-surface cat-tarjeta-vendedor">
+            <span className="label-upper">Vendedor</span>
+            <div className="cat-vendedor-fila">
+              <div className="cat-vendedor-izq">
+                <div className="cat-avatar">{inicialesVendedor}</div>
                 <div>
-                  <strong style={{ display: 'block' }}>
+                  <strong className="cat-vendedor-nombre">
                     {aviso.vendedorNombre}
                   </strong>
                   <span className="text-aux">
@@ -423,29 +308,20 @@ export default function DetalleAvisoUsuarioPage() {
 
               <Link
                 to={`/vendedor/${aviso.vendedorId}`}
-                style={{ fontWeight: 600, fontSize: '14px' }}
+                className="cat-link-fuerte"
               >
                 Ver perfil
               </Link>
             </div>
           </div>
 
-          <div
-            className="card-surface"
-            style={{
-              padding: '14px 20px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between'
-            }}
-          >
+          <div className="card-surface cat-reportar-card">
             <span className="text-aux">
               ¿Este aviso incumple las normas del tablón?
             </span>
             <button
               type="button"
-              className="btn btn-tertiary btn-sm"
-              style={{ color: 'var(--color-error)' }}
+              className="btn btn-tertiary btn-sm cat-btn-peligro-texto"
               onClick={() => setModalReporteAbierto(true)}
             >
               Reportar aviso

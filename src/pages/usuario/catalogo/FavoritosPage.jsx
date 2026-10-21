@@ -4,7 +4,12 @@ import { useAuth } from '../../../context/AuthContext';
 import { useAviso } from '../../../context/AvisoContext';
 import TarjetaAviso from '../../../components/TarjetaAviso/TarjetaAviso';
 import EstadoVacio from '../../../components/EstadoVacio/EstadoVacio';
+import './catalogo.css';
 
+/**
+ * MÓDULO: Catálogo y Búsqueda (Integrante 3 · HU-3)
+ * Vista 3.7 — Avisos guardados en favoritos
+ */
 export default function FavoritosPage() {
   const { usuarioActual } = useAuth();
   const { avisos, favoritosPorUsuario, toggleFavorito } = useAviso();
@@ -33,29 +38,19 @@ export default function FavoritosPage() {
 
   return (
     <div className="page-container">
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          marginBottom: '22px'
-        }}
-      >
+      <div className="cat-favoritos-encabezado">
         <div>
-          <h1 className="title-screen" style={{ marginBottom: '4px' }}>
-            Favoritos
-          </h1>
+          <h1 className="title-screen">Favoritos</h1>
           <p className="text-aux">
             {avisosFavoritos.length} avisos guardados
             {vendidosCount > 0 ? ` · ${vendidosCount} ya se vendió` : ''}
           </p>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <div className="cat-orden-grupo">
           <span className="text-aux">Ordenar por</span>
           <select
-            className="form-select"
-            style={{ width: 'auto', padding: '7px 14px' }}
+            className="form-select cat-select-orden"
             value={orden}
             onChange={(e) => setOrden(e.target.value)}
           >
@@ -75,13 +70,7 @@ export default function FavoritosPage() {
           rutaBoton="/catalogo"
         />
       ) : (
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
-            gap: '18px'
-          }}
-        >
+        <div className="cat-favoritos-grid">
           {avisosFavoritos.map((aviso) => {
             const vendido = aviso.estado === 'Vendido';
             return (
@@ -91,22 +80,14 @@ export default function FavoritosPage() {
                 accionInferior={
                   vendido ? (
                     <div>
-                      <span
-                        style={{
-                          display: 'block',
-                          fontSize: '12px',
-                          fontWeight: 600,
-                          color: 'var(--color-success)',
-                          marginBottom: '4px'
-                        }}
-                      >
+                      <span className="cat-fav-vendido-tag">
                         Ya se vendió · {aviso.fechaVenta || '21/08/2026'}
                       </span>
                       <Link
                         to={`/catalogo?curso=${encodeURIComponent(
                           aviso.curso || ''
                         )}`}
-                        style={{ fontSize: '13px', fontWeight: 600 }}
+                        className="cat-fav-link-similares"
                       >
                         Ver avisos similares
                       </Link>
@@ -118,15 +99,7 @@ export default function FavoritosPage() {
                         e.preventDefault();
                         toggleFavorito(usuarioId, aviso.id);
                       }}
-                      style={{
-                        background: 'transparent',
-                        border: 'none',
-                        color: 'var(--color-primary)',
-                        fontSize: '13px',
-                        fontWeight: 600,
-                        cursor: 'pointer',
-                        padding: 0
-                      }}
+                      className="cat-btn-quitar-fav"
                     >
                       Quitar de favoritos
                     </button>
