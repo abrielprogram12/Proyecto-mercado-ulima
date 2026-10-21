@@ -1,0 +1,590 @@
+/* ==========================================================================
+   MÓDULO DE REPUTACIÓN Y CALIFICACIONES (HU-6 — Integrante 6)
+   Vistas 6.1 (Calificar contraparte), 6.2 (Perfil de reputación)
+   y 6.3 (Mis calificaciones emitidas y recibidas)
+   ========================================================================== */
+
+.rep-page-title {
+  margin-bottom: 16px;
+}
+
+.rep-btn-danger-text {
+  color: var(--color-error);
+}
+
+/* Vista 6.1 — Calificar contraparte */
+.rep-rate-grid {
+  display: grid;
+  grid-template-columns: 1.65fr 1fr;
+  gap: 28px;
+  align-items: start;
+}
+
+.rep-rate-form-card {
+  padding: 30px 32px;
+}
+
+.rep-rate-title {
+  margin-bottom: 6px;
+}
+
+.rep-rate-subtitle {
+  margin-bottom: 20px;
+}
+
+.rep-acuerdo-summary {
+  padding: 16px 18px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background-color: var(--color-bg);
+  margin-bottom: 24px;
+}
+
+.rep-acuerdo-thumb {
+  width: 80px;
+  height: 62px;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.rep-acuerdo-title {
+  display: block;
+  font-size: 15px;
+}
+
+.rep-acuerdo-meta {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.rep-acuerdo-price {
+  font-size: 17px;
+}
+
+.rep-stars-selector-wrap {
+  margin: 8px 0;
+}
+
+.rep-aspectos-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.rep-deadline-banner {
+  margin-bottom: 22px;
+}
+
+.rep-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 16px;
+}
+
+.rep-side-col {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.rep-side-card {
+  padding: 20px 22px;
+}
+
+.rep-side-label {
+  margin-bottom: 10px;
+}
+
+.rep-states-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.rep-state-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.rep-published-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.rep-published-stars {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.rep-published-comment {
+  font-size: 13px;
+  margin-bottom: 12px;
+}
+
+.rep-published-actions {
+  display: flex;
+  gap: 10px;
+}
+
+/* Vista 6.2 — Perfil de reputación */
+.rep-profile-hero {
+  padding: 26px 30px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.rep-profile-hero-left {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.rep-profile-avatar {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.rep-profile-name-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+  flex-wrap: wrap;
+}
+
+.rep-profile-grid {
+  display: grid;
+  grid-template-columns: 0.85fr 1.85fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.rep-stats-card {
+  padding: 24px 26px;
+}
+
+.rep-score-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.rep-score-big {
+  font-size: 42px;
+  line-height: 1;
+}
+
+.rep-score-count {
+  display: block;
+}
+
+.rep-bars-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--color-border);
+  margin-bottom: 18px;
+}
+
+.rep-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+}
+
+.rep-bar-label {
+  width: 28px;
+}
+
+.rep-bar-track {
+  flex: 1;
+  height: 8px;
+  border-radius: 4px;
+  background-color: var(--color-neutral);
+  overflow: hidden;
+}
+
+.rep-bar-fill {
+  height: 100%;
+  background-color: var(--color-success);
+}
+
+.rep-bar-fill--82 {
+  width: 82%;
+}
+
+.rep-bar-fill--18 {
+  width: 18%;
+}
+
+.rep-bar-fill--0 {
+  width: 0%;
+}
+
+.rep-bar-count {
+  width: 18px;
+  text-align: right;
+}
+
+.rep-metrics-two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  text-align: center;
+  margin-bottom: 18px;
+}
+
+.rep-metric-number {
+  font-size: 22px;
+  display: block;
+}
+
+.rep-trust-callout {
+  background-color: var(--color-success-bg);
+  border: 1px solid var(--color-success);
+  border-radius: var(--radius-btn);
+  padding: 12px 14px;
+  font-size: 13px;
+  margin-bottom: 12px;
+}
+
+.rep-trust-title {
+  color: var(--color-success);
+}
+
+.rep-info-callout {
+  background-color: var(--color-primary-soft);
+  border-radius: var(--radius-btn);
+  padding: 12px 14px;
+  font-size: 13px;
+}
+
+.rep-reviews-card {
+  padding: 24px 28px;
+}
+
+.rep-reviews-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.rep-reviews-title {
+  color: var(--color-primary);
+}
+
+.rep-reviews-filters {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.rep-reviews-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.rep-review-item {
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.rep-review-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  gap: 10px;
+}
+
+.rep-review-author {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.rep-review-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background-color: var(--color-primary-soft);
+  color: var(--color-primary);
+  font-weight: 700;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.rep-review-author-name {
+  display: block;
+  font-size: 14px;
+}
+
+.rep-review-right {
+  text-align: right;
+}
+
+.rep-review-date {
+  display: block;
+}
+
+.rep-review-text {
+  font-size: 14px;
+}
+
+/* Vista 6.3 — Mis calificaciones */
+.rep-tabs-bar {
+  display: flex;
+  gap: 24px;
+  border-bottom: 1px solid var(--color-border);
+  margin-bottom: 22px;
+}
+
+.rep-tab-btn {
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  padding: 10px 4px;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.rep-tab-btn--active {
+  border-bottom-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.rep-my-grid {
+  display: grid;
+  grid-template-columns: 1.75fr 1fr;
+  gap: 28px;
+  align-items: start;
+}
+
+.rep-my-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.rep-my-card {
+  padding: 20px 24px;
+}
+
+.rep-my-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  gap: 12px;
+}
+
+.rep-my-card-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.rep-my-thumb {
+  width: 56px;
+  height: 44px;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.rep-my-aviso-title {
+  display: block;
+  font-size: 15px;
+}
+
+.rep-edit-box {
+  margin-top: 10px;
+}
+
+.rep-edit-stars {
+  margin-bottom: 8px;
+}
+
+.rep-edit-textarea {
+  margin-bottom: 10px;
+}
+
+.rep-edit-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.rep-my-comment {
+  font-size: 14px;
+  margin-bottom: 12px;
+}
+
+.rep-my-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.rep-my-footer-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.rep-pending-card {
+  padding: 18px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1.5px solid var(--color-primary);
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.rep-pending-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.rep-received-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.rep-received-meta {
+  display: block;
+}
+
+.rep-my-side-col {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.rep-my-side-card {
+  padding: 22px 24px;
+}
+
+.rep-my-side-label {
+  margin-bottom: 12px;
+}
+
+.rep-my-side-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.rep-my-side-score-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.rep-my-side-score {
+  font-size: 32px;
+}
+
+.rep-mini-review {
+  padding: 12px 0;
+  border-top: 1px solid var(--color-border);
+}
+
+.rep-mini-review-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.rep-mini-review-author {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.rep-mini-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background-color: var(--color-primary-soft);
+  color: var(--color-primary);
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.rep-mini-author-name {
+  font-size: 13px;
+  display: block;
+}
+
+.rep-mini-meta {
+  font-size: 11px;
+}
+
+.rep-mini-comment {
+  font-size: 13px;
+}
+
+.rep-side-note {
+  margin-top: 10px;
+  font-size: 12px;
+}
+
+.rep-modal-title {
+  margin-bottom: 10px;
+}
+
+.rep-modal-desc {
+  margin-bottom: 20px;
+}
+
+@media (max-width: 900px) {
+  .rep-rate-grid,
+  .rep-profile-grid,
+  .rep-my-grid {
+    grid-template-columns: 1fr;
+  }
+}
