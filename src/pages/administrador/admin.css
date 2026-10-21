@@ -1,0 +1,468 @@
+/* ==========================================================================
+   MÓDULO DE MODERACIÓN Y MÉTRICAS (HU-7 — Integrante 7)
+   Vistas 7.1 (Bandeja de reportes), 7.2 (Detalle y resolución de reporte),
+   7.3 (Gestión de usuarios) y 7.4 (Tablero de métricas)
+   ========================================================================== */
+
+.adm-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.adm-header-row--lg-gap {
+  gap: 16px;
+}
+
+.adm-filters-card {
+  padding: 18px 20px;
+  margin-bottom: 24px;
+}
+
+.adm-tabs-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 14px;
+  margin-bottom: 16px;
+}
+
+.adm-tabs-bar-clean {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.adm-filters-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr auto;
+  gap: 12px;
+  align-items: end;
+}
+
+.adm-th-right,
+.adm-td-right {
+  text-align: right;
+}
+
+.adm-code-bold {
+  font-weight: 700;
+}
+
+.adm-code-md {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.adm-type-pill {
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  background-color: var(--color-primary-soft);
+  color: var(--color-text);
+}
+
+.adm-type-pill--usuario {
+  background-color: var(--color-info-bg);
+  color: var(--color-info);
+}
+
+.adm-col-elemento {
+  max-width: 250px;
+}
+
+.adm-elemento-title {
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.adm-col-motivo {
+  max-width: 210px;
+}
+
+.adm-motivo-text {
+  font-weight: 500;
+}
+
+/* Vista 7.2 — Detalle de reporte */
+.adm-report-hero {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.adm-report-title {
+  font-size: 24px;
+  margin-top: 8px;
+}
+
+.adm-detail-grid {
+  align-items: start;
+}
+
+.adm-col-left-7 {
+  grid-column: span 7;
+}
+
+.adm-col-right-5 {
+  grid-column: span 5;
+}
+
+.adm-reported-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-top: 12px;
+  padding: 16px;
+  border-radius: 8px;
+  background-color: var(--color-primary-soft);
+  border: 1px solid var(--color-border);
+  flex-wrap: wrap;
+}
+
+.adm-reported-item-title {
+  font-weight: 700;
+  font-size: 17px;
+}
+
+.adm-reported-price {
+  font-size: 18px;
+  margin-top: 8px;
+}
+
+.adm-reported-user-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-border);
+  flex-wrap: wrap;
+}
+
+.adm-user-name-bold {
+  font-weight: 600;
+}
+
+.adm-motivo-declared {
+  font-weight: 700;
+  font-size: 16px;
+  margin-top: 2px;
+}
+
+.adm-evidence-quote {
+  margin-top: 12px;
+  padding: 14px 16px;
+  background-color: var(--color-bg);
+  border-left: 3px solid var(--color-primary);
+  border-radius: 4px;
+  font-style: italic;
+}
+
+.adm-reporter-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--color-border);
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.adm-trusted-reporter-badge {
+  padding: 3px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  background-color: var(--color-success-bg);
+  color: var(--color-success);
+}
+
+.adm-history-entry {
+  padding: 10px 14px;
+  border-radius: 6px;
+  background-color: var(--color-primary-soft);
+  font-size: 13px;
+}
+
+.adm-history-linked-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-radius: 6px;
+  border: 1px solid var(--color-border);
+  font-size: 13px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.adm-history-current-row {
+  padding: 10px 14px;
+  border-radius: 6px;
+  background-color: var(--color-info-bg);
+  color: var(--color-info);
+  font-size: 13px;
+}
+
+.adm-closed-summary {
+  margin-top: 16px;
+  padding: 12px;
+  border-radius: 6px;
+  background-color: var(--color-primary-soft);
+  font-size: 13px;
+}
+
+/* Vista 7.3 — Gestión de usuarios */
+.adm-user-email {
+  font-size: 12px;
+}
+
+.adm-star-gold {
+  color: #D97706;
+  font-weight: 700;
+}
+
+.adm-reports-count {
+  font-weight: 700;
+  color: var(--color-warning);
+}
+
+.adm-reports-count--high {
+  color: var(--color-error);
+}
+
+.adm-block-reason-hint {
+  max-width: 170px;
+  margin-top: 4px;
+}
+
+.adm-actions-end {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.adm-pagination-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  border-top: 1px solid var(--color-border);
+  background-color: var(--color-primary-soft);
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+/* Vista 7.4 — Tablero de métricas */
+.adm-period-switcher {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--color-surface);
+  padding: 4px;
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+}
+
+.adm-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.adm-kpi-card {
+  padding: 18px 20px;
+  border-left: 1px solid var(--color-border);
+  cursor: default;
+}
+
+.adm-kpi-card--alert {
+  border-left: 4px solid var(--color-primary);
+  cursor: pointer;
+}
+
+.adm-kpi-value {
+  font-family: var(--font-display);
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--color-text);
+  margin-top: 6px;
+  line-height: 1.1;
+}
+
+.adm-kpi-value--alert {
+  color: var(--color-primary);
+}
+
+.adm-kpi-trend {
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  margin-top: 8px;
+}
+
+.adm-kpi-trend--alert {
+  color: var(--color-primary);
+}
+
+.adm-analytics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(460px, 1fr));
+  gap: 24px;
+}
+
+.adm-cat-row-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+
+.adm-cat-bar-track {
+  height: 8px;
+  border-radius: 999px;
+  background-color: var(--color-primary-soft);
+  overflow: hidden;
+}
+
+.adm-cat-bar-fill {
+  height: 100%;
+  background-color: var(--color-primary);
+  border-radius: 999px;
+}
+
+.adm-w-100 { width: 100%; }
+.adm-w-50  { width: 50%; }
+.adm-w-41  { width: 41%; }
+.adm-w-40  { width: 40%; }
+.adm-w-36  { width: 36%; }
+.adm-w-33  { width: 33%; }
+.adm-w-28  { width: 28%; }
+.adm-w-23  { width: 23%; }
+.adm-w-22  { width: 22%; }
+.adm-w-21  { width: 21%; }
+.adm-w-18  { width: 18%; }
+.adm-w-15  { width: 15%; }
+.adm-w-14  { width: 14%; }
+.adm-w-10  { width: 10%; }
+.adm-w-9   { width: 9%; }
+
+.adm-spot-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  background-color: var(--color-primary-soft);
+}
+
+.adm-spot-rank {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background-color: var(--color-text-secondary);
+  color: #FFFFFF;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.adm-spot-rank--top {
+  background-color: var(--color-primary);
+}
+
+.adm-segmented-bar {
+  display: flex;
+  height: 16px;
+  border-radius: 999px;
+  overflow: hidden;
+  margin-bottom: 20px;
+  gap: 2px;
+}
+
+.adm-seg-bg--aceptadas {
+  background-color: #2E6B3E;
+}
+
+.adm-seg-bg--contraoferta {
+  background-color: #B8621B;
+}
+
+.adm-seg-bg--pendientes {
+  background-color: #2B5B84;
+}
+
+.adm-seg-bg--rechazadas {
+  background-color: #78716C;
+}
+
+.adm-offers-breakdown-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.adm-offer-stat-box {
+  padding: 12px;
+  border-radius: 6px;
+  border: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.adm-offer-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.adm-offer-stat-val {
+  font-size: 13px;
+}
+
+.adm-mod-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--color-border);
+  font-size: 14px;
+}
+
+.adm-mod-label {
+  color: var(--color-text-secondary);
+}
+
+@media (max-width: 900px) {
+  .adm-filters-grid,
+  .adm-analytics-grid,
+  .adm-offers-breakdown-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .adm-col-left-7,
+  .adm-col-right-5 {
+    grid-column: span 12;
+  }
+}
