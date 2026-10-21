@@ -3,7 +3,13 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { ROLES_USUARIO } from '../../data/contratoDatos';
 import Notificacion from '../../components/Notificacion/Notificacion';
+import { CUENTAS_PRUEBA_LOGIN } from './visitanteUtils';
+import './visitante.css';
 
+/**
+ * MÓDULO: Visitante y Acceso (Integrante 1 · HU-1)
+ * Vista 1.2 y 1.8 — Inicio de sesión institucional
+ */
 export default function LoginPage() {
   const { login, obtenerCorreoRecordado } = useAuth();
   const navigate = useNavigate();
@@ -76,78 +82,34 @@ export default function LoginPage() {
     setErrorCampoCorreo('');
   };
 
+  const clasesPassGrupo = [
+    'vis-pass-grupo',
+    errorCampoPassword ? 'con-error' : '',
+    cargando ? 'deshabilitado' : ''
+  ]
+    .filter(Boolean)
+    .join(' ');
+
   return (
-    <div
-      style={{
-        display: 'grid',
-        gridTemplateColumns: '1fr 1fr',
-        minHeight: 'calc(100vh - 130px)'
-      }}
-    >
+    <div className="vis-login-layout">
       {/* Panel izquierdo — Vista 1.2 */}
-      <div
-        style={{
-          backgroundColor: 'var(--color-primary-soft)',
-          padding: '64px 72px',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          borderRight: '1px solid var(--color-border)'
-        }}
-      >
-        <div
-          className="striped-placeholder"
-          style={{
-            width: '100%',
-            height: '320px',
-            borderRadius: 'var(--radius-card)',
-            border: '1px solid var(--color-border)',
-            marginBottom: '28px'
-          }}
-        >
-          <span
-            style={{
-              backgroundColor: 'rgba(253, 250, 247, 0.85)',
-              padding: '6px 14px',
-              borderRadius: '6px'
-            }}
-          >
-            fotografía · patio del campus
-          </span>
+      <div className="vis-login-izq">
+        <div className="striped-placeholder vis-login-foto">
+          <span className="vis-foto-etiqueta">fotografía · patio del campus</span>
         </div>
 
-        <blockquote
-          style={{
-            fontSize: '22px',
-            lineHeight: '30px',
-            fontWeight: 700,
-            color: 'var(--color-text)',
-            marginBottom: '10px'
-          }}
-        >
+        <blockquote className="vis-login-cita">
           «Vendí mis libros de Cálculo en tres días y compré los de Física del ciclo
           siguiente.»
         </blockquote>
-        <p className="text-aux" style={{ fontSize: '14px' }}>
-          Rosa María Quispe Ríos · Administración
-        </p>
+        <p className="text-aux">Rosa María Quispe Ríos · Administración</p>
       </div>
 
       {/* Panel derecho — Formulario de inicio de sesión (Vistas 1.2 y 1.8) */}
-      <div
-        style={{
-          backgroundColor: 'var(--color-surface)',
-          padding: '64px 48px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}
-      >
-        <div style={{ width: '100%', maxWidth: '420px' }}>
-          <h1 className="title-screen" style={{ marginBottom: '10px' }}>
-            Iniciar sesión
-          </h1>
-          <p className="text-aux" style={{ fontSize: '14px', marginBottom: '24px' }}>
+      <div className="vis-login-der">
+        <div className="vis-login-caja">
+          <h1 className="title-screen">Iniciar sesión</h1>
+          <p className="text-aux vis-subtitulo-form">
             Usa tu correo institucional @aloe.ulima.edu.pe para ofertar, publicar y
             coordinar entregas.
           </p>
@@ -185,49 +147,21 @@ export default function LoginPage() {
               <label className="label-upper" htmlFor="login-password">
                 Contraseña
               </label>
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  border: `1px solid ${
-                    errorCampoPassword ? 'var(--color-error)' : 'var(--color-border)'
-                  }`,
-                  borderRadius: 'var(--radius-input)',
-                  backgroundColor: cargando
-                    ? 'var(--color-neutral)'
-                    : 'var(--color-surface)',
-                  overflow: 'hidden'
-                }}
-              >
+              <div className={clasesPassGrupo}>
                 <input
                   id="login-password"
                   type={mostrarPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={cargando}
-                  style={{
-                    flex: 1,
-                    padding: '12px 14px',
-                    border: 'none',
-                    outline: 'none',
-                    backgroundColor: 'transparent',
-                    color: 'var(--color-text)'
-                  }}
+                  className="vis-pass-input"
                   required
                 />
                 <button
                   type="button"
                   disabled={cargando}
                   onClick={() => setMostrarPassword((prev) => !prev)}
-                  style={{
-                    padding: '0 16px',
-                    border: 'none',
-                    background: 'transparent',
-                    color: 'var(--color-primary)',
-                    fontWeight: 600,
-                    fontSize: '13px',
-                    cursor: cargando ? 'not-allowed' : 'pointer'
-                  }}
+                  className="vis-pass-toggle"
                 >
                   {mostrarPassword ? 'Ocultar' : 'Mostrar'}
                 </button>
@@ -237,44 +171,23 @@ export default function LoginPage() {
               )}
             </div>
 
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                marginBottom: '22px',
-                fontSize: '14px'
-              }}
-            >
-              <label
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  cursor: cargando ? 'not-allowed' : 'pointer'
-                }}
-              >
+            <div className="vis-login-opciones">
+              <label className="vis-check-label">
                 <input
                   type="checkbox"
                   checked={recordarme}
                   onChange={(e) => setRecordarme(e.target.checked)}
                   disabled={cargando}
-                  style={{
-                    width: '16px',
-                    height: '16px',
-                    accentColor: 'var(--color-primary)'
-                  }}
+                  className="vis-check-input"
                 />
                 <span>Recordarme</span>
               </label>
 
               <Link
                 to="/recuperar-password"
-                style={{
-                  fontWeight: 600,
-                  fontSize: '14px',
-                  pointerEvents: cargando ? 'none' : 'auto'
-                }}
+                className={`vis-link-fuerte ${
+                  cargando ? 'vis-link-deshabilitado' : ''
+                }`}
               >
                 ¿Olvidaste tu contraseña?
               </Link>
@@ -282,9 +195,8 @@ export default function LoginPage() {
 
             <button
               type="submit"
-              className="btn btn-primary"
+              className="btn btn-primary vis-btn-bloque"
               disabled={cargando}
-              style={{ width: '100%', padding: '13px' }}
             >
               {cargando ? (
                 <>
@@ -297,60 +209,36 @@ export default function LoginPage() {
             </button>
 
             {cargando && (
-              <p className="field-hint" style={{ textAlign: 'center', marginTop: '8px' }}>
+              <p className="field-hint vis-hint-centrado">
                 El botón y los campos quedan deshabilitados mientras se validan las
                 credenciales.
               </p>
             )}
           </form>
 
-          <p
-            style={{
-              textAlign: 'center',
-              marginTop: '22px',
-              fontSize: '14px',
-              color: 'var(--color-text-secondary)'
-            }}
-          >
+          <p className="vis-pie-registro">
             ¿No tienes cuenta?{' '}
-            <Link to="/registro" style={{ fontWeight: 600 }}>
+            <Link to="/registro" className="vis-link-fuerte">
               Crear cuenta
             </Link>
           </p>
 
           {/* Accesos rápidos para pruebas de cátedra */}
-          <div
-            style={{
-              marginTop: '28px',
-              paddingTop: '16px',
-              borderTop: '1px dashed var(--color-border)'
-            }}
-          >
-            <span className="label-upper" style={{ marginBottom: '8px' }}>
+          <div className="vis-demo-seccion">
+            <span className="label-upper">
               Cuentas de prueba (Contraseña: Password123)
             </span>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-              <button
-                type="button"
-                className="chip chip-selectable"
-                onClick={() => rellenarCuentaDemo('20201234@aloe.ulima.edu.pe')}
-              >
-                Rosa Quispe (Usuario)
-              </button>
-              <button
-                type="button"
-                className="chip chip-selectable"
-                onClick={() => rellenarCuentaDemo('admin@ulima.edu.pe')}
-              >
-                Julio Mendoza (Admin)
-              </button>
-              <button
-                type="button"
-                className="chip chip-selectable"
-                onClick={() => rellenarCuentaDemo('20189922@aloe.ulima.edu.pe')}
-              >
-                Marco Loayza (Bloqueado)
-              </button>
+            <div className="vis-demo-chips">
+              {CUENTAS_PRUEBA_LOGIN.map((cuenta) => (
+                <button
+                  key={cuenta.correo}
+                  type="button"
+                  className="chip chip-selectable"
+                  onClick={() => rellenarCuentaDemo(cuenta.correo)}
+                >
+                  {cuenta.etiqueta}
+                </button>
+              ))}
             </div>
           </div>
         </div>

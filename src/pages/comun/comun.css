@@ -1,0 +1,67 @@
+/* HU-1 · Páginas comunes (Acceso denegado y 404) — usa las variables de index.css y las clases base de App.css */
+
+.com-centrado {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: calc(100vh - 220px);
+}
+
+.com-circulo-alerta {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  background-color: var(--color-warning-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.com-candado {
+  width: 28px;
+  height: 24px;
+  border: 3px solid var(--color-warning);
+  border-radius: 4px;
+}
+
+.com-titulo-denegado {
+  font-size: 32px;
+  margin-bottom: 12px;
+}
+
+.com-descripcion-ancha {
+  max-width: 540px;
+  font-size: 15px;
+  line-height: 23px;
+  margin-bottom: 28px;
+}
+
+.com-acciones {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.com-codigo-404 {
+  font-size: 96px;
+  line-height: 1;
+  font-weight: 800;
+  color: var(--color-primary);
+  margin-bottom: 12px;
+}
+
+.com-titulo-404 {
+  font-size: 28px;
+  margin-bottom: 10px;
+}
+
+.com-descripcion-404 {
+  max-width: 480px;
+  font-size: 15px;
+  line-height: 22px;
+  margin-bottom: 26px;
+}
