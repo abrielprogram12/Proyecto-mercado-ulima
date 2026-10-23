@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { obtenerIniciales } from '../../data/contratoDatos';
 import './Modales.css';
 
 const MOTIVOS_BLOQUEO = [
@@ -15,7 +16,9 @@ export default function ModalBloquearCuenta({
   onConfirmar
 }) {
   const [motivo, setMotivo] = useState('Reportes reiterados por estafa');
-  const [detalle, setDetalle] = useState('');
+  const [detalle, setDetalle] = useState(
+    'Tres reportes independientes por pedir pagos adelantados fuera del campus.'
+  );
 
   if (!abierto) return null;
 
@@ -30,17 +33,25 @@ export default function ModalBloquearCuenta({
         </div>
 
         <div className="modal-item-preview">
+          <div className="striped-placeholder modal-item-thumb">
+            {obtenerIniciales(usuario?.nombres, usuario?.apellidos)}
+          </div>
           <div>
-            <strong>{usuario?.nombres} {usuario?.apellidos}</strong>
+            <strong>
+              {usuario?.nombres} {usuario?.apellidos}
+            </strong>
             <div className="text-aux">
-              {usuario?.correo} · {usuario?.reputacion} ★ · {usuario?.reportesAcumulados || 0} reportes
+              {usuario?.correo || '20226677@aloe.ulima.edu.pe'} ·{' '}
+              {usuario?.reputacion || 3.1} ★ ·{' '}
+              {usuario?.reportesAcumulados || 3} reportes
             </div>
           </div>
         </div>
 
         <div className="notificacion-banner notif-advertencia">
           <span>
-            Se retirarán sus avisos publicados y se cancelarán sus acuerdos en curso. No podrá iniciar sesión hasta que se levante el bloqueo.
+            Se retirarán sus avisos publicados y se cancelarán sus acuerdos en
+            curso. No podrá iniciar sesión hasta que se levante el bloqueo.
           </span>
         </div>
 

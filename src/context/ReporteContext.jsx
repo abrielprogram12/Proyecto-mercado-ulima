@@ -11,7 +11,7 @@ const METRICAS_POR_PERIODO = {
       { etiqueta: 'AVISOS ACTIVOS', valor: '124', tendencia: '+6 en 7 días' },
       { etiqueta: 'ACUERDOS CERRADOS', valor: '19', tendencia: '+14 % vs. sem. ant.' },
       { etiqueta: 'OFERTAS ENVIADAS', valor: '68', tendencia: '28 % aceptadas' },
-      { etiqueta: 'TIEMPO AL ACUERDO', valor: '1.9 d', tendencia: 'Mediana en 7 días' },
+      { etiqueta: 'TIEMPO AL ACUERDO', valor: '1.9 d', tendencia: 'mediana en 7 días' },
       { etiqueta: 'REPORTES ABIERTOS', valor: '5', tendencia: '3 nuevos · 2 en rev.', alerta: true }
     ],
     categorias: [
@@ -25,16 +25,16 @@ const METRICAS_POR_PERIODO = {
     puntosEncuentro: [
       { puesto: 1, nombre: 'Biblioteca', acuerdos: 8, porcentaje: 42 },
       { puesto: 2, nombre: 'Puerta 1', acuerdos: 5, porcentaje: 26 },
-      { puesto: 3, nombre: 'Cafetería del pabellón E', acuerdos: 3, porcentaje: 16 },
-      { puesto: 4, nombre: 'Patio del pabellón H', acuerdos: 2, porcentaje: 11 },
-      { puesto: 5, nombre: 'Explanada central', acuerdos: 1, porcentaje: 5 }
+      { puesto: 3, nombre: 'Cafetería E', acuerdos: 3, porcentaje: 16 },
+      { puesto: 4, nombre: 'Patio H', acuerdos: 2, porcentaje: 11 },
+      { puesto: 5, nombre: 'Explanada', acuerdos: 1, porcentaje: 5 }
     ],
     ofertasTotal: 68,
     ofertasDesglose: [
       { estado: 'Aceptadas', cantidad: 19, porcentaje: 28, color: '#2E6B3E' },
-      { estado: 'Contraoferta', cantidad: 14, porcentaje: 21, color: '#B8621B' },
+      { estado: 'En contraoferta', cantidad: 14, porcentaje: 21, color: '#B8621B' },
       { estado: 'Pendientes', cantidad: 12, porcentaje: 18, color: '#2B5B84' },
-      { estado: 'Rechazadas', cantidad: 23, porcentaje: 33, color: '#78716C' }
+      { estado: 'Rechazadas', cantidad: 23, porcentaje: 33, color: '#9E9388' }
     ],
     moderacion: [
       { etiqueta: 'Reportes recibidos en el periodo', valor: '6' },
@@ -50,7 +50,7 @@ const METRICAS_POR_PERIODO = {
       { etiqueta: 'AVISOS ACTIVOS', valor: '124', tendencia: '+18 % vs. mes ant.' },
       { etiqueta: 'ACUERDOS CERRADOS', valor: '86', tendencia: '+24 % vs. mes ant.' },
       { etiqueta: 'OFERTAS ENVIADAS', valor: '312', tendencia: '28 % aceptadas' },
-      { etiqueta: 'TIEMPO AL ACUERDO', valor: '2.3 d', tendencia: 'Mediana de cierre' },
+      { etiqueta: 'TIEMPO AL ACUERDO', valor: '2.3 d', tendencia: 'mediana de cierre' },
       { etiqueta: 'REPORTES ABIERTOS', valor: '5', tendencia: '3 nuevos · 2 en rev.', alerta: true }
     ],
     categorias: [
@@ -64,16 +64,16 @@ const METRICAS_POR_PERIODO = {
     puntosEncuentro: [
       { puesto: 1, nombre: 'Biblioteca', acuerdos: 34, porcentaje: 40 },
       { puesto: 2, nombre: 'Puerta 1', acuerdos: 22, porcentaje: 26 },
-      { puesto: 3, nombre: 'Cafetería del pabellón E', acuerdos: 14, porcentaje: 16 },
-      { puesto: 4, nombre: 'Patio del pabellón H', acuerdos: 10, porcentaje: 12 },
-      { puesto: 5, nombre: 'Explanada central', acuerdos: 6, porcentaje: 7 }
+      { puesto: 3, nombre: 'Cafetería E', acuerdos: 14, porcentaje: 16 },
+      { puesto: 4, nombre: 'Patio H', acuerdos: 10, porcentaje: 12 },
+      { puesto: 5, nombre: 'Explanada', acuerdos: 6, porcentaje: 7 }
     ],
     ofertasTotal: 312,
     ofertasDesglose: [
       { estado: 'Aceptadas', cantidad: 86, porcentaje: 28, color: '#2E6B3E' },
-      { estado: 'Contraoferta', cantidad: 64, porcentaje: 21, color: '#B8621B' },
+      { estado: 'En contraoferta', cantidad: 64, porcentaje: 21, color: '#B8621B' },
       { estado: 'Pendientes', cantidad: 48, porcentaje: 15, color: '#2B5B84' },
-      { estado: 'Rechazadas', cantidad: 114, porcentaje: 36, color: '#78716C' }
+      { estado: 'Rechazadas', cantidad: 114, porcentaje: 36, color: '#9E9388' }
     ],
     moderacion: [
       { etiqueta: 'Reportes recibidos en el periodo', valor: '19' },
@@ -89,7 +89,7 @@ const METRICAS_POR_PERIODO = {
       { etiqueta: 'AVISOS ACTIVOS', valor: '124', tendencia: '412 históricos' },
       { etiqueta: 'ACUERDOS CERRADOS', valor: '248', tendencia: '94 % entrega efectiva' },
       { etiqueta: 'OFERTAS ENVIADAS', valor: '890', tendencia: '28 % aceptadas' },
-      { etiqueta: 'TIEMPO AL ACUERDO', valor: '2.5 d', tendencia: 'Mediana histórica' },
+      { etiqueta: 'TIEMPO AL ACUERDO', valor: '2.5 d', tendencia: 'mediana histórica' },
       { etiqueta: 'REPORTES ABIERTOS', valor: '5', tendencia: '3 nuevos · 2 en rev.', alerta: true }
     ],
     categorias: [
@@ -103,16 +103,16 @@ const METRICAS_POR_PERIODO = {
     puntosEncuentro: [
       { puesto: 1, nombre: 'Biblioteca', acuerdos: 98, porcentaje: 40 },
       { puesto: 2, nombre: 'Puerta 1', acuerdos: 64, porcentaje: 26 },
-      { puesto: 3, nombre: 'Cafetería del pabellón E', acuerdos: 40, porcentaje: 16 },
-      { puesto: 4, nombre: 'Patio del pabellón H', acuerdos: 29, porcentaje: 12 },
-      { puesto: 5, nombre: 'Explanada central', acuerdos: 17, porcentaje: 7 }
+      { puesto: 3, nombre: 'Cafetería E', acuerdos: 40, porcentaje: 16 },
+      { puesto: 4, nombre: 'Patio H', acuerdos: 29, porcentaje: 12 },
+      { puesto: 5, nombre: 'Explanada', acuerdos: 17, porcentaje: 7 }
     ],
     ofertasTotal: 890,
     ofertasDesglose: [
       { estado: 'Aceptadas', cantidad: 248, porcentaje: 28, color: '#2E6B3E' },
-      { estado: 'Contraoferta', cantidad: 185, porcentaje: 21, color: '#B8621B' },
+      { estado: 'En contraoferta', cantidad: 185, porcentaje: 21, color: '#B8621B' },
       { estado: 'Pendientes', cantidad: 132, porcentaje: 15, color: '#2B5B84' },
-      { estado: 'Rechazadas', cantidad: 325, porcentaje: 36, color: '#78716C' }
+      { estado: 'Rechazadas', cantidad: 325, porcentaje: 36, color: '#9E9388' }
     ],
     moderacion: [
       { etiqueta: 'Reportes recibidos en el periodo', valor: '54' },
@@ -130,7 +130,11 @@ export function ReporteProvider({ children }) {
       const guardado = localStorage.getItem(STORAGE_KEYS.REPORTES);
       if (guardado) {
         const parsed = JSON.parse(guardado);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const ids = new Set(parsed.map((r) => r.id));
+          const faltantes = reportesIniciales.filter((r) => !ids.has(r.id));
+          return [...parsed, ...faltantes];
+        }
       }
     } catch (err) {
       console.error('Error leyendo reportes de localStorage:', err);
@@ -180,6 +184,9 @@ export function ReporteProvider({ children }) {
       descripcion: descripcion.trim(),
       reportanteId: reportante?.id || 'visitante',
       reportanteNombre: reportante
+        ? `${reportante.nombres.split(' ')[0]} ${reportante.apellidos.split(' ')[0]}`
+        : 'Estudiante ULima',
+      reportanteNombreCompleto: reportante
         ? `${reportante.nombres} ${reportante.apellidos}`
         : 'Estudiante ULima',
       reportanteCarrera: reportante?.carrera || 'Ing. de Sistemas',

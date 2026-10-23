@@ -40,113 +40,70 @@ export default function BandejaReportesPage() {
   };
 
   return (
-    <div className="container">
-      {/* Encabezado de página */}
+    <div className="page-container">
+      {/* Encabezado y controles en línea — Vista 7.1 */}
       <div className="adm-header-row">
         <div>
-          <span className="label-upper">MODERACIÓN DEL TABLÓN · HU-7</span>
-          <h1 className="mt-4">Bandeja de reportes</h1>
-          <p className="text-aux">
-            Revisa y resuelve los reportes enviados por la comunidad sobre avisos y cuentas de usuario.
+          <h1 className="title-screen">Bandeja de reportes</h1>
+          <p className="text-aux adm-header-subtitle">
+            Reportes enviados por la comunidad sobre avisos y usuarios.
           </p>
         </div>
-        <div className="flex-row gap-8">
-          <button
-            type="button"
-            className="btn btn-secondary btn-sm"
-            onClick={() => navigate('/admin/usuarios')}
+
+        <div className="adm-controls-inline">
+          <input
+            type="text"
+            className="form-input adm-search-inline"
+            placeholder="Buscar por código, aviso o usuario…"
+            value={busqueda}
+            onChange={(e) => setBusqueda(e.target.value)}
+          />
+
+          <select
+            className="form-select adm-select-inline"
+            value={filtroTipo}
+            onChange={(e) => setFiltroTipo(e.target.value)}
           >
-            Gestión de usuarios
-          </button>
-          <button
-            type="button"
-            className="btn btn-secondary btn-sm"
-            onClick={() => navigate('/admin/metricas')}
+            <option value="Todos">Tipo: Todos</option>
+            <option value="Aviso">Tipo: Aviso</option>
+            <option value="Usuario">Tipo: Usuario</option>
+          </select>
+
+          <select
+            className="form-select adm-select-inline"
+            value={rangoFechas}
+            onChange={(e) => setRangoFechas(e.target.value)}
           >
-            Ver métricas
-          </button>
+            <option value="Últimos 30 días">Fecha: Últimos 30 días</option>
+            <option value="Últimos 7 días">Fecha: Últimos 7 días</option>
+            <option value="Todo el periodo">Fecha: Todo el periodo</option>
+          </select>
         </div>
       </div>
 
-      {/* Pestañas por estado + filtros */}
-      <div className="card adm-filters-card">
-        <div className="adm-tabs-top">
-          <div className="tabs-bar adm-tabs-bar-clean">
-            {[
-              { id: 'Todos', label: `Todos · ${conteos.todos}` },
-              { id: 'Nuevos', label: `Nuevos · ${conteos.nuevos}` },
-              { id: 'En revisión', label: `En revisión · ${conteos.enRevision}` },
-              { id: 'Resueltos', label: `Resueltos · ${conteos.resueltos}` },
-              { id: 'Descartados', label: `Descartados · ${conteos.descartados}` }
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                type="button"
-                className={`tab-btn ${tabEstado === tab.id ? 'active' : ''}`}
-                onClick={() => setTabEstado(tab.id)}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
-
-          <span className="text-aux">
-            Mostrando <strong>{reportesFiltrados.length}</strong> de {reportes.length} reportes
-          </span>
-        </div>
-
-        {/* Controles de búsqueda y filtro */}
-        <div className="adm-filters-grid">
-          <div>
-            <label className="form-label">Buscar reporte</label>
-            <input
-              type="text"
-              className="form-input"
-              placeholder="Código (R-1042), aviso, usuario reportado o motivo..."
-              value={busqueda}
-              onChange={(e) => setBusqueda(e.target.value)}
-            />
-          </div>
-
-          <div>
-            <label className="form-label">Tipo de elemento</label>
-            <select
-              className="form-select"
-              value={filtroTipo}
-              onChange={(e) => setFiltroTipo(e.target.value)}
-            >
-              <option value="Todos">Todos los tipos</option>
-              <option value="Aviso">Aviso</option>
-              <option value="Usuario">Usuario</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="form-label">Periodo</label>
-            <select
-              className="form-select"
-              value={rangoFechas}
-              onChange={(e) => setRangoFechas(e.target.value)}
-            >
-              <option value="Últimos 30 días">Últimos 30 días</option>
-              <option value="Últimos 7 días">Últimos 7 días</option>
-              <option value="Todo el periodo">Todo el periodo</option>
-            </select>
-          </div>
-
-          {(busqueda || filtroTipo !== 'Todos' || tabEstado !== 'Todos') && (
-            <button
-              type="button"
-              className="btn btn-tertiary btn-sm"
-              onClick={limpiarFiltros}
-            >
-              Limpiar
-            </button>
-          )}
-        </div>
+      {/* Pestañas por estado — Vista 7.1 */}
+      <div className="adm-tabs-bar">
+        {[
+          { id: 'Todos', label: `Todos · ${conteos.todos}` },
+          { id: 'Nuevos', label: `Nuevos · ${conteos.nuevos}` },
+          { id: 'En revisión', label: `En revisión · ${conteos.enRevision}` },
+          { id: 'Resueltos', label: `Resueltos · ${conteos.resueltos}` },
+          { id: 'Descartados', label: `Descartados · ${conteos.descartados}` }
+        ].map((tab) => (
+          <button
+            key={tab.id}
+            type="button"
+            className={`adm-tab-btn ${
+              tabEstado === tab.id ? 'adm-tab-btn--active' : ''
+            }`}
+            onClick={() => setTabEstado(tab.id)}
+          >
+            {tab.label}
+          </button>
+        ))}
       </div>
 
-      {/* Tabla de reportes */}
+      {/* Tabla de reportes — Vista 7.1 */}
       {reportesFiltrados.length === 0 ? (
         <EstadoVacio
           icono="✓"
@@ -156,18 +113,18 @@ export default function BandejaReportesPage() {
           onAccion={limpiarFiltros}
         />
       ) : (
-        <div className="table-wrapper">
-          <table className="data-table">
+        <div className="card-surface adm-table-card">
+          <table className="adm-data-table">
             <thead>
               <tr>
                 <th>CÓDIGO</th>
                 <th>TIPO</th>
                 <th>ELEMENTO REPORTADO</th>
                 <th>MOTIVO</th>
-                <th>REPORTANTE</th>
+                <th>REPORTADO POR</th>
                 <th>FECHA</th>
                 <th>ESTADO</th>
-                <th className="adm-th-right">ACCIÓN</th>
+                <th className="adm-th-right">ACCIONES</th>
               </tr>
             </thead>
             <tbody>
@@ -185,29 +142,22 @@ export default function BandejaReportesPage() {
                       {r.tipo}
                     </span>
                   </td>
-                  <td className="adm-col-elemento">
+                  <td>
                     <div className="adm-elemento-title">
                       {r.elementoTitulo}
                     </div>
                     <div className="text-aux">{r.elementoSubtitulo}</div>
                   </td>
-                  <td className="adm-col-motivo">
+                  <td>
                     <span className="adm-motivo-text">{r.motivo}</span>
                   </td>
                   <td>
-                    <div className="adm-motivo-text">{r.reportanteNombre}</div>
-                    {r.reportanteCarrera && (
-                      <div className="text-aux">
-                        {r.reportanteCarrera}
-                        {r.reportanteReputacion
-                          ? ` · ${r.reportanteReputacion} ★`
-                          : ''}
-                      </div>
-                    )}
+                    <span className="adm-motivo-text">{r.reportanteNombre}</span>
                   </td>
                   <td>
-                    <div>{r.fecha}</div>
-                    <div className="text-aux">{r.hora} h</div>
+                    <span className="adm-date-inline">
+                      {r.fecha} · {r.hora}
+                    </span>
                   </td>
                   <td>
                     <BadgeEstado estado={r.estado} />

@@ -2,8 +2,8 @@
  * Opciones de periodo para el Tablero de Métricas (HU-7 · Vista 7.4)
  */
 export const OPCIONES_PERIODO_METRICAS = [
-  { id: '7dias', label: '7 días' },
-  { id: '30dias', label: '30 días' },
+  { id: '7dias', label: 'Últimos 7 días' },
+  { id: '30dias', label: 'Últimos 30 días' },
   { id: 'todo', label: 'Todo el periodo' }
 ];
 
@@ -127,7 +127,9 @@ export function obtenerClaseAnchoPorcentaje(porcentaje = 0) {
  */
 export function obtenerClaseColorOferta(estado = '') {
   if (estado === 'Aceptadas') return 'adm-seg-bg--aceptadas';
-  if (estado === 'Contraoferta') return 'adm-seg-bg--contraoferta';
+  if (estado === 'Contraoferta' || estado === 'En contraoferta') {
+    return 'adm-seg-bg--contraoferta';
+  }
   if (estado === 'Pendientes') return 'adm-seg-bg--pendientes';
   return 'adm-seg-bg--rechazadas';
 }

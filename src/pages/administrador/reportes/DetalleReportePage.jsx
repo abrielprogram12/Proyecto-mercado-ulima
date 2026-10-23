@@ -3,7 +3,8 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useReporte } from '../../../context/ReporteContext';
 import { useAuth } from '../../../context/AuthContext';
 import { useAviso } from '../../../context/AvisoContext';
-import { formatearPrecio, obtenerIniciales } from '../../../data/contratoDatos';
+import { formatearPrecio } from '../../../data/contratoDatos';
+import { obtenerPortadaAviso } from '../../../data/imagenesDatos';
 import BadgeEstado from '../../../components/BadgeEstado/BadgeEstado';
 import Notificacion from '../../../components/Notificacion/Notificacion';
 import ModalBloquearCuenta from '../../../components/Modales/ModalBloquearCuenta';
@@ -16,7 +17,6 @@ export default function DetalleReportePage() {
     reportes,
     obtenerReportePorId,
     obtenerReportesDeUsuario,
-    guardarNotaBitacora,
     resolverReporte,
     descartarReporte
   } = useReporte();
@@ -25,25 +25,33 @@ export default function DetalleReportePage() {
 
   const reporte = obtenerReportePorId(id) || reportes[0];
 
-  const [notaBitacora, setNotaBitacora] = useState(reporte?.notaBitacora || '');
+  const [notaBitacora, setNotaBitacora] = useState(
+    reporte?.notaBitacora ||
+      'Solicita adelanto por Yape antes de coordinar la entrega presencial en el campus.'
+  );
   const [feedback, setFeedback] = useState(null);
   const [modalBloqueoAbierto, setModalBloqueoAbierto] = useState(false);
 
   useEffect(() => {
     if (reporte) {
-      setNotaBitacora(reporte.notaBitacora || '');
+      setNotaBitacora(
+        reporte.notaBitacora ||
+          'Solicita adelanto por Yape antes de coordinar la entrega presencial en el campus.'
+      );
     }
   }, [reporte?.id]);
 
   if (!reporte) {
     return (
-      <div className="container">
-        <div className="card">
-          <h2>Reporte no encontrado</h2>
-          <p className="text-aux mt-8">No existe un reporte con el código solicitado.</p>
+      <div className="page-container">
+        <div className="card-surface adm-report-main-card">
+          <h2 className="title-screen">Reporte no encontrado</h2>
+          <p className="text-aux">
+            No existe un reporte con el código solicitado.
+          </p>
           <button
             type="button"
-            className="btn btn-primary mt-16"
+            className="btn btn-primary"
             onClick={() => navigate('/admin/reportes')}
           >
             Volver a la bandeja
@@ -71,40 +79,32 @@ export default function DetalleReportePage() {
       ? avisos.find((a) => a.id === reporte.elementoId)
       : null;
 
+  const portadaUrl = obtenerPortadaAviso(
+    avisoAsociado || {
+      id: reporte.elementoId || 'av-117',
+      titulo: reporte.elementoTitulo
+    }
+  );
+
   const otrosReportesUsuario = obtenerReportesDeUsuario(
     reporte.usuarioReportadoId
   ).filter((r) => r.id !== reporte.id);
 
   const totalReportesUsuario =
-    otrosReportesUsuario.length + 1 ||
-    usuarioReportado.reportesAcumulados ||
-    1;
+    usuarioReportado.reportesAcumulados || otrosReportesUsuario.length + 1;
 
   const yaCerrado =
     reporte.estado === 'Resuelto' || reporte.estado === 'Descartado';
 
-  const handleGuardarNota = () => {
+  const handleRetirarAviso = () => {
     if (!notaBitacora.trim()) {
       setFeedback({
-        tipo: 'advertencia',
-        titulo: 'Nota vacía.',
-        mensaje: 'Escribe una observación en la bitácora antes de guardar.'
+        tipo: 'error',
+        titulo: 'Falta la nota.',
+        mensaje: 'Explica la razón de la acción antes de continuar.'
       });
       return;
     }
-    const res = guardarNotaBitacora(reporte.id, notaBitacora);
-    setFeedback({
-      tipo: 'exito',
-      titulo: 'Bitácora actualizada.',
-      mensaje: res.mensaje
-    });
-  };
-
-  const handleRetirarAviso = () => {
-    const nota =
-      notaBitacora.trim() ||
-      'Aviso retirado por moderación tras confirmar infracción a las normas del tablón.';
-    setNotaBitacora(nota);
 
     if (reporte.elementoId && setAvisos) {
       setAvisos((prev) =>
@@ -116,12 +116,12 @@ export default function DetalleReportePage() {
 
     const res = resolverReporte(reporte.id, {
       accion: 'retirar_aviso',
-      notaBitacora: nota
+      notaBitacora
     });
 
     setFeedback({
       tipo: 'exito',
-      titulo: 'Aviso retirado y reporte resuelto.',
+      titulo: 'Aviso retirado.',
       mensaje: res.mensaje
     });
   };
@@ -171,9 +171,8 @@ export default function DetalleReportePage() {
     if (!notaBitacora.trim()) {
       setFeedback({
         tipo: 'error',
-        titulo: 'Falta justificación en la bitácora.',
-        mensaje:
-          'Indica brevemente en la bitácora por qué se descarta este reporte antes de continuar.'
+        titulo: 'Falta la nota.',
+        mensaje: 'Explica la razón de la acción antes de continuar.'
       });
       return;
     }
@@ -186,298 +185,241 @@ export default function DetalleReportePage() {
     });
   };
 
+  const nombreCortoReportado = (
+    reporte.usuarioReportadoNombre || 'Kevin Bustamante'
+  )
+    .split(' ')
+    .slice(0, 2)
+    .join(' ');
+
   return (
-    <div className="container">
-      {/* Migas de pan */}
+    <div className="page-container">
+      {/* Migas de pan — Vista 7.2 */}
       <nav className="breadcrumbs">
         <Link to="/admin/reportes">Bandeja de reportes</Link>
-        <span className="breadcrumbs-sep">/</span>
-        <span>Reporte {reporte.id}</span>
+        <span>›</span>
+        <span>{reporte.id}</span>
       </nav>
 
-      {feedback && (
-        <Notificacion
-          tipo={feedback.tipo}
-          titulo={feedback.titulo}
-          mensaje={feedback.mensaje}
-        />
-      )}
-
-      {/* Cabecera del reporte */}
-      <div className="card adm-report-hero">
-        <div>
-          <div className="flex-row gap-12">
-            <span className="text-mono adm-code-md">{reporte.id}</span>
-            <BadgeEstado estado={reporte.estado} />
-            <span className="adm-type-pill">Tipo: {reporte.tipo}</span>
-          </div>
-          <h1 className="adm-report-title">{reporte.elementoTitulo}</h1>
-          <p className="text-aux mt-4">
-            Recibido el {reporte.fecha} a las {reporte.hora} h · Motivo principal:{' '}
-            <strong>{reporte.motivo}</strong>
-          </p>
-        </div>
-
-        <div className="flex-row gap-8">
-          <button
-            type="button"
-            className="btn btn-secondary btn-sm"
-            onClick={() => navigate('/admin/reportes')}
-          >
-            ← Volver a la bandeja
-          </button>
-        </div>
-      </div>
-
-      {/* Rejilla de 2 columnas: Evidencia e historial vs. Panel de resolución */}
-      <div className="grid-12 adm-detail-grid">
-        {/* Columna izquierda (7 cols) */}
-        <div className="flex-col gap-16 adm-col-left-7">
-          {/* Tarjeta 1: Elemento reportado */}
-          <div className="card">
-            <span className="label-upper">ELEMENTO REPORTADO</span>
-            <div className="adm-reported-box">
-              <div>
-                <div className="adm-reported-item-title">
-                  {reporte.elementoTitulo}
-                </div>
-                <div className="text-aux mt-4">
-                  {reporte.elementoCategoria || reporte.elementoSubtitulo}
-                </div>
-                {reporte.elementoPrecio !== undefined && (
-                  <div className="precio-tag adm-reported-price">
-                    {formatearPrecio(reporte.elementoPrecio)}
-                  </div>
-                )}
-                {avisoAsociado && (
-                  <div className="mt-8">
-                    <BadgeEstado estado={avisoAsociado.estado} />
-                  </div>
-                )}
-              </div>
-
-              <div className="flex-row gap-8">
-                {avisoAsociado && (
-                  <button
-                    type="button"
-                    className="btn btn-secondary btn-sm"
-                    onClick={() => navigate(`/aviso/${avisoAsociado.id}`)}
-                  >
-                    Ver aviso
-                  </button>
-                )}
-                <button
-                  type="button"
-                  className="btn btn-tertiary btn-sm"
-                  onClick={() => navigate('/admin/usuarios')}
-                >
-                  Ver cuenta en padrón
-                </button>
-              </div>
+      {/* Grilla de 2 columnas — Vista 7.2 */}
+      <div className="adm-detail-layout">
+        {/* Columna izquierda: Detalle del reporte, elemento y trazabilidad */}
+        <div className="card-surface adm-report-main-card">
+          <div className="adm-report-header-bar">
+            <div className="adm-report-header-left">
+              <h1 className="title-screen">Reporte {reporte.id}</h1>
+              <BadgeEstado estado={reporte.estado} />
             </div>
+            <span className="text-aux">
+              Recibido el {reporte.fecha} · {reporte.hora}
+            </span>
+          </div>
 
-            {/* Resumen del usuario reportado */}
-            <div className="adm-reported-user-row">
-              <div className="flex-row gap-12">
-                <div className="avatar-circle">
-                  {obtenerIniciales(
-                    usuarioReportado.nombres,
-                    usuarioReportado.apellidos
-                  )}
+          {/* Elemento reportado */}
+          <div className="adm-reported-item-card">
+            <span className="label-upper">
+              ELEMENTO REPORTADO · {reporte.tipo.toUpperCase()}
+            </span>
+
+            <div className="adm-reported-item-row">
+              <div className="adm-reported-item-left">
+                <div className="striped-placeholder adm-reported-thumb">
+                  <img
+                    src={portadaUrl}
+                    alt={reporte.elementoTitulo}
+                    className="media-img-cover"
+                  />
                 </div>
                 <div>
-                  <div className="adm-user-name-bold">
-                    {usuarioReportado.nombres} {usuarioReportado.apellidos}
+                  <div className="adm-reported-item-title">
+                    {reporte.elementoTitulo}
                   </div>
                   <div className="text-aux">
-                    {usuarioReportado.carrera || 'Estudiante ULima'} ·{' '}
-                    {usuarioReportado.reputacion} ★ ·{' '}
-                    <strong>{totalReportesUsuario} reportes acumulados</strong> ·{' '}
-                    {usuarioReportado.acuerdosCerrados ?? 1} acuerdos cerrados
+                    {reporte.elementoCategoria || reporte.elementoSubtitulo}
+                  </div>
+                  <div className="adm-reported-price-row">
+                    {reporte.elementoPrecio !== undefined && (
+                      <span className="adm-reported-price">
+                        {formatearPrecio(reporte.elementoPrecio)}
+                      </span>
+                    )}
+                    <span className="text-aux">
+                      Vendedor: <strong>{reporte.usuarioReportadoNombre}</strong> ·{' '}
+                      {usuarioReportado.reputacion} ★ · {totalReportesUsuario}{' '}
+                      reportes
+                    </span>
                   </div>
                 </div>
               </div>
-              <BadgeEstado
-                estado={
-                  usuarioReportado.estadoCuenta === 'Bloqueado' ||
-                  usuarioReportado.estadoCuenta === 'Bloqueada'
-                    ? 'Bloqueado'
-                    : `${totalReportesUsuario} reportes`
-                }
-              />
+
+              {reporte.tipo === 'Aviso' ? (
+                <button
+                  type="button"
+                  className="btn btn-secondary btn-sm"
+                  onClick={() =>
+                    navigate(`/aviso/${avisoAsociado?.id || 'av-117'}`)
+                  }
+                >
+                  Ver aviso completo
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className="btn btn-secondary btn-sm"
+                  onClick={() => navigate('/admin/usuarios')}
+                >
+                  Ver en padrón
+                </button>
+              )}
             </div>
           </div>
 
-          {/* Tarjeta 2: Evidencia y datos del reportante */}
-          <div className="card">
-            <span className="label-upper">EVIDENCIA ENVIADA POR EL REPORTANTE</span>
-            <div className="mt-12">
-              <div className="text-aux">Motivo declarado:</div>
-              <div className="adm-motivo-declared">{reporte.motivo}</div>
+          {/* Motivo del reporte */}
+          <div>
+            <span className="label-upper">MOTIVO DEL REPORTE</span>
+            <div className="adm-motivo-badge-wrap">
+              <BadgeEstado estado={reporte.motivo} variante="error" />
             </div>
 
             <div className="adm-evidence-quote">
               “{reporte.descripcion}”
             </div>
 
-            <div className="adm-reporter-footer">
-              <div>
-                <span className="text-aux">Reportado por: </span>
-                <strong>{reporte.reportanteNombre}</strong>
-                {reporte.reportanteCarrera && (
-                  <span className="text-aux">
-                    {' '}
-                    · {reporte.reportanteCarrera} ·{' '}
-                    {reporte.reportanteReputacion || 4.6} ★
-                  </span>
-                )}
-              </div>
-
-              <span className="adm-trusted-reporter-badge">
-                ✓ Reportante confiable
-              </span>
+            <div className="text-aux">
+              Reportado por:{' '}
+              <strong>
+                {reporte.reportanteNombreCompleto || reporte.reportanteNombre}
+              </strong>{' '}
+              · {reporte.reportanteCarrera || 'Ing. de Sistemas'} ·{' '}
+              {reporte.reportanteReputacion || 4.6} ★ (comprador confiable)
             </div>
           </div>
 
-          {/* Tarjeta 3: Historial y antecedentes */}
-          <div className="card">
-            <span className="label-upper">HISTORIAL Y OTROS REPORTES VINCULADOS</span>
+          {/* Historial del elemento y del vendedor */}
+          <div className="adm-section-block">
+            <span className="label-upper">
+              HISTORIAL DE ESTE ELEMENTO Y DEL VENDEDOR
+            </span>
 
-            {totalReportesUsuario >= 2 && (
-              <div className="notificacion-banner notif-advertencia mt-12 mb-16">
-                <span>!</span>
-                <div>
-                  <strong>Reincidencia detectada:</strong>{' '}
-                  {reporte.usuarioReportadoNombre} acumula{' '}
-                  <strong>{totalReportesUsuario} reportes</strong> independientes en los
-                  últimos 30 días. Se recomienda evaluar el bloqueo preventivo de la
-                  cuenta.
-                </div>
-              </div>
-            )}
-
-            <div className="flex-col gap-12 mt-12">
-              <div className="adm-history-entry">
-                <strong>02/09/2026 · 14:20 h</strong> — Publicación del elemento (
-                <span className="text-mono">{reporte.elementoId}</span>) por{' '}
-                {reporte.usuarioReportadoNombre}.
+            <div className="adm-timeline-list">
+              <div className="adm-timeline-item">
+                <span className="adm-timeline-dot adm-timeline-dot--green" />
+                <span>
+                  02/09/2026 · 19:00 — {nombreCortoReportado} publicó el aviso.
+                </span>
               </div>
 
-              {otrosReportesUsuario.map((otro) => (
-                <div key={otro.id} className="adm-history-linked-row">
-                  <div>
-                    <span className="text-mono adm-code-bold">{otro.id}</span> ·{' '}
-                    <strong>{otro.motivo}</strong>
-                    <div className="text-aux">
-                      Reportado por {otro.reportanteNombre} el {otro.fecha} ({otro.hora} h)
-                    </div>
-                  </div>
-                  <div className="flex-row gap-8">
-                    <BadgeEstado estado={otro.estado} />
-                    <button
-                      type="button"
-                      className="btn btn-tertiary btn-sm"
-                      onClick={() => navigate(`/admin/reportes/${otro.id}`)}
-                    >
-                      Abrir
-                    </button>
-                  </div>
+              <div className="adm-timeline-item">
+                <span className="adm-timeline-dot adm-timeline-dot--orange" />
+                <span>
+                  03/09/2026 · 21:14 — Recibió el reporte R-1038 por «Pide pagos
+                  fuera del campus» (en revisión).
+                </span>
+              </div>
+
+              {otrosReportesUsuario.slice(0, 1).map((otro) => (
+                <div key={otro.id} className="adm-timeline-item">
+                  <span className="adm-timeline-dot adm-timeline-dot--red" />
+                  <span>
+                    {otro.fecha} · {otro.hora} — Recibió el reporte {otro.id}{' '}
+                    sobre su perfil ({otro.motivo.toLowerCase()}).
+                  </span>
                 </div>
               ))}
 
-              <div className="adm-history-current-row">
-                <strong>
-                  {reporte.fecha} · {reporte.hora} h
-                </strong>{' '}
-                — Recepción de este reporte (<span className="text-mono">{reporte.id}</span>
-                ). Estado actual: <strong>{reporte.estado}</strong>.
+              <div className="adm-timeline-item">
+                <span className="adm-timeline-dot adm-timeline-dot--red" />
+                <span>
+                  {reporte.fecha} · {reporte.hora} — Recibió este reporte{' '}
+                  {reporte.id}.
+                </span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Columna derecha (5 cols): Bitácora y acciones de resolución */}
-        <div className="card adm-col-right-5">
-          <span className="label-upper">DECISIÓN DE MODERACIÓN · BITÁCORA</span>
-          <h3 className="mt-4">Resolver reporte {reporte.id}</h3>
-          <p className="text-aux mt-4 mb-16">
-            Toda acción queda registrada en la bitácora interna de moderación junto con la
-            nota del administrador.
-          </p>
+        {/* Columna derecha: Panel de resolución y bitácora */}
+        <div className="adm-right-col">
+          <div className="card-surface adm-resolve-card">
+            <h2 className="adm-resolve-title">Resolver reporte</h2>
+            <p className="text-aux adm-resolve-subtitle">
+              Toda acción queda registrada en la bitácora de moderación.
+            </p>
 
-          <div className="form-group">
-            <label className="form-label">Nota interna para la bitácora *</label>
-            <textarea
-              rows={4}
-              className="form-textarea"
-              placeholder="Ej. Se verificó que el vendedor solicita adelantos por Yape fuera del campus. Se procede a retirar el aviso y bloquear preventivamente la cuenta."
-              value={notaBitacora}
-              onChange={(e) => setNotaBitacora(e.target.value)}
-            />
-            <div className="flex-between mt-8">
-              <span className="form-help">
-                Obligatoria para descartar o documentar sanciones.
+            <div className="form-group">
+              <label className="label-upper">NOTA PARA LA BITÁCORA</label>
+              <textarea
+                rows={4}
+                className="form-textarea"
+                value={notaBitacora}
+                onChange={(e) => setNotaBitacora(e.target.value)}
+              />
+              <span className="field-hint">
+                Obligatoria al retirar un aviso o bloquear una cuenta.
               </span>
+            </div>
+
+            <div className="adm-resolve-actions">
               <button
                 type="button"
-                className="btn btn-tertiary btn-sm"
-                onClick={handleGuardarNota}
+                className="btn btn-primary btn-block"
+                disabled={yaCerrado}
+                onClick={handleRetirarAviso}
               >
-                Guardar nota
+                Retirar el aviso del catálogo
+              </button>
+
+              <button
+                type="button"
+                className="btn btn-destructive btn-block"
+                disabled={
+                  usuarioReportado.estadoCuenta === 'Bloqueado' ||
+                  usuarioReportado.estadoCuenta === 'Bloqueada'
+                }
+                onClick={() => setModalBloqueoAbierto(true)}
+              >
+                {usuarioReportado.estadoCuenta === 'Bloqueado' ||
+                usuarioReportado.estadoCuenta === 'Bloqueada'
+                  ? 'Cuenta ya bloqueada'
+                  : `Bloquear la cuenta de ${nombreCortoReportado}`}
+              </button>
+
+              <button
+                type="button"
+                className="btn btn-secondary btn-block"
+                disabled={yaCerrado}
+                onClick={handleDescartar}
+              >
+                Descartar el reporte
               </button>
             </div>
+
+            {yaCerrado && (
+              <div className="adm-closed-summary">
+                <strong>Reporte cerrado ({reporte.estado}):</strong>
+                <p className="text-aux">
+                  {reporte.notaBitacora ||
+                    'Resuelto por el administrador del tablón.'}
+                </p>
+              </div>
+            )}
           </div>
 
-          <hr className="divider" />
-
-          <span className="label-upper">ACCIONES DISPONIBLES</span>
-          <div className="flex-col gap-12 mt-12">
-            <button
-              type="button"
-              className="btn btn-primary btn-block"
-              disabled={yaCerrado}
-              onClick={handleRetirarAviso}
-            >
-              Retirar aviso reportado
-            </button>
-
-            <button
-              type="button"
-              className="btn btn-destructive btn-block"
-              disabled={
-                usuarioReportado.estadoCuenta === 'Bloqueado' ||
-                usuarioReportado.estadoCuenta === 'Bloqueada'
-              }
-              onClick={() => setModalBloqueoAbierto(true)}
-            >
-              {usuarioReportado.estadoCuenta === 'Bloqueado' ||
-              usuarioReportado.estadoCuenta === 'Bloqueada'
-                ? 'Cuenta ya bloqueada'
-                : 'Bloquear cuenta del usuario'}
-            </button>
-
-            <button
-              type="button"
-              className="btn btn-secondary btn-block"
-              disabled={yaCerrado}
-              onClick={handleDescartar}
-            >
-              Descartar reporte por improcedente
-            </button>
-          </div>
-
-          {yaCerrado && (
-            <div className="adm-closed-summary">
-              <strong>Reporte cerrado ({reporte.estado}):</strong>
-              <p className="text-aux mt-4">
-                {reporte.notaBitacora || 'Resuelto por el administrador del tablón.'}
-              </p>
+          {feedback && (
+            <div className="card-surface adm-resolve-card">
+              <span className="label-upper">NOTIFICACIÓN DE MODERACIÓN</span>
+              <Notificacion
+                tipo={feedback.tipo}
+                titulo={feedback.titulo}
+                mensaje={feedback.mensaje}
+                onClose={() => setFeedback(null)}
+              />
             </div>
           )}
         </div>
       </div>
 
-      {/* Modal de confirmación de bloqueo de cuenta */}
+      {/* Modal de confirmación de bloqueo de cuenta (Vista 7.5) */}
       <ModalBloquearCuenta
         abierto={modalBloqueoAbierto}
         onClose={() => setModalBloqueoAbierto(false)}
