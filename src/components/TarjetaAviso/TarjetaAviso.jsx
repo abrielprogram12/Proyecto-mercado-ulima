@@ -1,15 +1,15 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useAviso } from '../../context/AvisoContext';
-import { formatearPrecio, ROLES_USUARIO } from '../../data/contratoDatos';
+import { ROLES_USUARIO, formatearPrecio } from '../../data/contratoDatos';
+import { obtenerPortadaAviso } from '../../data/imagenesDatos';
 import BadgeEstado from '../BadgeEstado/BadgeEstado';
 import './TarjetaAviso.css';
 
 export default function TarjetaAviso({
   aviso,
   mostrarCorazon = true,
-  modoVistaPrevia = false,
-  accionInferior
+  piePersonalizado = null
 }) {
   const { usuarioActual, rolActual } = useAuth();
   const { toggleFavorito, esFavorito } = useAviso();
@@ -22,14 +22,11 @@ export default function TarjetaAviso({
       ? `/aviso-publico/${aviso.id}`
       : `/aviso/${aviso.id}`;
 
-  const activoFavorito = usuarioActual ? esFavorito(usuarioActual.id, aviso.id) : false;
-  const estaVendido = aviso.estado === 'Vendido';
-  const fotoPortada =
-    Array.isArray(aviso.fotos) && aviso.fotos.length > 0
-      ? aviso.fotos.find((f) => f.principal) || aviso.fotos[0]
-      : null;
+  const marcadoFavorito = usuarioActual
+    ? esFavorito(usuarioActual.id, aviso.id)
+    : false;
 
-  const handleToggleFav = (e) => {
+  const handleClickCorazon = (e) => {
     e.preventDefault();
     e.stopPropagation();
     if (!usuarioActual) {
@@ -39,52 +36,57 @@ export default function TarjetaAviso({
     toggleFavorito(usuarioActual.id, aviso.id);
   };
 
-  const Contenido = (
-    <>
-      <div className="tarjeta-aviso-media striped-placeholder">
-        <span>{fotoPortada?.etiqueta || 'fotografía 4:3'}</span>
-
-        {estaVendido && (
-          <div className="tarjeta-vendido-overlay">
-            <BadgeEstado estado="Vendido" />
-          </div>
-        )}
-
-        {mostrarCorazon && !modoVistaPrevia && (
-          <button
-            type="button"
-            className={`tarjeta-fav-btn ${activoFavorito ? 'activo' : ''}`}
-            onClick={handleToggleFav}
-            aria-label={activoFavorito ? 'Quitar de favoritos' : 'Guardar en favoritos'}
-          >
-            ♥
-          </button>
-        )}
-      </div>
-
-      <div className="tarjeta-aviso-body">
-        <h4 className="tarjeta-aviso-titulo">
-          {aviso.titulo || 'Título del aviso'}
-        </h4>
-        <div className="tarjeta-aviso-precio price-text">
-          {formatearPrecio(aviso.precio || 0)}
-        </div>
-        <div className="tarjeta-aviso-chips">
-          {aviso.condicion && <BadgeEstado estado={aviso.condicion} />}
-          {aviso.curso && <span className="chip">{aviso.curso}</span>}
-        </div>
-        {accionInferior && <div className="tarjeta-aviso-extra">{accionInferior}</div>}
-      </div>
-    </>
-  );
-
-  if (modoVistaPrevia) {
-    return <div className="tarjeta-aviso card-surface">{Contenido}</div>;
-  }
+  const vendido = aviso.estado === 'Vendido';
+  const portadaUrl = obtenerPortadaAviso(aviso);
 
   return (
-    <Link to={rutaDetalle} className="tarjeta-aviso card-surface">
-      {Contenido}
-    </Link>
+    <div className={`tarjeta-aviso card-surface ${vendido ? 'es-vendido' : ''}`}>
+      <Link to={rutaDetalle} className="tarjeta-aviso-media">
+        <div className="tarjeta-aviso-imagen striped-placeholder">
+          <img
+            src={portadaUrl}
+            alt={aviso.titulo}
+            className="media-img-cover"
+          />
+        </div>
+
+        {vendido && <span className="tarjeta-vendido-ribbon">VENDIDO</span>}
+
+        {mostrarCorazon && (
+          <button
+            type="button"
+            className={`tarjeta-fav-btn ${marcadoFavorito ? 'activo' : ''}`}
+            onClick={handleClickCorazon}
+            title={marcadoFavorito ? 'Quitar de favoritos' : 'Guardar en favoritos'}
+          >
+            {marcadoFavorito ? '♥' : '♡'}
+          </button>
+        )}
+      </Link>
+
+      <div className="tarjeta-aviso-body">
+        <Link to={rutaDetalle} className="tarjeta-aviso-titulo">
+          {aviso.titulo}
+        </Link>
+
+        <div className="tarjeta-aviso-precio price-text">
+          {formatearPrecio(aviso.precio)}
+        </div>
+
+        <div className="tarjeta-aviso-chips">
+          <BadgeEstado estado={aviso.condicion} />
+          {aviso.curso && <span className="chip">{aviso.curso}</span>}
+        </div>
+
+        {piePersonalizado ? (
+          <div className="tarjeta-aviso-footer">{piePersonalizado}</div>
+        ) : (
+          <div className="tarjeta-aviso-footer text-aux">
+            <span>{aviso.vendedorNombre?.split(' ').slice(0, 2).join(' ')}</span>
+            <span>· 4.8 ★</span>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }

@@ -101,7 +101,15 @@ export default function PerfilVendedorPage() {
       <div className="card-surface cat-perfil-cabecera">
         <div className="cat-perfil-identidad">
           <div className="striped-placeholder cat-avatar-grande">
-            {obtenerIniciales(vendedor?.nombres, vendedor?.apellidos)}
+            {vendedor?.fotoPerfil ? (
+              <img
+                src={vendedor.fotoPerfil}
+                alt={`${vendedor.nombres} ${vendedor.apellidos}`}
+                className="media-img-cover"
+              />
+            ) : (
+              obtenerIniciales(vendedor?.nombres, vendedor?.apellidos)
+            )}
           </div>
 
           <div>

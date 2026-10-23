@@ -52,6 +52,8 @@ export function filtrarYOrdenarCatalogo(
   return resultado;
 }
 
+export const filtrarYOrdenarAvisos = filtrarYOrdenarCatalogo;
+
 export function construirChipsActivos(filtros = {}, busquedaTexto = '') {
   const chips = [];
   if (filtros.categoria) {

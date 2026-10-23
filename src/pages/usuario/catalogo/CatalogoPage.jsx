@@ -1,211 +1,198 @@
 import { useState, useMemo, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useAviso } from '../../../context/AvisoContext';
 import FiltrosCatalogo from '../../../components/FiltrosCatalogo/FiltrosCatalogo';
 import TarjetaAviso from '../../../components/TarjetaAviso/TarjetaAviso';
-import Notificacion from '../../../components/Notificacion/Notificacion';
 import {
-  ITEMS_POR_PAGINA_CATALOGO,
   FILTROS_INICIALES_CATALOGO,
-  filtrarYOrdenarCatalogo,
-  construirChipsActivos
+  filtrarYOrdenarAvisos
 } from './catalogoUtils';
 import './catalogo.css';
 
 /**
  * MÓDULO: Catálogo y Búsqueda (Integrante 3 · HU-3)
- * Vistas 3.1, 3.2 y 3.3 — Catálogo con filtros laterales, sin resultados y esqueletos de carga
+ * Vistas 3.1 (Catálogo con resultados), 3.2 (Sin resultados) y 3.3 (Cargando con esqueletos)
  */
 export default function CatalogoPage() {
-  const { avisos } = useAviso();
   const [searchParams, setSearchParams] = useSearchParams();
+  const { avisos } = useAviso();
 
-  const [busquedaTexto, setBusquedaTexto] = useState(
-    searchParams.get('q') || ''
-  );
+  const qParam = searchParams.get('q') || '';
+  const catParam = searchParams.get('categoria') || '';
+  const cursoParam = searchParams.get('curso') || '';
+
   const [filtros, setFiltros] = useState({
     ...FILTROS_INICIALES_CATALOGO,
-    categoria: searchParams.get('categoria') || '',
-    curso: searchParams.get('curso') || ''
+    categoria: catParam || 'Libros de texto',
+    curso: cursoParam || (qParam ? 'Todos los cursos' : 'Cálculo I')
   });
 
-  const [orden, setOrden] = useState('recientes');
-  const [paginaActual, setPaginaActual] = useState(1);
-  const [cargandoEsqueletos, setCargandoEsqueletos] = useState(false);
-  const [notificacion, setNotificacion] = useState(null);
+  const [ordenarPor, setOrdenarPor] = useState('recientes');
+  const [mostrarEsqueletos, setMostrarEsqueletos] = useState(false);
 
+  // Sincronizar parámetros de URL si cambian desde Header o Landing
   useEffect(() => {
-    const q = searchParams.get('q') || '';
-    const cat = searchParams.get('categoria') || '';
-    setBusquedaTexto(q);
-    if (cat) {
-      setFiltros((prev) => ({ ...prev, categoria: cat }));
+    if (catParam) {
+      setFiltros((prev) => ({ ...prev, categoria: catParam, curso: 'Todos los cursos' }));
     }
-  }, [searchParams]);
+    if (cursoParam) {
+      setFiltros((prev) => ({ ...prev, curso: cursoParam }));
+    }
+  }, [catParam, cursoParam]);
 
-  const avisosPublicados = useMemo(() => {
-    return avisos.filter((a) => a.estado === 'Publicado');
+  // Transición suave con esqueletos (Vista 3.3) al cambiar búsqueda o filtros
+  useEffect(() => {
+    setMostrarEsqueletos(true);
+    const timer = setTimeout(() => {
+      setMostrarEsqueletos(false);
+    }, 240);
+    return () => clearTimeout(timer);
+  }, [qParam, filtros.categoria, filtros.curso, filtros.condicion, ordenarPor]);
+
+  const handleLimpiarTodo = () => {
+    setFiltros({
+      categoria: 'Todas',
+      curso: 'Todos los cursos',
+      precioMin: '',
+      precioMax: '',
+      condicion: '',
+      soloConOfertas: false
+    });
+    setSearchParams({});
+  };
+
+  const avisosFiltrados = useMemo(() => {
+    return filtrarYOrdenarAvisos(avisos, filtros, qParam, ordenarPor);
+  }, [avisos, filtros, qParam, ordenarPor]);
+
+  const sugerenciasAlternativas = useMemo(() => {
+    return avisos.filter((a) => a.estado === 'Publicado').slice(0, 4);
   }, [avisos]);
 
-  const avisosFiltradosYOrdenados = useMemo(
-    () =>
-      filtrarYOrdenarCatalogo(avisosPublicados, filtros, busquedaTexto, orden),
-    [avisosPublicados, filtros, busquedaTexto, orden]
-  );
-
-  const totalPaginas = Math.max(
-    1,
-    Math.ceil(avisosFiltradosYOrdenados.length / ITEMS_POR_PAGINA_CATALOGO)
-  );
-  const avisosPaginados = avisosFiltradosYOrdenados.slice(
-    (paginaActual - 1) * ITEMS_POR_PAGINA_CATALOGO,
-    paginaActual * ITEMS_POR_PAGINA_CATALOGO
-  );
-
-  const chipsActivos = useMemo(
-    () => construirChipsActivos(filtros, busquedaTexto),
-    [filtros, busquedaTexto]
-  );
-
-  const quitarChip = (clave) => {
-    if (clave === 'rangoPrecio') {
-      setFiltros((prev) => ({ ...prev, precioMin: '', precioMax: '' }));
-    } else if (clave === 'busqueda') {
-      setBusquedaTexto('');
-      setSearchParams({});
-    } else {
-      setFiltros((prev) => ({ ...prev, [clave]: '' }));
-    }
-    setPaginaActual(1);
-  };
-
-  const limpiarTodo = () => {
-    setFiltros(FILTROS_INICIALES_CATALOGO);
-    setBusquedaTexto('');
-    setSearchParams({});
-    setPaginaActual(1);
-  };
-
-  const simularCargaEsqueletos = () => {
-    setCargandoEsqueletos(true);
-    setTimeout(() => setCargandoEsqueletos(false), 1600);
-  };
-
-  const sugerenciasQuizaTeInterese = avisosPublicados.slice(0, 4);
+  const sinResultados = !mostrarEsqueletos && avisosFiltrados.length === 0;
 
   return (
     <div className="page-container">
-      {notificacion && (
-        <Notificacion
-          tipo={notificacion.tipo}
-          mensaje={notificacion.mensaje}
-          onClose={() => setNotificacion(null)}
-        />
-      )}
-
       <div className="cat-layout">
-        {/* Sidebar de Filtros (Vista 3.1) */}
+        {/* Panel lateral izquierdo de filtros */}
         <FiltrosCatalogo
           filtros={filtros}
-          onChangeFiltros={(nuevos) => {
-            setFiltros(nuevos);
-            setPaginaActual(1);
-          }}
-          onLimpiarTodo={limpiarTodo}
+          onChangeFiltros={setFiltros}
+          onLimpiar={handleLimpiarTodo}
         />
 
         {/* Contenido principal */}
         <div className="cat-contenido">
-          {/* Barra superior de chips de filtros activos (Vista 3.1 y 3.2) */}
+          {/* Chips de filtros activos */}
           <div className="cat-barra-chips">
             <div className="cat-chips-activos">
-              {chipsActivos.length > 0 && (
-                <>
-                  <span className="text-aux">Filtros activos:</span>
-                  {chipsActivos.map((chip) => (
-                    <span key={chip.clave} className="chip chip-terracota">
-                      {chip.etiqueta}
-                      <button
-                        type="button"
-                        onClick={() => quitarChip(chip.clave)}
-                        className="cat-btn-quitar-chip"
-                      >
-                        ✕
-                      </button>
-                    </span>
-                  ))}
+              <span className="text-aux">Filtros activos:</span>
+
+              {filtros.categoria && filtros.categoria !== 'Todas' && (
+                <span className="chip chip-terracota">
+                  {filtros.categoria}
                   <button
                     type="button"
-                    className="btn btn-tertiary btn-sm"
-                    onClick={limpiarTodo}
+                    onClick={() => setFiltros({ ...filtros, categoria: 'Todas' })}
+                    className="cat-btn-quitar-chip"
                   >
-                    Limpiar todo
+                    ✕
                   </button>
-                </>
+                </span>
               )}
-            </div>
 
-            <div className="cat-demos-fila">
-              <button
-                type="button"
-                className="chip chip-selectable"
-                onClick={simularCargaEsqueletos}
-              >
-                Ver esqueletos (3.3)
-              </button>
-              <button
-                type="button"
-                className="chip chip-selectable"
-                onClick={() => {
-                  setBusquedaTexto('microscopio binocular');
-                  setFiltros({
-                    categoria: 'Material de laboratorio',
-                    curso: 'Química General',
-                    precioMin: '15',
-                    precioMax: '60',
-                    condicion: ''
-                  });
-                }}
-              >
-                Simular sin resultados (3.2)
-              </button>
+              {filtros.curso && filtros.curso !== 'Todos los cursos' && (
+                <span className="chip chip-terracota">
+                  {filtros.curso}
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setFiltros({ ...filtros, curso: 'Todos los cursos' })
+                    }
+                    className="cat-btn-quitar-chip"
+                  >
+                    ✕
+                  </button>
+                </span>
+              )}
+
+              {filtros.condicion && (
+                <span className="chip chip-terracota">
+                  {filtros.condicion}
+                  <button
+                    type="button"
+                    onClick={() => setFiltros({ ...filtros, condicion: '' })}
+                    className="cat-btn-quitar-chip"
+                  >
+                    ✕
+                  </button>
+                </span>
+              )}
+
+              {qParam && (
+                <span className="chip chip-terracota">
+                  «{qParam}»
+                  <button
+                    type="button"
+                    onClick={() => setSearchParams({})}
+                    className="cat-btn-quitar-chip"
+                  >
+                    ✕
+                  </button>
+                </span>
+              )}
             </div>
           </div>
 
-          {/* Encabezado de conteo y ordenamiento */}
+          {/* Barra de conteo y ordenamiento */}
           <div className="cat-barra-orden">
             <div>
-              <strong className="cat-conteo-num">
-                {avisosFiltradosYOrdenados.length}
-              </strong>{' '}
-              <span className="text-aux cat-conteo-texto">
-                avisos encontrados
-                {busquedaTexto.trim()
-                  ? ` para «${busquedaTexto.trim()}»`
-                  : ''}
-              </span>
+              {mostrarEsqueletos ? (
+                <span className="text-aux">
+                  Buscando avisos que coincidan con tus filtros…
+                </span>
+              ) : sinResultados ? (
+                <span>
+                  <strong>0 avisos</strong> para «
+                  {qParam || filtros.curso || 'tu búsqueda'}»
+                </span>
+              ) : (
+                <span>
+                  <strong className="cat-conteo-num">
+                    {avisosFiltrados.length} avisos
+                  </strong>{' '}
+                  {filtros.curso && filtros.curso !== 'Todos los cursos' && (
+                    <span className="cat-conteo-texto">
+                      para «{filtros.curso}»
+                    </span>
+                  )}
+                </span>
+              )}
             </div>
 
             <div className="cat-orden-grupo">
               <span className="text-aux">Ordenar por</span>
               <select
                 className="form-select cat-select-orden"
-                value={orden}
-                onChange={(e) => setOrden(e.target.value)}
+                value={ordenarPor}
+                onChange={(e) => setOrdenarPor(e.target.value)}
               >
                 <option value="recientes">Más recientes</option>
-                <option value="precio_asc">Precio: menor a mayor</option>
-                <option value="precio_desc">Precio: mayor a menor</option>
+                <option value="precio_asc">Menor precio</option>
+                <option value="precio_desc">Mayor precio</option>
               </select>
             </div>
           </div>
 
-          {/* Vista 3.3 — Esqueletos de carga */}
-          {cargandoEsqueletos ? (
+          {/* VISTA 3.3 — CARGANDO RESULTADOS (ESQUELETOS) */}
+          {mostrarEsqueletos && (
             <div>
               <div className="cat-esqueletos-grid">
-                {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
-                  <div key={n} className="card-surface cat-esqueleto-card">
+                {Array.from({ length: 8 }).map((_, idx) => (
+                  <div
+                    key={idx}
+                    className="card-surface cat-esqueleto-card"
+                  >
                     <div className="cat-esqueleto-foto" />
                     <div className="cat-esqueleto-cuerpo">
                       <div className="cat-esqueleto-linea-1" />
@@ -216,101 +203,80 @@ export default function CatalogoPage() {
                 ))}
               </div>
               <p className="text-aux cat-texto-centrado">
-                Buscando avisos… los esqueletos mantienen la altura de la
-                tarjeta real para evitar saltos de maquetación.
+                Cargando resultados…
               </p>
             </div>
-          ) : avisosPaginados.length === 0 ? (
-            /* Vista 3.2 — Catálogo sin resultados + Quizá te interese */
+          )}
+
+          {/* VISTA 3.2 — SIN RESULTADOS + SUGERENCIAS */}
+          {!mostrarEsqueletos && sinResultados && (
             <div>
               <div className="card-surface cat-vacio-card">
                 <div className="cat-vacio-icono" />
                 <h2 className="title-section cat-vacio-titulo">
-                  Ningún aviso coincide con tu búsqueda
+                  No encontramos avisos para «{qParam || filtros.curso || 'esta combinación'}»
                 </h2>
                 <p className="text-aux cat-vacio-desc">
-                  Prueba con menos filtros o amplía el rango de precio. También
-                  puedes crear una alerta y te avisamos cuando alguien publique
-                  algo parecido.
+                  Prueba quitando algún filtro, ampliando el rango de precio o
+                  buscando por el nombre del curso en lugar del autor.
                 </p>
+
                 <div className="cat-vacio-acciones">
                   <button
                     type="button"
                     className="btn btn-primary"
-                    onClick={limpiarTodo}
+                    onClick={handleLimpiarTodo}
                   >
-                    Limpiar filtros
+                    Quitar todos los filtros
                   </button>
-                  <button
-                    type="button"
-                    className="btn btn-secondary"
-                    onClick={() =>
-                      setNotificacion({
-                        tipo: 'exito',
-                        mensaje:
-                          'Éxito. Creamos una alerta de búsqueda para avisarte cuando se publique un material similar.'
-                      })
-                    }
-                  >
-                    Crear alerta de búsqueda
-                  </button>
+                  <Link to="/nuevo-aviso" className="btn btn-secondary">
+                    Publicar lo que tengo de este curso
+                  </Link>
                 </div>
               </div>
 
-              <span className="label-upper cat-label-sugerencias">
-                Quizá te interese
-              </span>
-              <div className="cat-sugerencias-grid">
-                {sugerenciasQuizaTeInterese.map((av) => (
-                  <TarjetaAviso key={av.id} aviso={av} />
-                ))}
+              <div>
+                <span className="label-upper cat-label-sugerencias">
+                  Quizás te sirva · Avisos destacados en el campus
+                </span>
+                <div className="cat-sugerencias-grid">
+                  {sugerenciasAlternativas.map((av) => (
+                    <TarjetaAviso key={av.id} aviso={av} />
+                  ))}
+                </div>
               </div>
             </div>
-          ) : (
-            /* Vista 3.1 — Grilla de resultados con paginación */
+          )}
+
+          {/* VISTA 3.1 — GRILLA DE RESULTADOS CON PAGINACIÓN */}
+          {!mostrarEsqueletos && !sinResultados && (
             <>
               <div className="cat-resultados-grid">
-                {avisosPaginados.map((aviso) => (
-                  <TarjetaAviso key={aviso.id} aviso={aviso} />
+                {avisosFiltrados.map((av) => (
+                  <TarjetaAviso key={av.id} aviso={av} />
                 ))}
               </div>
 
               <div className="cat-paginacion">
                 <span>
-                  Mostrando 1–{avisosPaginados.length} de{' '}
-                  {avisosFiltradosYOrdenados.length} resultados
+                  Mostrando 1–{avisosFiltrados.length} de{' '}
+                  {avisosFiltrados.length} avisos
                 </span>
-
                 <div className="cat-paginacion-botones">
                   <button
                     type="button"
                     className="btn btn-outline btn-sm"
-                    disabled={paginaActual === 1}
-                    onClick={() => setPaginaActual((p) => Math.max(1, p - 1))}
+                    disabled
                   >
                     ‹
                   </button>
-                  {Array.from({ length: totalPaginas }, (_, i) => i + 1).map(
-                    (num) => (
-                      <button
-                        key={num}
-                        type="button"
-                        className={`btn btn-sm ${
-                          paginaActual === num ? 'btn-primary' : 'btn-outline'
-                        }`}
-                        onClick={() => setPaginaActual(num)}
-                      >
-                        {num}
-                      </button>
-                    )
-                  )}
+                  <button type="button" className="btn btn-primary btn-sm">
+                    1
+                  </button>
                   <button
                     type="button"
                     className="btn btn-outline btn-sm"
-                    disabled={paginaActual === totalPaginas}
-                    onClick={() =>
-                      setPaginaActual((p) => Math.min(totalPaginas, p + 1))
-                    }
+                    disabled
                   >
                     ›
                   </button>

@@ -1,51 +1,68 @@
 import { useState } from 'react';
-import BadgeEstado from '../BadgeEstado/BadgeEstado';
 import './GaleriaFotos.css';
 
 export default function GaleriaFotos({ fotos = [], vendido = false }) {
   const listaFotos =
     Array.isArray(fotos) && fotos.length > 0
       ? fotos
-      : [
-          { id: 'def-1', etiqueta: 'fotografía principal · portada del libro', principal: true },
-          { id: 'def-2', etiqueta: 'vista lateral', principal: false },
-          { id: 'def-3', etiqueta: 'hojas interiores', principal: false },
-          { id: 'def-4', etiqueta: 'contraportada', principal: false }
-        ];
+      : [{ id: 'f-default', etiqueta: 'fotografía principal · portada del libro', principal: true }];
 
   const [indiceActivo, setIndiceActivo] = useState(0);
   const fotoActiva = listaFotos[indiceActivo] || listaFotos[0];
 
   return (
     <div className="galeria-fotos">
-      <div className="galeria-visor-principal striped-placeholder">
-        <span className="galeria-visor-etiqueta">
-          {fotoActiva.etiqueta || 'visor ampliado'}
-        </span>
-        {vendido && (
-          <div className="galeria-vendido-badge">
-            <BadgeEstado estado="Vendido" />
-          </div>
+      <div className="galeria-principal striped-placeholder">
+        {fotoActiva.url ? (
+          <img
+            src={fotoActiva.url}
+            alt={fotoActiva.etiqueta || 'Fotografía del aviso'}
+            className="media-img-cover"
+          />
+        ) : (
+          <span className="galeria-etiqueta-central">
+            {fotoActiva.etiqueta || 'fotografía principal'}
+          </span>
         )}
+        {vendido && <span className="galeria-vendido-badge">VENDIDO</span>}
       </div>
 
-      {listaFotos.length > 1 && (
-        <div className="galeria-miniaturas">
-          {listaFotos.map((foto, idx) => (
+      <div className="galeria-miniaturas">
+        {Array.from({ length: 5 }).map((_, idx) => {
+          const foto = listaFotos[idx];
+          const activa = idx === indiceActivo && Boolean(foto);
+
+          if (!foto) {
+            return (
+              <div
+                key={`vacio-${idx}`}
+                className="galeria-thumb galeria-thumb-vacio"
+              >
+                vacío
+              </div>
+            );
+          }
+
+          return (
             <button
               key={foto.id || idx}
               type="button"
-              className={`galeria-miniatura striped-placeholder ${
-                idx === indiceActivo ? 'activa' : ''
-              }`}
+              className={`galeria-thumb striped-placeholder ${activa ? 'activa' : ''}`}
               onClick={() => setIndiceActivo(idx)}
-              aria-label={`Ver fotografía ${idx + 1}`}
             >
-              <span className="sr-only">{foto.etiqueta}</span>
+              {foto.url ? (
+                <img
+                  src={foto.url}
+                  alt={foto.etiqueta || `Foto ${idx + 1}`}
+                  className="media-img-cover"
+                />
+              ) : (
+                <span>{idx + 1}</span>
+              )}
             </button>
-          ))}
-        </div>
-      )}
+          );
+        })}
+      </div>
     </div>
   );
 }
