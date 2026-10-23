@@ -1,47 +1,39 @@
 import { useState } from 'react';
-import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { obtenerIniciales, ROLES_USUARIO } from '../../data/contratoDatos';
+import { useReporte } from '../../context/ReporteContext';
+import { ROLES_USUARIO, obtenerIniciales } from '../../data/contratoDatos';
 import './Header.css';
 
 export default function Header() {
-  const { usuarioActual, rolActual, logout, cambiarSesionPrueba } = useAuth();
-  const location = useLocation();
+  const {
+    usuarioActual,
+    rolActual,
+    logout
+  } = useAuth();
+  const { obtenerConteosReportes } = useReporte();
+
+  const [terminoBusqueda, setTerminoBusqueda] = useState('');
+  const [menuAbierto, setMenuAbierto] = useState(false);
   const navigate = useNavigate();
 
-  const [busqueda, setBusqueda] = useState('');
-  const [menuAbierto, setMenuAbierto] = useState(false);
+  const conteosReportes = obtenerConteosReportes ? obtenerConteosReportes() : { nuevos: 3 };
 
-  const handleBuscar = (e) => {
+  const handleSubmitBusqueda = (e) => {
     e.preventDefault();
-    const termino = busqueda.trim();
-    if (rolActual === ROLES_USUARIO.ADMIN) {
-      navigate(`/admin/reportes${termino ? `?q=${encodeURIComponent(termino)}` : ''}`);
+    const limpio = terminoBusqueda.trim();
+    if (limpio) {
+      navigate(`/catalogo?q=${encodeURIComponent(limpio)}`);
     } else {
-      navigate(`/catalogo${termino ? `?q=${encodeURIComponent(termino)}` : ''}`);
+      navigate('/catalogo');
     }
   };
 
-  const handleCambioSesion = (e) => {
-    const valor = e.target.value;
+  const handleCerrarSesion = () => {
     setMenuAbierto(false);
-    const usuario = cambiarSesionPrueba(valor);
-    if (!usuario) {
-      navigate('/');
-    } else if (usuario.rol === ROLES_USUARIO.ADMIN) {
-      navigate('/admin/reportes');
-    } else {
-      navigate('/mi-cuenta');
-    }
+    logout();
+    navigate('/');
   };
-
-  const valorSelectorActual = !usuarioActual
-    ? 'visitante'
-    : usuarioActual.id === 'u-admin'
-      ? 'admin'
-      : usuarioActual.id === 'u-2'
-        ? 'diego'
-        : 'rosa';
 
   const iniciales = usuarioActual
     ? obtenerIniciales(usuarioActual.nombres, usuarioActual.apellidos)
@@ -56,8 +48,17 @@ export default function Header() {
       {/* Barra superior principal */}
       <div className="header-top">
         <div className="header-left">
-          <Link to="/" className="header-logo">
-            <span className="header-logo-mark" aria-hidden="true" />
+          <Link
+            to={
+              rolActual === ROLES_USUARIO.ADMIN
+                ? '/admin/reportes'
+                : rolActual === ROLES_USUARIO.USUARIO
+                ? '/catalogo'
+                : '/'
+            }
+            className="header-logo"
+          >
+            <span className="header-logo-mark" />
             <span className="header-logo-text">Tablón ULima</span>
           </Link>
 
@@ -66,79 +67,70 @@ export default function Header() {
           )}
 
           {rolActual === ROLES_USUARIO.VISITANTE && (
-            <nav className="header-visitor-nav" aria-label="Navegación pública">
-              <Link to="/catalogo" className="visitor-nav-link">Catálogo</Link>
-              <a href="/#como-funciona" className="visitor-nav-link">Cómo funciona</a>
-              <a href="/#normas" className="visitor-nav-link">Normas del tablón</a>
-              <a href="/#ayuda" className="visitor-nav-link">Ayuda</a>
+            <nav className="header-visitor-nav">
+              <NavLink to="/catalogo" className="visitor-nav-link">
+                Catálogo
+              </NavLink>
+              <a href="/#como-funciona" className="visitor-nav-link">
+                Cómo funciona
+              </a>
             </nav>
           )}
 
-          {(rolActual === ROLES_USUARIO.USUARIO || rolActual === ROLES_USUARIO.ADMIN) && (
-            <form className="header-search-form" onSubmit={handleBuscar}>
+          {rolActual === ROLES_USUARIO.USUARIO && (
+            <form className="header-search-form" onSubmit={handleSubmitBusqueda}>
               <input
                 type="search"
                 className="header-search-input"
-                value={busqueda}
-                onChange={(e) => setBusqueda(e.target.value)}
-                placeholder={
-                  rolActual === ROLES_USUARIO.ADMIN
-                    ? 'Buscar por aviso, usuario o código…'
-                    : 'Buscar libros, calculadoras, apuntes…'
-                }
+                placeholder="Buscar por libro, curso o autor..."
+                value={terminoBusqueda}
+                onChange={(e) => setTerminoBusqueda(e.target.value)}
               />
             </form>
           )}
         </div>
 
         <div className="header-right">
-          {/* Selector discreto de sesión de prueba para demostración del equipo */}
-          <div className="demo-role-switcher" title="Cambiar sesión rápida de prueba">
-            <span className="demo-switcher-label">Sesión demo:</span>
-            <select
-              value={valorSelectorActual}
-              onChange={handleCambioSesion}
-              className="demo-switcher-select"
-              aria-label="Cambiar sesión de prueba"
-            >
-              <option value="visitante">Visitante (Sin sesión)</option>
-              <option value="rosa">Rosa Quispe (Usuario)</option>
-              <option value="diego">Diego Vargas (Usuario)</option>
-              <option value="admin">Julio Mendoza (Admin)</option>
-            </select>
-          </div>
-
+          {/* Insignia de Rol */}
           {rolActual === ROLES_USUARIO.VISITANTE && (
             <>
               <span className="role-badge role-badge-visitante">VISITANTE</span>
-              {location.pathname !== '/login' && (
-                <Link to="/login" className="header-login-link">
-                  Ingresar
-                </Link>
-              )}
-              {location.pathname !== '/registro' && (
-                <Link to="/registro" className="btn btn-primary btn-sm">
-                  Crear cuenta
-                </Link>
-              )}
+              <Link to="/login" className="header-login-link">
+                Iniciar sesión
+              </Link>
+              <Link to="/registro" className="btn btn-primary btn-sm">
+                Crear cuenta
+              </Link>
             </>
           )}
 
           {rolActual === ROLES_USUARIO.USUARIO && (
             <>
-              <Link to="/nuevo-aviso" className="btn btn-primary btn-sm">
-                Publicar aviso
-              </Link>
               <span className="role-badge role-badge-usuario">USUARIO</span>
+              <Link to="/nuevo-aviso" className="btn btn-primary btn-sm">
+                + Publicar aviso
+              </Link>
+
               <div className="user-menu-wrapper">
                 <button
                   type="button"
                   className="user-menu-trigger"
                   onClick={() => setMenuAbierto((prev) => !prev)}
                 >
-                  <span className="user-avatar-chip">{iniciales}</span>
+                  <span className="user-avatar-chip">
+                    {usuarioActual?.fotoPerfil ? (
+                      <img
+                        src={usuarioActual.fotoPerfil}
+                        alt={nombreCorto}
+                        className="media-img-cover user-avatar-img"
+                      />
+                    ) : (
+                      iniciales
+                    )}
+                  </span>
                   <span className="user-trigger-name">{nombreCorto} ▾</span>
                 </button>
+
                 {menuAbierto && (
                   <div className="user-dropdown card-surface">
                     <Link
@@ -149,27 +141,23 @@ export default function Header() {
                       Mi cuenta
                     </Link>
                     <Link
-                      to="/mis-publicaciones"
+                      to={`/reputacion/${usuarioActual.id}`}
                       className="dropdown-item"
                       onClick={() => setMenuAbierto(false)}
                     >
-                      Mis publicaciones
+                      Mi perfil público
                     </Link>
                     <Link
-                      to="/acceso-denegado"
+                      to="/calificaciones"
                       className="dropdown-item"
                       onClick={() => setMenuAbierto(false)}
                     >
-                      Probar Acceso Denegado (1.6)
+                      Mis calificaciones
                     </Link>
                     <button
                       type="button"
                       className="dropdown-item dropdown-logout"
-                      onClick={() => {
-                        setMenuAbierto(false);
-                        logout();
-                        navigate('/login');
-                      }}
+                      onClick={handleCerrarSesion}
                     >
                       Cerrar sesión
                     </button>
@@ -188,9 +176,20 @@ export default function Header() {
                   className="user-menu-trigger"
                   onClick={() => setMenuAbierto((prev) => !prev)}
                 >
-                  <span className="user-avatar-chip">{iniciales}</span>
+                  <span className="user-avatar-chip">
+                    {usuarioActual?.fotoPerfil ? (
+                      <img
+                        src={usuarioActual.fotoPerfil}
+                        alt={nombreCorto}
+                        className="media-img-cover user-avatar-img"
+                      />
+                    ) : (
+                      iniciales
+                    )}
+                  </span>
                   <span className="user-trigger-name">{nombreCorto} ▾</span>
                 </button>
+
                 {menuAbierto && (
                   <div className="user-dropdown card-surface">
                     <Link
@@ -200,14 +199,24 @@ export default function Header() {
                     >
                       Bandeja de reportes
                     </Link>
+                    <Link
+                      to="/admin/usuarios"
+                      className="dropdown-item"
+                      onClick={() => setMenuAbierto(false)}
+                    >
+                      Gestión de usuarios
+                    </Link>
+                    <Link
+                      to="/admin/metricas"
+                      className="dropdown-item"
+                      onClick={() => setMenuAbierto(false)}
+                    >
+                      Tablero de métricas
+                    </Link>
                     <button
                       type="button"
                       className="dropdown-item dropdown-logout"
-                      onClick={() => {
-                        setMenuAbierto(false);
-                        logout();
-                        navigate('/login');
-                      }}
+                      onClick={handleCerrarSesion}
                     >
                       Cerrar sesión
                     </button>
@@ -219,50 +228,54 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Barra inferior de pestañas — ROL USUARIO */}
+      {/* Sub-barra de navegación para Estudiante (Usuario) */}
       {rolActual === ROLES_USUARIO.USUARIO && (
-        <nav className="header-subnav-user" aria-label="Menú de usuario">
-          <NavLink to="/catalogo" className={({ isActive }) => `subnav-tab ${isActive ? 'active' : ''}`}>
+        <nav className="header-subnav-user">
+          <NavLink to="/catalogo" className="subnav-tab">
             Catálogo
           </NavLink>
-          <NavLink to="/mis-publicaciones" className={({ isActive }) => `subnav-tab ${isActive ? 'active' : ''}`}>
+          <NavLink to="/mis-publicaciones" className="subnav-tab">
             Mis publicaciones
           </NavLink>
-          <NavLink to="/favoritos" className={({ isActive }) => `subnav-tab ${isActive ? 'active' : ''}`}>
-            Favoritos
-          </NavLink>
-          <NavLink to="/ofertas" className={({ isActive }) => `subnav-tab ${isActive ? 'active' : ''}`}>
+          <NavLink to="/ofertas" className="subnav-tab">
             Ofertas
           </NavLink>
-          <NavLink to="/acuerdos" className={({ isActive }) => `subnav-tab ${isActive ? 'active' : ''}`}>
+          <NavLink to="/acuerdos" className="subnav-tab">
             Acuerdos
           </NavLink>
-          <NavLink to="/calificaciones" className={({ isActive }) => `subnav-tab ${isActive ? 'active' : ''}`}>
+          <NavLink to="/favoritos" className="subnav-tab">
+            Favoritos
+          </NavLink>
+          <NavLink to="/calificaciones" className="subnav-tab">
             Calificaciones
           </NavLink>
-          <NavLink to="/mi-cuenta" className={({ isActive }) => `subnav-tab ${isActive ? 'active' : ''}`}>
+          <NavLink to="/mi-cuenta" className="subnav-tab">
             Mi cuenta
           </NavLink>
         </nav>
       )}
 
-      {/* Barra inferior oscura — ROL ADMINISTRADOR */}
+      {/* Sub-barra oscura para Administrador */}
       {rolActual === ROLES_USUARIO.ADMIN && (
-        <nav className="header-subnav-admin" aria-label="Menú de administración">
+        <nav className="header-subnav-admin">
           <div className="admin-tabs-left">
-            <NavLink to="/admin/reportes" className={({ isActive }) => `admin-tab ${isActive ? 'active' : ''}`}>
-              Reportes
+            <NavLink to="/admin/reportes" className="admin-tab">
+              Bandeja de reportes
             </NavLink>
-            <NavLink to="/admin/usuarios" className={({ isActive }) => `admin-tab ${isActive ? 'active' : ''}`}>
-              Usuarios
+            <NavLink to="/admin/usuarios" className="admin-tab">
+              Gestión de usuarios
             </NavLink>
-            <NavLink to="/admin/metricas" className={({ isActive }) => `admin-tab ${isActive ? 'active' : ''}`}>
+            <NavLink to="/admin/metricas" className="admin-tab">
               Tablero de métricas
             </NavLink>
-            <span className="admin-tab admin-tab-static">Categorías y cursos</span>
-            <span className="admin-tab admin-tab-static">Normas del tablón</span>
+            <NavLink to="/catalogo" className="admin-tab">
+              Catálogo y categorías
+            </NavLink>
           </div>
-          <span className="admin-alert-count">3 reportes nuevos por revisar</span>
+          <span className="admin-alert-count">
+            {conteosReportes.nuevos}{' '}
+            {conteosReportes.nuevos === 1 ? 'reporte nuevo' : 'reportes nuevos'} por revisar
+          </span>
         </nav>
       )}
     </header>

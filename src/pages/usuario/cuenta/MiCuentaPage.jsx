@@ -1,150 +1,160 @@
-import { useState, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth, validarPasswordSegura } from '../../../context/AuthContext';
-import { PUNTOS_ENCUENTRO, obtenerIniciales } from '../../../data/contratoDatos';
+import {
+  CARRERAS_ULIMA,
+  CICLOS_ULIMA,
+  PUNTOS_ENCUENTRO,
+  obtenerIniciales
+} from '../../../data/contratoDatos';
+import { leerArchivoImagen } from '../../../data/imagenesDatos';
 import Notificacion from '../../../components/Notificacion/Notificacion';
 import './cuenta.css';
 
 /**
- * MÓDULO: Mi cuenta (Integrante 1 · HU-1)
- * Vista 1.5 — Edición de datos personales, contraseña y punto de encuentro preferido
+ * MÓDULO: Cuenta y Acceso (Integrante 1 · HU-1)
+ * Vista 1.5 — Mi cuenta: editar datos personales, foto de perfil, punto de encuentro y cambiar contraseña
  */
 export default function MiCuentaPage() {
-  const {
-    usuarioActual,
-    actualizarDatosCuenta,
-    cambiarPassword,
-    logout
-  } = useAuth();
+  const { usuarioActual, actualizarDatosCuenta, cambiarPassword, logout } =
+    useAuth();
   const navigate = useNavigate();
+  const inputFotoRef = useRef(null);
 
-  const [nombres, setNombres] = useState(usuarioActual?.nombres || 'Rosa María');
-  const [apellidos, setApellidos] = useState(usuarioActual?.apellidos || 'Quispe Ríos');
-  const [telefono, setTelefono] = useState(usuarioActual?.telefono || '987 654 321');
-  const [puntoPreferido, setPuntoPreferido] = useState(
-    usuarioActual?.puntoEncuentroPreferido || 'Biblioteca'
-  );
-  const [erroresDatos, setErroresDatos] = useState({});
+  const [datos, setDatos] = useState({
+    nombres: usuarioActual?.nombres || 'Rosa María',
+    apellidos: usuarioActual?.apellidos || 'Quispe Ríos',
+    carrera: usuarioActual?.carrera || 'Administración',
+    ciclo: usuarioActual?.ciclo || 'Cuarto',
+    telefono: usuarioActual?.telefono || '987 654 321',
+    puntoEncuentroPreferido:
+      usuarioActual?.puntoEncuentroPreferido || 'Biblioteca'
+  });
 
-  // Estados de cambio de contraseña
-  const [passwordActual, setPasswordActual] = useState('');
-  const [nuevaPassword, setNuevaPassword] = useState('');
-  const [confirmarPassword, setConfirmarPassword] = useState('');
-  const [erroresPass, setErroresPass] = useState({});
+  const [passwords, setPasswords] = useState({
+    passwordActual: '',
+    nuevaPassword: '',
+    confirmarPassword: ''
+  });
 
+  const [mostrarActual, setMostrarActual] = useState(false);
+  const [mostrarNueva, setMostrarNueva] = useState(false);
+  const [mostrarConfirmar, setMostrarConfirmar] = useState(false);
+  const [errorPass, setErrorPass] = useState('');
   const [notificacion, setNotificacion] = useState(null);
-
-  useEffect(() => {
-    if (usuarioActual) {
-      setNombres(usuarioActual.nombres || '');
-      setApellidos(usuarioActual.apellidos || '');
-      setTelefono(usuarioActual.telefono || '987 654 321');
-      setPuntoPreferido(usuarioActual.puntoEncuentroPreferido || 'Biblioteca');
-    }
-  }, [usuarioActual]);
 
   const handleGuardarDatos = (e) => {
     e.preventDefault();
-    const errs = {};
-
-    if (!nombres.trim()) errs.nombres = 'El nombre es obligatorio.';
-    if (!apellidos.trim()) errs.apellidos = 'Los apellidos son obligatorios.';
-    const soloDigitos = telefono.replace(/\s+/g, '');
-    if (!/^[0-9]{9}$/.test(soloDigitos)) {
-      errs.telefono = 'Ingresa un teléfono celular válido de 9 dígitos.';
-    }
-
-    setErroresDatos(errs);
-    if (Object.keys(errs).length > 0) return;
-
-    const res = actualizarDatosCuenta({
-      nombres: nombres.trim(),
-      apellidos: apellidos.trim(),
-      telefono: telefono.trim()
-    });
-
+    const res = actualizarDatosCuenta(datos);
     if (res.ok) {
       setNotificacion({
         tipo: 'exito',
         titulo: 'Éxito.',
-        mensaje: 'Tus datos personales se guardaron correctamente.'
+        mensaje: 'Los datos de tu cuenta se actualizaron correctamente.'
       });
     }
   };
 
-  const handleDescartarDatos = () => {
-    if (!usuarioActual) return;
-    setNombres(usuarioActual.nombres);
-    setApellidos(usuarioActual.apellidos);
-    setTelefono(usuarioActual.telefono);
-    setErroresDatos({});
-  };
-
   const handleSeleccionarPunto = (punto) => {
-    setPuntoPreferido(punto);
+    const actualizado = { ...datos, puntoEncuentroPreferido: punto };
+    setDatos(actualizado);
     actualizarDatosCuenta({ puntoEncuentroPreferido: punto });
     setNotificacion({
       tipo: 'exito',
-      titulo: 'Punto de encuentro actualizado.',
-      mensaje: `Ahora se propondrá "${punto}" por defecto al coordinar tus entregas.`
+      titulo: 'Punto preferido actualizado.',
+      mensaje: `Se preseleccionará «${punto}» cuando coordines un acuerdo.`
     });
   };
 
-  const handleActualizarPassword = (e) => {
-    e.preventDefault();
-    const errs = {};
+  const handleSubirFotografia = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const res = await leerArchivoImagen(file);
+    e.target.value = '';
 
-    if (!passwordActual) {
-      errs.passwordActual = 'Ingresa tu contraseña actual.';
-    }
-    const infoSeg = validarPasswordSegura(nuevaPassword);
-    if (!infoSeg.esValida) {
-      errs.nuevaPassword = 'Mínimo 8 caracteres, una mayúscula y un número.';
-    }
-    if (!confirmarPassword || confirmarPassword !== nuevaPassword) {
-      errs.confirmarPassword = 'Las contraseñas no coinciden.';
-    }
-
-    setErroresPass(errs);
-    if (Object.keys(errs).length > 0) return;
-
-    const res = cambiarPassword({ passwordActual, nuevaPassword });
     if (!res.ok) {
-      setErroresPass({ [res.campo || 'passwordActual']: res.error });
+      setNotificacion({
+        tipo: 'error',
+        titulo: 'No se pudo cargar la fotografía.',
+        mensaje: res.error
+      });
       return;
     }
 
-    setPasswordActual('');
-    setNuevaPassword('');
-    setConfirmarPassword('');
-    setErroresPass({});
+    actualizarDatosCuenta({ fotoPerfil: res.url });
     setNotificacion({
       tipo: 'exito',
-      titulo: 'Éxito.',
-      mensaje: 'Tu contraseña se actualizó correctamente.'
+      titulo: 'Fotografía actualizada.',
+      mensaje: `Tu foto de perfil («${res.nombre}») se guardó correctamente.`
+    });
+  };
+
+  const handleQuitarFotografia = () => {
+    actualizarDatosCuenta({ fotoPerfil: null });
+    setNotificacion({
+      tipo: 'info',
+      titulo: 'Fotografía retirada.',
+      mensaje: 'Se restauró tu avatar con tus iniciales institucionales.'
+    });
+  };
+
+  const handleGuardarPassword = (e) => {
+    e.preventDefault();
+    setErrorPass('');
+
+    if (!passwords.passwordActual) {
+      setErrorPass('Ingresa tu contraseña actual.');
+      return;
+    }
+
+    const val = validarPasswordSegura(passwords.nuevaPassword);
+    if (!val.esValida) {
+      setErrorPass('Mínimo 8 caracteres, una mayúscula y un número.');
+      return;
+    }
+
+    if (passwords.nuevaPassword !== passwords.confirmarPassword) {
+      setErrorPass('La confirmación de la nueva contraseña no coincide.');
+      return;
+    }
+
+    const res = cambiarPassword({
+      passwordActual: passwords.passwordActual,
+      nuevaPassword: passwords.nuevaPassword
+    });
+
+    if (!res.ok) {
+      setErrorPass(res.error);
+      return;
+    }
+
+    setPasswords({
+      passwordActual: '',
+      nuevaPassword: '',
+      confirmarPassword: ''
+    });
+
+    setNotificacion({
+      tipo: 'exito',
+      titulo: 'Contraseña actualizada.',
+      mensaje: res.mensaje
     });
   };
 
   const handleCerrarSesion = () => {
     logout();
-    navigate('/login');
+    navigate('/');
   };
 
-  const iniciales = obtenerIniciales(
-    usuarioActual?.nombres || nombres,
-    usuarioActual?.apellidos || apellidos
-  );
+  const iniciales = obtenerIniciales(datos.nombres, datos.apellidos);
 
   return (
     <div className="page-container">
       <div className="cue-encabezado">
         <h1 className="title-screen">Mi cuenta</h1>
         <p className="text-aux cue-subtitulo">
-          {usuarioActual?.nombres || 'Rosa María'}{' '}
-          {usuarioActual?.apellidos || 'Quispe Ríos'} ·{' '}
-          {usuarioActual?.carrera || 'Administración'},{' '}
-          {(usuarioActual?.ciclo || 'cuarto').toLowerCase()} ciclo ·{' '}
-          {usuarioActual?.antiguedadTexto || 'en el tablón desde marzo de 2026'}
+          Actualiza tus datos personales, tu punto de encuentro preferido y tu
+          contraseña.
         </p>
       </div>
 
@@ -163,74 +173,87 @@ export default function MiCuentaPage() {
         <form
           onSubmit={handleGuardarDatos}
           className="card-surface cue-tarjeta"
-          noValidate
         >
           <h2 className="title-section cue-titulo-seccion">Datos personales</h2>
 
           <div className="form-group">
-            <label className="label-upper" htmlFor="cuenta-nombres">
-              Nombres
-            </label>
+            <label className="label-upper">Nombres</label>
             <input
-              id="cuenta-nombres"
               type="text"
-              className={`form-input ${erroresDatos.nombres ? 'input-error' : ''}`}
-              value={nombres}
-              onChange={(e) => setNombres(e.target.value)}
+              className="form-input"
+              value={datos.nombres}
+              onChange={(e) => setDatos({ ...datos, nombres: e.target.value })}
+              required
             />
-            {erroresDatos.nombres && (
-              <span className="field-error">{erroresDatos.nombres}</span>
-            )}
           </div>
 
           <div className="form-group">
-            <label className="label-upper" htmlFor="cuenta-apellidos">
-              Apellidos
-            </label>
+            <label className="label-upper">Apellidos</label>
             <input
-              id="cuenta-apellidos"
               type="text"
-              className={`form-input ${erroresDatos.apellidos ? 'input-error' : ''}`}
-              value={apellidos}
-              onChange={(e) => setApellidos(e.target.value)}
+              className="form-input"
+              value={datos.apellidos}
+              onChange={(e) =>
+                setDatos({ ...datos, apellidos: e.target.value })
+              }
+              required
             />
-            {erroresDatos.apellidos && (
-              <span className="field-error">{erroresDatos.apellidos}</span>
-            )}
           </div>
 
           <div className="form-group">
-            <label className="label-upper" htmlFor="cuenta-correo">
-              Correo institucional
-            </label>
+            <label className="label-upper">Correo institucional</label>
             <input
-              id="cuenta-correo"
               type="email"
               className="form-input"
               value={usuarioActual?.correo || '20201234@aloe.ulima.edu.pe'}
               disabled
             />
-            <span className="field-hint">No editable.</span>
+            <span className="field-hint">
+              El correo institucional no se puede modificar.
+            </span>
           </div>
 
           <div className="form-group">
-            <label className="label-upper" htmlFor="cuenta-telefono">
-              Teléfono de contacto
-            </label>
+            <label className="label-upper">Carrera</label>
+            <select
+              className="form-select"
+              value={datos.carrera}
+              onChange={(e) => setDatos({ ...datos, carrera: e.target.value })}
+            >
+              {CARRERAS_ULIMA.map((c) => (
+                <option key={c} value={c}>
+                  {c}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label className="label-upper">Ciclo actual</label>
+            <select
+              className="form-select"
+              value={datos.ciclo}
+              onChange={(e) => setDatos({ ...datos, ciclo: e.target.value })}
+            >
+              {CICLOS_ULIMA.map((ci) => (
+                <option key={ci} value={ci}>
+                  {ci}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label className="label-upper">Teléfono de contacto (Opcional)</label>
             <input
-              id="cuenta-telefono"
               type="text"
-              className={`form-input ${erroresDatos.telefono ? 'input-error' : ''}`}
-              value={telefono}
-              onChange={(e) => setTelefono(e.target.value)}
+              className="form-input"
+              value={datos.telefono}
+              onChange={(e) => setDatos({ ...datos, telefono: e.target.value })}
             />
-            {erroresDatos.telefono ? (
-              <span className="field-error">{erroresDatos.telefono}</span>
-            ) : (
-              <span className="field-hint">
-                Solo se comparte al cerrarse un acuerdo.
-              </span>
-            )}
+            <span className="field-hint">
+              Solo se muestra a la otra parte cuando hay un acuerdo activo.
+            </span>
           </div>
 
           <div className="cue-acciones">
@@ -240,7 +263,17 @@ export default function MiCuentaPage() {
             <button
               type="button"
               className="btn btn-tertiary"
-              onClick={handleDescartarDatos}
+              onClick={() =>
+                setDatos({
+                  nombres: usuarioActual?.nombres || 'Rosa María',
+                  apellidos: usuarioActual?.apellidos || 'Quispe Ríos',
+                  carrera: usuarioActual?.carrera || 'Administración',
+                  ciclo: usuarioActual?.ciclo || 'Cuarto',
+                  telefono: usuarioActual?.telefono || '987 654 321',
+                  puntoEncuentroPreferido:
+                    usuarioActual?.puntoEncuentroPreferido || 'Biblioteca'
+                })
+              }
             >
               Descartar
             </button>
@@ -250,161 +283,212 @@ export default function MiCuentaPage() {
         {/* Columna 2: Cambiar contraseña + Punto de encuentro preferido */}
         <div className="cue-pila">
           <form
-            onSubmit={handleActualizarPassword}
+            onSubmit={handleGuardarPassword}
             className="card-surface cue-tarjeta"
-            noValidate
           >
             <h2 className="title-section cue-titulo-seccion">
               Cambiar contraseña
             </h2>
 
             <div className="form-group">
-              <label className="label-upper" htmlFor="pass-actual">
-                Contraseña actual
-              </label>
-              <input
-                id="pass-actual"
-                type="password"
-                placeholder="••••••••••"
-                className={`form-input ${
-                  erroresPass.passwordActual ? 'input-error' : ''
-                }`}
-                value={passwordActual}
-                onChange={(e) => setPasswordActual(e.target.value)}
-              />
-              {erroresPass.passwordActual && (
-                <span className="field-error">{erroresPass.passwordActual}</span>
-              )}
+              <label className="label-upper">Contraseña actual</label>
+              <div className="vis-pass-grupo">
+                <input
+                  type={mostrarActual ? 'text' : 'password'}
+                  value={passwords.passwordActual}
+                  onChange={(e) =>
+                    setPasswords({
+                      ...passwords,
+                      passwordActual: e.target.value
+                    })
+                  }
+                  placeholder="••••••••••"
+                  className="vis-pass-input"
+                />
+                <button
+                  type="button"
+                  onClick={() => setMostrarActual((p) => !p)}
+                  className="vis-pass-toggle"
+                >
+                  {mostrarActual ? 'Ocultar' : 'Mostrar'}
+                </button>
+              </div>
             </div>
 
             <div className="form-group">
-              <label className="label-upper" htmlFor="pass-nueva">
-                Nueva contraseña
-              </label>
-              <input
-                id="pass-nueva"
-                type="password"
-                placeholder="••••••••••"
-                className={`form-input ${
-                  erroresPass.nuevaPassword ? 'input-error' : ''
-                }`}
-                value={nuevaPassword}
-                onChange={(e) => setNuevaPassword(e.target.value)}
-              />
-              {erroresPass.nuevaPassword ? (
-                <span className="field-error">{erroresPass.nuevaPassword}</span>
-              ) : (
-                <span className="field-hint">
-                  Mínimo 8 caracteres, una mayúscula y un número.
-                </span>
-              )}
+              <label className="label-upper">Nueva contraseña</label>
+              <div className="vis-pass-grupo">
+                <input
+                  type={mostrarNueva ? 'text' : 'password'}
+                  value={passwords.nuevaPassword}
+                  onChange={(e) =>
+                    setPasswords({
+                      ...passwords,
+                      nuevaPassword: e.target.value
+                    })
+                  }
+                  className="vis-pass-input"
+                />
+                <button
+                  type="button"
+                  onClick={() => setMostrarNueva((p) => !p)}
+                  className="vis-pass-toggle"
+                >
+                  {mostrarNueva ? 'Ocultar' : 'Mostrar'}
+                </button>
+              </div>
+              <span className="field-hint">
+                Mínimo 8 caracteres, una mayúscula y un número.
+              </span>
             </div>
 
             <div className="form-group">
-              <label className="label-upper" htmlFor="pass-confirmar">
-                Confirmar nueva contraseña
-              </label>
-              <input
-                id="pass-confirmar"
-                type="password"
-                placeholder="••••••••••"
-                className={`form-input ${
-                  erroresPass.confirmarPassword ? 'input-error' : ''
-                }`}
-                value={confirmarPassword}
-                onChange={(e) => setConfirmarPassword(e.target.value)}
-              />
-              {erroresPass.confirmarPassword && (
-                <span className="field-error">{erroresPass.confirmarPassword}</span>
-              )}
+              <label className="label-upper">Confirmar nueva contraseña</label>
+              <div className="vis-pass-grupo">
+                <input
+                  type={mostrarConfirmar ? 'text' : 'password'}
+                  value={passwords.confirmarPassword}
+                  onChange={(e) =>
+                    setPasswords({
+                      ...passwords,
+                      confirmarPassword: e.target.value
+                    })
+                  }
+                  className="vis-pass-input"
+                />
+                <button
+                  type="button"
+                  onClick={() => setMostrarConfirmar((p) => !p)}
+                  className="vis-pass-toggle"
+                >
+                  {mostrarConfirmar ? 'Ocultar' : 'Mostrar'}
+                </button>
+              </div>
+              {errorPass && <span className="field-error">{errorPass}</span>}
             </div>
 
-            <button type="submit" className="btn btn-primary cue-btn-bloque">
+            <button
+              type="submit"
+              className="btn btn-secondary cue-btn-bloque"
+            >
               Actualizar contraseña
             </button>
           </form>
 
           {/* Punto de encuentro preferido */}
-          <div className="card-surface cue-tarjeta">
+          <div className="card-surface cue-tarjeta-compacta">
             <h2 className="title-section cue-titulo-punto">
               Punto de encuentro preferido
             </h2>
             <p className="text-aux cue-nota-punto">
-              Se propondrá por defecto al coordinar tus entregas.
+              Se preseleccionará cuando coordines la entrega de un acuerdo.
             </p>
 
             <div className="cue-chips">
-              {PUNTOS_ENCUENTRO.map((punto) => (
-                <button
-                  key={punto}
-                  type="button"
-                  className={`chip chip-selectable ${
-                    puntoPreferido === punto ? 'active' : ''
-                  }`}
-                  onClick={() => handleSeleccionarPunto(punto)}
-                >
-                  {punto}
-                </button>
-              ))}
+              {PUNTOS_ENCUENTRO.map((punto) => {
+                const activo = datos.puntoEncuentroPreferido === punto;
+                return (
+                  <button
+                    key={punto}
+                    type="button"
+                    className={`chip chip-selectable ${activo ? 'active' : ''}`}
+                    onClick={() => handleSeleccionarPunto(punto)}
+                  >
+                    {punto}
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>
 
-        {/* Columna 3: Tarjeta de perfil, Actividad del ciclo y Cerrar sesión */}
+        {/* Columna 3: Tarjeta de foto de perfil, actividad y cerrar sesión */}
         <div className="cue-pila">
           <div className="card-surface cue-tarjeta-perfil">
             <div className="striped-placeholder cue-avatar-grande">
-              {iniciales}
+              {usuarioActual?.fotoPerfil ? (
+                <img
+                  src={usuarioActual.fotoPerfil}
+                  alt={`${datos.nombres} ${datos.apellidos}`}
+                  className="media-img-cover cue-avatar-img"
+                />
+              ) : (
+                iniciales
+              )}
             </div>
+
             <h3 className="subtitle cue-nombre-perfil">
-              {usuarioActual?.nombres || 'Rosa María'}{' '}
-              {usuarioActual?.apellidos || 'Quispe Ríos'}
+              {datos.nombres} {datos.apellidos}
             </h3>
             <p className="text-aux cue-resumen-perfil">
-              Reputación {usuarioActual?.reputacion || 4.8} ·{' '}
-              {usuarioActual?.acuerdosCerrados ?? 12} acuerdos cerrados
+              {datos.carrera} · {datos.ciclo} ciclo ·{' '}
+              {usuarioActual?.reputacion || 4.8} ★
             </p>
+
+            <input
+              ref={inputFotoRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              className="cue-input-oculto"
+              onChange={handleSubirFotografia}
+            />
+
             <button
               type="button"
-              className="btn btn-secondary btn-sm"
-              onClick={() =>
-                setNotificacion({
-                  tipo: 'exito',
-                  titulo: 'Fotografía actualizada.',
-                  mensaje: 'Tu foto de perfil se actualizó correctamente.'
-                })
-              }
+              className="btn btn-secondary btn-sm cue-btn-bloque"
+              onClick={() => inputFotoRef.current?.click()}
             >
               Cambiar fotografía
             </button>
+
+            {usuarioActual?.fotoPerfil && (
+              <button
+                type="button"
+                className="btn btn-tertiary btn-sm cue-btn-quitar-foto"
+                onClick={handleQuitarFotografia}
+              >
+                Restaurar iniciales
+              </button>
+            )}
           </div>
 
           <div className="card-surface cue-tarjeta-compacta">
             <span className="label-upper cue-label-actividad">
-              Actividad del ciclo
+              Actividad en el tablón
             </span>
+
+            <div className="cue-fila-metrica">
+              <span className="text-aux">Miembro desde</span>
+              <strong>{usuarioActual?.fechaRegistro || '15/03/2026'}</strong>
+            </div>
+
             <div className="cue-fila-metrica">
               <span className="text-aux">Avisos publicados</span>
               <strong>{usuarioActual?.avisosPublicadosCount ?? 6}</strong>
             </div>
+
             <div className="cue-fila-metrica">
               <span className="text-aux">Acuerdos cerrados</span>
               <strong>{usuarioActual?.acuerdosCerrados ?? 12}</strong>
             </div>
+
             <div className="cue-fila-metrica-ultima">
-              <span className="text-aux">Entregas confirmadas</span>
-              <strong>{usuarioActual?.entregasConfirmadasPct ?? 100} %</strong>
+              <span className="text-aux">Reputación</span>
+              <strong>
+                {usuarioActual?.reputacion || 4.8} ★ (
+                {usuarioActual?.totalCalificaciones ?? 11})
+              </strong>
             </div>
           </div>
 
           <div className="card-surface cue-cerrar-card">
             <div>
               <strong className="cue-cerrar-titulo">Cerrar sesión</strong>
-              <span className="text-aux">En este dispositivo.</span>
+              <span className="text-aux">En este dispositivo</span>
             </div>
             <button
               type="button"
-              className="btn btn-outline btn-sm"
+              className="btn btn-destructive btn-sm"
               onClick={handleCerrarSesion}
             >
               Salir

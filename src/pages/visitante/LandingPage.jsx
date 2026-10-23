@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAviso } from '../../context/AvisoContext';
 import { useAuth } from '../../context/AuthContext';
 import { CATEGORIAS, formatearPrecio, ROLES_USUARIO } from '../../data/contratoDatos';
+import { ILUSTRACION_HERO_CAMPUS, obtenerPortadaAviso } from '../../data/imagenesDatos';
 import { PASOS_COMO_FUNCIONA } from './visitanteUtils';
 import './visitante.css';
 
@@ -16,7 +17,7 @@ export default function LandingPage() {
   const { avisos } = useAviso();
   const { rolActual } = useAuth();
 
-  const avisosRecientes = avisos.slice(0, 4);
+  const avisosRecientes = avisos.filter((a) => a.estado === 'Publicado').slice(0, 4);
 
   const handleBuscar = (e) => {
     e.preventDefault();
@@ -71,9 +72,11 @@ export default function LandingPage() {
           </div>
 
           <div className="striped-placeholder vis-hero-foto">
-            <span className="vis-foto-etiqueta">
-              fotografía · estudiantes intercambiando libros
-            </span>
+            <img
+              src={ILUSTRACION_HERO_CAMPUS}
+              alt="Intercambio estudiantil en el campus ULima"
+              className="media-img-cover"
+            />
           </div>
         </div>
       </section>
@@ -117,7 +120,13 @@ export default function LandingPage() {
                   to={ruta}
                   className="card-surface vis-reciente-card"
                 >
-                  <div className="striped-placeholder vis-reciente-miniatura" />
+                  <div className="striped-placeholder vis-reciente-miniatura">
+                    <img
+                      src={obtenerPortadaAviso(aviso)}
+                      alt={aviso.titulo}
+                      className="media-img-cover"
+                    />
+                  </div>
                   <div className="vis-reciente-info">
                     <h4 className="vis-reciente-titulo">{aviso.titulo}</h4>
                     <div className="price-text vis-reciente-precio">

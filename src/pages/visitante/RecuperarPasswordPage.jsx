@@ -178,19 +178,12 @@ export default function RecuperarPasswordPage() {
             </div>
 
             <div className="vis-pie-simulacion">
-              <button
-                type="button"
+              <Link
+                to="/login"
                 className="btn btn-tertiary vis-btn-sin-padding-izq"
-                onClick={() =>
-                  setNotificacion({
-                    tipo: 'error',
-                    titulo: 'Enlace vencido.',
-                    mensaje: 'Solicita uno nuevo para continuar.'
-                  })
-                }
               >
-                Simular enlace vencido
-              </button>
+                Volver al inicio de sesión
+              </Link>
               <button
                 type="button"
                 className="btn btn-primary btn-sm"
@@ -199,7 +192,7 @@ export default function RecuperarPasswordPage() {
                   setPaso(3);
                 }}
               >
-                Abrir enlace del correo (Paso 3) →
+                Continuar al restablecimiento →
               </button>
             </div>
           </div>
@@ -277,7 +270,7 @@ export default function RecuperarPasswordPage() {
       {paso === 1 && (
         <p className="text-aux vis-nota-pie">
           Si no recibes el correo en 5 minutos, revisa la carpeta de correo no deseado
-          o escribe a <a href="mailto:tablon@ulima.edu.pe">tablon@ulima.edu.pe</a>.
+          o contacta a la mesa de ayuda en <strong>tablon@ulima.edu.pe</strong>.
         </p>
       )}
     </div>

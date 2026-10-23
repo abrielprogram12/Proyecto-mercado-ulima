@@ -21,17 +21,52 @@
   display: flex;
   align-items: center;
   gap: 24px;
+  flex-wrap: wrap;
 }
 
 .footer-link {
   color: var(--color-primary);
   font-weight: 600;
   text-decoration: none;
+  font-size: 13px;
 }
 
 .footer-link:hover {
   color: var(--color-primary-hover);
   text-decoration: underline;
+}
+
+.footer-link-btn {
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.footer-help-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  background-color: var(--color-primary-soft);
+  border: 1px solid #F2D1C2;
+  border-radius: var(--radius-btn);
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+
+.footer-help-email {
+  display: block;
+  font-size: 16px;
+  color: var(--color-primary);
+  margin-bottom: 2px;
+}
+
+.footer-normas-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 @media (max-width: 768px) {

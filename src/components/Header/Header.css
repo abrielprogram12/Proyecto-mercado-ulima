@@ -101,34 +101,6 @@
   flex-shrink: 0;
 }
 
-/* Selector discreto de sesión de prueba */
-.demo-role-switcher {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background-color: var(--color-neutral);
-  padding: 4px 10px;
-  border-radius: var(--radius-btn);
-  border: 1px dashed var(--color-border);
-}
-
-.demo-switcher-label {
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--color-text-secondary);
-  text-transform: uppercase;
-}
-
-.demo-switcher-select {
-  border: none;
-  background: transparent;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--color-text);
-  cursor: pointer;
-  outline: none;
-}
-
 /* Insignias de Rol */
 .role-badge {
   display: inline-flex;
@@ -190,6 +162,12 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.user-avatar-img {
+  border-radius: 50%;
 }
 
 .user-trigger-name {
@@ -295,10 +273,6 @@
 .admin-tab.active {
   color: #FFFFFF;
   border-bottom-color: var(--color-primary);
-}
-
-.admin-tab-static {
-  cursor: default;
 }
 
 .admin-alert-count {

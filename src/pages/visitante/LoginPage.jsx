@@ -2,13 +2,13 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { ROLES_USUARIO } from '../../data/contratoDatos';
+import { ILUSTRACION_HERO_CAMPUS } from '../../data/imagenesDatos';
 import Notificacion from '../../components/Notificacion/Notificacion';
-import { CUENTAS_PRUEBA_LOGIN } from './visitanteUtils';
 import './visitante.css';
 
 /**
  * MÓDULO: Visitante y Acceso (Integrante 1 · HU-1)
- * Vista 1.2 y 1.8 — Inicio de sesión institucional
+ * Vista 1.2 y 1.8 — Inicio de sesión y estados de credenciales / cuenta bloqueada / cargando
  */
 export default function LoginPage() {
   const { login, obtenerCorreoRecordado } = useAuth();
@@ -20,48 +20,60 @@ export default function LoginPage() {
   const [recordarme, setRecordarme] = useState(true);
 
   const [cargando, setCargando] = useState(false);
-  const [errorBanner, setErrorBanner] = useState('');
-  const [errorCampoPassword, setErrorCampoPassword] = useState('');
-  const [errorCampoCorreo, setErrorCampoCorreo] = useState('');
+  const [errorCorreo, setErrorCorreo] = useState('');
+  const [alertaGeneral, setAlertaGeneral] = useState(null);
+  const [cuentaBloqueada, setCuentaBloqueada] = useState(false);
 
   useEffect(() => {
-    const guardado = obtenerCorreoRecordado();
-    if (guardado) {
-      setCorreo(guardado);
-      setRecordarme(true);
+    const recordado = obtenerCorreoRecordado();
+    if (recordado) {
+      setCorreo(recordado);
     }
   }, []);
 
+  const validarFormatoCorreo = (valor) => {
+    const limpio = valor.trim().toLowerCase();
+    if (!limpio) {
+      return 'Ingresa tu correo institucional.';
+    }
+    if (!limpio.endsWith('@aloe.ulima.edu.pe') && limpio !== 'admin@ulima.edu.pe') {
+      return 'El correo debe terminar en @aloe.ulima.edu.pe.';
+    }
+    return '';
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    setErrorBanner('');
-    setErrorCampoPassword('');
-    setErrorCampoCorreo('');
+    setAlertaGeneral(null);
+    setCuentaBloqueada(false);
 
-    const correoLimpio = correo.trim().toLowerCase();
-    if (
-      !correoLimpio.endsWith('@aloe.ulima.edu.pe') &&
-      correoLimpio !== 'admin@ulima.edu.pe'
-    ) {
-      setErrorCampoCorreo('El correo debe terminar en @aloe.ulima.edu.pe.');
+    const errFormato = validarFormatoCorreo(correo);
+    if (errFormato) {
+      setErrorCorreo(errFormato);
       return;
     }
-
+    setErrorCorreo('');
     setCargando(true);
 
     setTimeout(() => {
-      const resultado = login({
-        correo: correoLimpio,
-        password,
-        recordarme
-      });
-
+      const resultado = login({ correo, password, recordarme });
       setCargando(false);
 
       if (!resultado.ok) {
-        setErrorBanner(resultado.error);
-        if (!resultado.bloqueado) {
-          setErrorCampoPassword('Verifica tu contraseña.');
+        if (resultado.bloqueado) {
+          setCuentaBloqueada(true);
+          setAlertaGeneral({
+            tipo: 'error',
+            titulo: 'Cuenta bloqueada.',
+            mensaje:
+              'Tu cuenta ha sido suspendida por incumplir las normas del tablón y no puede iniciar sesión.'
+          });
+        } else {
+          setAlertaGeneral({
+            tipo: 'error',
+            titulo: 'No pudimos ingresar.',
+            mensaje: `El correo o la contraseña no coinciden. Te quedan ${resultado.intentosRestantes} intentos antes del bloqueo temporal.`
+          });
         }
         return;
       }
@@ -69,56 +81,65 @@ export default function LoginPage() {
       if (resultado.usuario.rol === ROLES_USUARIO.ADMIN) {
         navigate('/admin/reportes');
       } else {
-        navigate('/mi-cuenta');
+        navigate('/catalogo');
       }
-    }, 900);
+    }, 350);
   };
 
-  const rellenarCuentaDemo = (correoDemo, passDemo = 'Password123') => {
-    setCorreo(correoDemo);
-    setPassword(passDemo);
-    setErrorBanner('');
-    setErrorCampoPassword('');
-    setErrorCampoCorreo('');
+  const seleccionarCuentaRapida = (emailCuenta) => {
+    setErrorCorreo('');
+    setCuentaBloqueada(false);
+    setAlertaGeneral(null);
+    setCorreo(emailCuenta);
+    setPassword('Password123');
   };
 
-  const clasesPassGrupo = [
+  const claseGrupoPassword = [
     'vis-pass-grupo',
-    errorCampoPassword ? 'con-error' : '',
-    cargando ? 'deshabilitado' : ''
+    alertaGeneral && !cuentaBloqueada ? 'con-error' : '',
+    cargando || cuentaBloqueada ? 'deshabilitado' : ''
   ]
     .filter(Boolean)
     .join(' ');
 
   return (
     <div className="vis-login-layout">
-      {/* Panel izquierdo — Vista 1.2 */}
+      {/* Columna izquierda — Ilustración y cita */}
       <div className="vis-login-izq">
         <div className="striped-placeholder vis-login-foto">
-          <span className="vis-foto-etiqueta">fotografía · patio del campus</span>
+          <img
+            src={ILUSTRACION_HERO_CAMPUS}
+            alt="Ilustración del intercambio estudiantil ULima"
+            className="media-img-cover"
+          />
         </div>
 
         <blockquote className="vis-login-cita">
-          «Vendí mis libros de Cálculo en tres días y compré los de Física del ciclo
-          siguiente.»
+          «Compré mi Stewart de Cálculo I a mitad de precio y lo recogí en la
+          Biblioteca el mismo día.»
         </blockquote>
-        <p className="text-aux">Rosa María Quispe Ríos · Administración</p>
+        <span className="text-aux">
+          Diego Vargas · Ingeniería de Sistemas · quinto ciclo
+        </span>
       </div>
 
-      {/* Panel derecho — Formulario de inicio de sesión (Vistas 1.2 y 1.8) */}
+      {/* Columna derecha — Formulario de inicio de sesión */}
       <div className="vis-login-der">
         <div className="vis-login-caja">
           <h1 className="title-screen">Iniciar sesión</h1>
           <p className="text-aux vis-subtitulo-form">
-            Usa tu correo institucional @aloe.ulima.edu.pe para ofertar, publicar y
-            coordinar entregas.
+            Usa tu correo institucional <strong>@aloe.ulima.edu.pe</strong>.
           </p>
 
-          {errorBanner && (
+          {alertaGeneral && (
             <Notificacion
-              tipo="error"
-              mensaje={errorBanner}
-              onClose={() => setErrorBanner('')}
+              tipo={alertaGeneral.tipo}
+              titulo={alertaGeneral.titulo}
+              mensaje={alertaGeneral.mensaje}
+              onClose={() => {
+                setAlertaGeneral(null);
+                setCuentaBloqueada(false);
+              }}
             />
           )}
 
@@ -130,45 +151,39 @@ export default function LoginPage() {
               <input
                 id="login-correo"
                 type="email"
-                className={`form-input ${
-                  errorCampoCorreo || errorBanner ? 'input-error' : ''
-                }`}
+                className={`form-input ${errorCorreo ? 'input-error' : ''}`}
                 value={correo}
-                onChange={(e) => setCorreo(e.target.value)}
-                disabled={cargando}
-                required
+                disabled={cargando || cuentaBloqueada}
+                onChange={(e) => {
+                  setCorreo(e.target.value);
+                  if (errorCorreo) setErrorCorreo('');
+                }}
               />
-              {errorCampoCorreo && (
-                <span className="field-error">{errorCampoCorreo}</span>
-              )}
+              {errorCorreo && <span className="field-error">{errorCorreo}</span>}
             </div>
 
             <div className="form-group">
               <label className="label-upper" htmlFor="login-password">
                 Contraseña
               </label>
-              <div className={clasesPassGrupo}>
+              <div className={claseGrupoPassword}>
                 <input
                   id="login-password"
                   type={mostrarPassword ? 'text' : 'password'}
                   value={password}
+                  disabled={cargando || cuentaBloqueada}
                   onChange={(e) => setPassword(e.target.value)}
-                  disabled={cargando}
                   className="vis-pass-input"
-                  required
                 />
                 <button
                   type="button"
-                  disabled={cargando}
-                  onClick={() => setMostrarPassword((prev) => !prev)}
+                  disabled={cargando || cuentaBloqueada}
+                  onClick={() => setMostrarPassword((p) => !p)}
                   className="vis-pass-toggle"
                 >
                   {mostrarPassword ? 'Ocultar' : 'Mostrar'}
                 </button>
               </div>
-              {errorCampoPassword && (
-                <span className="field-error">{errorCampoPassword}</span>
-              )}
             </div>
 
             <div className="vis-login-opciones">
@@ -176,8 +191,8 @@ export default function LoginPage() {
                 <input
                   type="checkbox"
                   checked={recordarme}
+                  disabled={cargando || cuentaBloqueada}
                   onChange={(e) => setRecordarme(e.target.checked)}
-                  disabled={cargando}
                   className="vis-check-input"
                 />
                 <span>Recordarme</span>
@@ -186,7 +201,7 @@ export default function LoginPage() {
               <Link
                 to="/recuperar-password"
                 className={`vis-link-fuerte ${
-                  cargando ? 'vis-link-deshabilitado' : ''
+                  cuentaBloqueada ? 'vis-link-deshabilitado' : ''
                 }`}
               >
                 ¿Olvidaste tu contraseña?
@@ -196,49 +211,73 @@ export default function LoginPage() {
             <button
               type="submit"
               className="btn btn-primary vis-btn-bloque"
-              disabled={cargando}
+              disabled={cargando || cuentaBloqueada}
             >
               {cargando ? (
                 <>
                   <span className="spinner-inline" />
-                  <span>Verificando...</span>
+                  <span>Verificando credenciales...</span>
                 </>
               ) : (
                 'Ingresar'
               )}
             </button>
 
-            {cargando && (
+            {cuentaBloqueada && (
               <p className="field-hint vis-hint-centrado">
-                El botón y los campos quedan deshabilitados mientras se validan las
-                credenciales.
+                Si crees que es un error, escríbenos a{' '}
+                <strong>tablon@ulima.edu.pe</strong>.
               </p>
             )}
           </form>
 
           <p className="vis-pie-registro">
-            ¿No tienes cuenta?{' '}
+            ¿Aún no tienes cuenta?{' '}
             <Link to="/registro" className="vis-link-fuerte">
               Crear cuenta
             </Link>
           </p>
 
-          {/* Accesos rápidos para pruebas de cátedra */}
+          {/* Cuentas de demostración para cambiar rápidamente entre Vendedor, Comprador y Admin */}
           <div className="vis-demo-seccion">
             <span className="label-upper">
-              Cuentas de prueba (Contraseña: Password123)
+              Cuentas institucionales registradas (Contraseña: Password123)
             </span>
             <div className="vis-demo-chips">
-              {CUENTAS_PRUEBA_LOGIN.map((cuenta) => (
-                <button
-                  key={cuenta.correo}
-                  type="button"
-                  className="chip chip-selectable"
-                  onClick={() => rellenarCuentaDemo(cuenta.correo)}
-                >
-                  {cuenta.etiqueta}
-                </button>
-              ))}
+              <button
+                type="button"
+                className="chip chip-selectable"
+                onClick={() =>
+                  seleccionarCuentaRapida('20201234@aloe.ulima.edu.pe')
+                }
+              >
+                Rosa Quispe (Vendedora)
+              </button>
+              <button
+                type="button"
+                className="chip chip-selectable"
+                onClick={() =>
+                  seleccionarCuentaRapida('20204455@aloe.ulima.edu.pe')
+                }
+              >
+                Diego Vargas (Comprador)
+              </button>
+              <button
+                type="button"
+                className="chip chip-selectable"
+                onClick={() =>
+                  seleccionarCuentaRapida('20208899@aloe.ulima.edu.pe')
+                }
+              >
+                Lucía Ramírez (Compradora)
+              </button>
+              <button
+                type="button"
+                className="chip chip-selectable"
+                onClick={() => seleccionarCuentaRapida('admin@ulima.edu.pe')}
+              >
+                Julio Mendoza (Admin)
+              </button>
             </div>
           </div>
         </div>

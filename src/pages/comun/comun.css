@@ -46,6 +46,30 @@
   flex-wrap: wrap;
 }
 
+.com-modal-left {
+  text-align: left;
+}
+
+.com-help-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  background-color: var(--color-primary-soft);
+  border: 1px solid #F2D1C2;
+  border-radius: var(--radius-btn);
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+
+.com-help-email {
+  display: block;
+  font-size: 16px;
+  color: var(--color-primary);
+  margin-bottom: 2px;
+}
+
 .com-codigo-404 {
   font-size: 96px;
   line-height: 1;

@@ -25,12 +25,16 @@ export const CURSOS_ASOCIADOS = [
   'Economía General'
 ];
 
+export const CURSOS_DESTACADOS = CURSOS_ASOCIADOS;
+
 export const CONDICIONES_PRODUCTO = [
   'Como nuevo',
   'Muy buen estado',
   'Buen estado',
   'Con marcas de uso'
 ];
+
+export const CONDICIONES_ARTICULO = CONDICIONES_PRODUCTO;
 
 export const PUNTOS_ENCUENTRO = [
   'Biblioteca',

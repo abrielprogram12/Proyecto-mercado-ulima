@@ -4,6 +4,7 @@ import { useAviso } from '../../context/AvisoContext';
 import { useAuth } from '../../context/AuthContext';
 import { useReporte } from '../../context/ReporteContext';
 import { formatearPrecio, obtenerIniciales } from '../../data/contratoDatos';
+import { obtenerFotosEnriquecidasAviso } from '../../data/imagenesDatos';
 import GaleriaFotos from '../../components/GaleriaFotos/GaleriaFotos';
 import BadgeEstado from '../../components/BadgeEstado/BadgeEstado';
 import Notificacion from '../../components/Notificacion/Notificacion';
@@ -34,6 +35,8 @@ export default function DetalleAvisoVisitantePage() {
   const inicialesVendedor = vendedor
     ? obtenerIniciales(vendedor.nombres, vendedor.apellidos)
     : 'RQ';
+
+  const fotosGaleria = obtenerFotosEnriquecidasAviso(aviso);
 
   const handleEnviarReporte = ({ motivo, descripcion }) => {
     const res = crearReporte({
@@ -81,7 +84,7 @@ export default function DetalleAvisoVisitantePage() {
         {/* Columna izquierda: Galería + Descripción */}
         <div className="vis-pila">
           <GaleriaFotos
-            fotos={aviso.fotos}
+            fotos={fotosGaleria}
             vendido={aviso.estado === 'Vendido'}
           />
 
@@ -161,7 +164,17 @@ export default function DetalleAvisoVisitantePage() {
             <span className="label-upper">Vendedor</span>
 
             <div className="vis-vendedor-encabezado">
-              <div className="vis-avatar">{inicialesVendedor}</div>
+              <div className="vis-avatar">
+                {vendedor?.fotoPerfil ? (
+                  <img
+                    src={vendedor.fotoPerfil}
+                    alt={vendedor.nombres}
+                    className="media-img-cover"
+                  />
+                ) : (
+                  inicialesVendedor
+                )}
+              </div>
               <div>
                 <strong className="vis-vendedor-nombre">
                   {vendedor
@@ -188,7 +201,7 @@ export default function DetalleAvisoVisitantePage() {
             </div>
 
             <Link to={`/vendedor/${aviso.vendedorId}`} className="vis-link-fuerte">
-              Ver perfil y sus otros 5 avisos →
+              Ver perfil y sus otros avisos →
             </Link>
           </div>
 
