@@ -1,14 +1,8 @@
-/* ==========================================================================
-   MÓDULO DE OFERTAS Y NEGOCIACIÓN (HU-4 — Integrante 4)
-   Vistas 4.1 (Ofertas recibidas), 4.2 (Ofertas enviadas), 4.3 (Estados vacíos)
-   y 4.4 / 4.5 (Hilo de negociación y contraofertas)
-   ========================================================================== */
 
 .of-page-title {
   margin-bottom: 16px;
 }
 
-/* Pestañas superiores Recibidas / Enviadas */
 .of-tabs-nav {
   display: flex;
   gap: 24px;
@@ -34,7 +28,6 @@
   border-bottom-color: var(--color-primary);
 }
 
-/* Barra de filtros por estado */
 .of-filters-bar {
   display: flex;
   align-items: center;
@@ -54,7 +47,6 @@
   margin-bottom: 20px;
 }
 
-/* Grupos de ofertas recibidas por aviso (Vista 4.1) */
 .of-groups-list {
   display: flex;
   flex-direction: column;
@@ -113,7 +105,6 @@
   font-size: 18px;
 }
 
-/* Listado de ofertas enviadas (Vista 4.2) */
 .of-sent-list {
   display: flex;
   flex-direction: column;
@@ -191,7 +182,6 @@
   font-size: 14px;
 }
 
-/* Hilo de negociación (Vista 4.4) */
 .of-thread-layout {
   display: grid;
   grid-template-columns: 1.85fr 1fr;
@@ -321,7 +311,6 @@
   flex-wrap: wrap;
 }
 
-/* Columna lateral derecha del Hilo */
 .of-thread-side {
   display: flex;
   flex-direction: column;

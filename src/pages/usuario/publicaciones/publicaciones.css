@@ -1,10 +1,4 @@
-/* ==========================================================================
-   MÓDULO DE PUBLICACIONES (HU-2 — Integrante 2)
-   Vistas 2.1 (Mis publicaciones), 2.2 (Estado vacío), 2.3/2.4 (Nuevo y Editar aviso),
-   2.5 (Carga y reordenamiento de fotografías) y 2.6 (Modales de confirmación)
-   ========================================================================== */
 
-/* Cabecera y pestañas de Mis Publicaciones (Vista 2.1) */
 .pub-header-row {
   display: flex;
   align-items: center;
@@ -38,7 +32,6 @@
   padding: 8px 12px;
 }
 
-/* Tabla de publicaciones (Vista 2.1) */
 .pub-table-card {
   overflow-x: auto;
 }
@@ -162,7 +155,6 @@
   gap: 6px;
 }
 
-/* Formulario de Nuevo / Editar Aviso (Vistas 2.3 y 2.4) */
 .pub-form-header {
   display: flex;
   align-items: center;
@@ -211,7 +203,6 @@
   margin-top: 6px;
 }
 
-/* Columna derecha del formulario (Fotografías y Precio) */
 .pub-side-stack {
   display: flex;
   flex-direction: column;
@@ -394,7 +385,6 @@
   gap: 12px;
 }
 
-/* Vista 2.5 — Carga y reordenamiento de fotografías */
 .pub-photos-grid {
   display: grid;
   grid-template-columns: 1.65fr 1fr;

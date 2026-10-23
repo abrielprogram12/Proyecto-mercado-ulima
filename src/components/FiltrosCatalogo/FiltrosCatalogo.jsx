@@ -23,14 +23,12 @@ export default function FiltrosCatalogo({
     condicion = ''
   } = filtros || {};
 
-  // Avisos visibles en catálogo (Publicado o Vendido)
   const avisosVisibles = useMemo(() => {
     return (avisos || []).filter(
       (a) => !a.estado || a.estado === 'Publicado' || a.estado === 'Vendido'
     );
   }, [avisos]);
 
-  // Conteo real por categoría basado en los avisos guardados
   const conteoPorCategoria = useMemo(() => {
     const mapa = {};
     CATEGORIAS.forEach((c) => {
@@ -44,7 +42,6 @@ export default function FiltrosCatalogo({
     return mapa;
   }, [avisosVisibles]);
 
-  // Conteo real por estado/condición del artículo
   const conteoPorCondicion = useMemo(() => {
     const mapa = {};
     CONDICIONES_PRODUCTO.forEach((c) => {
@@ -58,7 +55,6 @@ export default function FiltrosCatalogo({
     return mapa;
   }, [avisosVisibles]);
 
-  // Cursos dinámicos (combina CURSOS_ASOCIADOS con cualquier curso guardado en los avisos reales)
   const cursosDisponibles = useMemo(() => {
     const conjunto = new Set(CURSOS_ASOCIADOS);
     avisosVisibles.forEach((a) => {
@@ -100,7 +96,6 @@ export default function FiltrosCatalogo({
         </button>
       </div>
 
-      {/* Categoría */}
       <div className="filtro-bloque">
         <span className="label-upper">Categoría</span>
         <div className="filtro-lista-checks">
@@ -125,7 +120,6 @@ export default function FiltrosCatalogo({
         </div>
       </div>
 
-      {/* Curso asociado */}
       <div className="filtro-bloque">
         <label className="label-upper" htmlFor="filtro-curso-select">
           Curso asociado
@@ -145,7 +139,6 @@ export default function FiltrosCatalogo({
         </select>
       </div>
 
-      {/* Rango de precio */}
       <div className="filtro-bloque">
         <span className="label-upper">Rango de precio</span>
         <div className="filtro-rango-inputs">
@@ -168,7 +161,6 @@ export default function FiltrosCatalogo({
         </div>
       </div>
 
-      {/* Estado del producto */}
       <div className="filtro-bloque">
         <span className="label-upper">Estado del producto</span>
         <div className="filtro-lista-checks">

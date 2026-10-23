@@ -1,7 +1,3 @@
-/**
- * DATOS SEMILLA DE CALIFICACIONES — Tablón ULima
- * Incluye calificaciones emitidas y recibidas (Vistas 6.1, 6.2 y 6.3).
- */
 
 export const calificacionesIniciales = [
   {

@@ -1,7 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,400;0,6..12,600;0,6..12,700;0,6..12,800;1,6..12,400&display=swap');
 
 :root {
-  /* Paleta oficial — Tablón ULima */
   --color-primary: #C1562E;
   --color-primary-hover: #9A4223;
   --color-primary-soft: #FBEBE3;
@@ -14,7 +13,6 @@
   --color-border: #E8DFD8;
   --color-neutral: #F1EDE9;
 
-  /* Colores de estado */
   --color-success: #2E7D5B;
   --color-success-bg: #EBF5F0;
   --color-warning: #B7791F;
@@ -24,13 +22,11 @@
   --color-info: #3B6FA8;
   --color-info-bg: #EBF3FB;
 
-  /* Insignias de rol */
   --role-visitante: #3B6FA8;
   --role-visitante-bg: #EBF3FB;
   --role-usuario: #C1562E;
   --role-admin: #2A211C;
 
-  /* Geometría y profundidad */
   --radius-card: 12px;
   --radius-btn: 8px;
   --radius-input: 6px;
@@ -38,7 +34,6 @@
   --shadow-card: 0 2px 8px rgba(42, 33, 28, 0.08);
   --shadow-modal: 0 12px 32px rgba(42, 33, 28, 0.18);
 
-  /* Tipografía */
   --font-main: 'Nunito Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
@@ -80,7 +75,6 @@ textarea {
   font-size: 15px;
 }
 
-/* Utilidades tipográficas según guía de estilos */
 .title-screen {
   font-size: 28px;
   line-height: 32px;
@@ -143,7 +137,6 @@ td.label-upper {
   color: var(--color-text);
 }
 
-/* Patrón rayado diagonal de los mockups para contenedores de fotos */
 .striped-placeholder {
   background-color: #EFE6DE;
   background-image: repeating-linear-gradient(

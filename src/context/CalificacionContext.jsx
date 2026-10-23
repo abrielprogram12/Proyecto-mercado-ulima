@@ -33,9 +33,6 @@ export function CalificacionProvider({ children }) {
     return Number(acuerdosCerrados) >= 10 && Number(promedio) >= 4.5;
   };
 
-  /**
-   * Publicar nueva calificación (1 por acuerdo y por parte — HU-6 · Vista 6.1)
-   */
   const publicarCalificacion = ({
     acuerdoId = 'A-2201',
     avisoTitulo = 'Juego de escuadras y escalímetro Faber',
@@ -83,9 +80,6 @@ export function CalificacionProvider({ children }) {
     };
   };
 
-  /**
-   * Editar calificación (solo permitida dentro de los 7 días posteriores a la entrega — HU-6)
-   */
   const editarCalificacion = (id, { puntaje, aspectos, comentario }) => {
     const objetivo = calificaciones.find((c) => c.id === id);
     if (!objetivo) {
@@ -118,9 +112,6 @@ export function CalificacionProvider({ children }) {
     };
   };
 
-  /**
-   * Eliminar calificación emitida dentro del plazo de 7 días (HU-6 · Vista 6.3)
-   */
   const eliminarCalificacion = (id) => {
     const objetivo = calificaciones.find((c) => c.id === id);
     if (!objetivo) {

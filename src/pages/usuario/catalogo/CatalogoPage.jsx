@@ -9,10 +9,6 @@ import {
 } from './catalogoUtils';
 import './catalogo.css';
 
-/**
- * MÓDULO: Catálogo y Búsqueda (Integrante 3 · HU-3)
- * Vistas 3.1 (Catálogo con resultados), 3.2 (Sin resultados) y 3.3 (Cargando con esqueletos)
- */
 export default function CatalogoPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const { avisos } = useAviso();
@@ -30,7 +26,6 @@ export default function CatalogoPage() {
   const [ordenarPor, setOrdenarPor] = useState('recientes');
   const [mostrarEsqueletos, setMostrarEsqueletos] = useState(false);
 
-  // Sincronizar parámetros de URL si cambian desde Header o Landing
   useEffect(() => {
     setFiltros((prev) => ({
       ...prev,
@@ -39,7 +34,6 @@ export default function CatalogoPage() {
     }));
   }, [catParam, cursoParam]);
 
-  // Transición suave con esqueletos (Vista 3.3) al cambiar búsqueda o filtros
   useEffect(() => {
     setMostrarEsqueletos(true);
     const timer = setTimeout(() => {
@@ -96,7 +90,6 @@ export default function CatalogoPage() {
   return (
     <div className="page-container">
       <div className="cat-layout">
-        {/* Panel lateral izquierdo de filtros */}
         <FiltrosCatalogo
           filtros={filtros}
           onChangeFiltros={setFiltros}
@@ -104,9 +97,7 @@ export default function CatalogoPage() {
           onLimpiar={handleLimpiarTodo}
         />
 
-        {/* Contenido principal */}
         <div className="cat-contenido">
-          {/* Chips de filtros activos */}
           <div className="cat-barra-chips">
             <div className="cat-chips-activos">
               <span className="text-aux">Filtros activos:</span>
@@ -192,7 +183,6 @@ export default function CatalogoPage() {
             </div>
           </div>
 
-          {/* Barra de conteo y ordenamiento */}
           <div className="cat-barra-orden">
             <div>
               {mostrarEsqueletos ? (
@@ -232,7 +222,6 @@ export default function CatalogoPage() {
             </div>
           </div>
 
-          {/* VISTA 3.3 — CARGANDO RESULTADOS (ESQUELETOS) */}
           {mostrarEsqueletos && (
             <div>
               <div className="cat-esqueletos-grid">
@@ -256,7 +245,6 @@ export default function CatalogoPage() {
             </div>
           )}
 
-          {/* VISTA 3.2 — SIN RESULTADOS + SUGERENCIAS */}
           {!mostrarEsqueletos && sinResultados && (
             <div>
               <div className="card-surface cat-vacio-card">
@@ -296,7 +284,6 @@ export default function CatalogoPage() {
             </div>
           )}
 
-          {/* VISTA 3.1 — GRILLA DE RESULTADOS CON PAGINACIÓN */}
           {!mostrarEsqueletos && !sinResultados && (
             <>
               <div className="cat-resultados-grid">

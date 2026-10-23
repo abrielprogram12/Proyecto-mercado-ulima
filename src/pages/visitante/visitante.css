@@ -1,6 +1,4 @@
-/* HU-1 · Visitante y acceso — usa las variables de index.css y las clases base de App.css */
 
-/* ---------- Landing (Vista 1.1) ---------- */
 .vis-hero {
   background-color: var(--color-primary-soft);
   padding: 64px 48px;
@@ -191,7 +189,6 @@
   margin-bottom: 4px;
 }
 
-/* ---------- Detalle de aviso sin sesión (Vista 3.4) ---------- */
 .vis-detalle-columnas {
   display: grid;
   grid-template-columns: 1.6fr 1fr;
@@ -312,7 +309,6 @@
   color: var(--color-error);
 }
 
-/* ---------- Inicio de sesión (Vistas 1.2 y 1.8) ---------- */
 .vis-login-layout {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -468,7 +464,6 @@
   margin-top: 8px;
 }
 
-/* ---------- Registro (Vistas 1.3 y 1.8) ---------- */
 .vis-contenedor-confirmacion {
   max-width: 540px;
 }
@@ -531,7 +526,6 @@
   margin-top: 28px;
 }
 
-/* ---------- Recuperar contraseña (Vistas 1.4 y 1.8) ---------- */
 .vis-contenedor-recuperar {
   max-width: 580px;
 }

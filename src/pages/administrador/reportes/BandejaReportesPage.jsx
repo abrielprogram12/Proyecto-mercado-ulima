@@ -41,7 +41,6 @@ export default function BandejaReportesPage() {
 
   return (
     <div className="page-container">
-      {/* Encabezado y controles en línea — Vista 7.1 */}
       <div className="adm-header-row">
         <div>
           <h1 className="title-screen">Bandeja de reportes</h1>
@@ -81,7 +80,6 @@ export default function BandejaReportesPage() {
         </div>
       </div>
 
-      {/* Pestañas por estado — Vista 7.1 */}
       <div className="adm-tabs-bar">
         {[
           { id: 'Todos', label: `Todos · ${conteos.todos}` },
@@ -103,7 +101,6 @@ export default function BandejaReportesPage() {
         ))}
       </div>
 
-      {/* Tabla de reportes — Vista 7.1 */}
       {reportesFiltrados.length === 0 ? (
         <EstadoVacio
           icono="✓"

@@ -3,10 +3,6 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import './comun.css';
 
-/**
- * MÓDULO: Cuenta y Acceso (Integrante 1 · HU-1)
- * Vista 1.6 — Acceso denegado por rol
- */
 export default function AccesoDenegadoPage() {
   const { usuarioActual } = useAuth();
   const [modalAyudaAbierto, setModalAyudaAbierto] = useState(false);

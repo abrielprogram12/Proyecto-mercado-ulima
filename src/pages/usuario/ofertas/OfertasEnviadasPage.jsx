@@ -26,7 +26,6 @@ export default function OfertasEnviadasPage() {
 
   const usuarioId = usuarioActual?.id || '';
 
-  // Estrictamente las ofertas enviadas por el usuario autenticado
   const enviadas = useMemo(() => {
     return ofertas.filter((o) => o.compradorId === usuarioId);
   }, [ofertas, usuarioId]);
@@ -62,7 +61,6 @@ export default function OfertasEnviadasPage() {
     <div className="page-container">
       <h1 className="title-screen of-page-title">Ofertas</h1>
 
-      {/* Pestañas superiores Recibidas / Enviadas — Vista 4.2 */}
       <div className="of-tabs-nav">
         <Link to="/ofertas" className="of-tab-link">
           Recibidas · {recibidasCount}
@@ -83,7 +81,6 @@ export default function OfertasEnviadasPage() {
         />
       )}
 
-      {/* Filtros por estado */}
       <div className="of-filters-chips of-filters-chips--spaced">
         {PESTAÑAS_ESTADO_OFERTA.map((tab) => (
           <button
@@ -99,7 +96,6 @@ export default function OfertasEnviadasPage() {
         ))}
       </div>
 
-      {/* Estado vacío (Vista 4.3) o Listado de ofertas enviadas (Vista 4.2) */}
       {enviadasFiltradas.length === 0 ? (
         <EstadoVacio
           icono="🏷️"
@@ -222,7 +218,6 @@ export default function OfertasEnviadasPage() {
         </div>
       )}
 
-      {/* Pie informativo (Vista 4.2) */}
       <div className="of-rules-banner">
         <strong>Reglas de la negociación.</strong> Una sola oferta activa por
         aviso. Solo puedes retirar tu oferta mientras el vendedor no haya

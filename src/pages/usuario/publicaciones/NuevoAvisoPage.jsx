@@ -112,7 +112,6 @@ export default function NuevoAvisoPage() {
     }
 
     if (nuevas.length > 0) {
-      // Si solo había casillas de ejemplo sin imagen subida, las reemplazamos por las fotos reales subidas
       const fotosConImagenReal = formData.fotos.filter((f) => Boolean(f.url));
       const base =
         fotosConImagenReal.length > 0 ? formData.fotos : [];
@@ -202,7 +201,6 @@ export default function NuevoAvisoPage() {
 
   return (
     <div className="page-container">
-      {/* Breadcrumbs */}
       <div className="breadcrumbs">
         <Link to="/mis-publicaciones">Mis publicaciones</Link>
         <span>›</span>
@@ -239,15 +237,12 @@ export default function NuevoAvisoPage() {
       )}
 
       <form onSubmit={handleSubmit} noValidate>
-        {/* Grilla de 2 columnas — Vista 2.3 */}
         <div className="pub-form-grid">
-          {/* Columna izquierda: Datos del artículo */}
           <div className="card-surface pub-card-datos">
             <h2 className="title-section pub-section-title">
               Datos del artículo
             </h2>
 
-            {/* Título del aviso */}
             <div className="form-group">
               <label className="label-upper">Título del aviso *</label>
               <input
@@ -267,7 +262,6 @@ export default function NuevoAvisoPage() {
               )}
             </div>
 
-            {/* Categoría y Curso asociado */}
             <div className="pub-two-cols">
               <div className="form-group">
                 <label className="label-upper">Categoría *</label>
@@ -306,7 +300,6 @@ export default function NuevoAvisoPage() {
               </div>
             </div>
 
-            {/* Estado del artículo */}
             <div className="form-group">
               <label className="label-upper">Estado del artículo *</label>
               <div className="pub-condicion-chips">
@@ -328,7 +321,6 @@ export default function NuevoAvisoPage() {
               )}
             </div>
 
-            {/* Descripción */}
             <div className="form-group">
               <label className="label-upper">Descripción *</label>
               <textarea
@@ -356,9 +348,7 @@ export default function NuevoAvisoPage() {
             </div>
           </div>
 
-          {/* Columna derecha: Fotografías + Precio y condiciones */}
           <div className="pub-side-stack">
-            {/* Tarjeta de Fotografías */}
             <div className="card-surface pub-card-side">
               <div className="pub-side-header">
                 <h2 className="title-section pub-side-title">Fotografías *</h2>
@@ -446,7 +436,6 @@ export default function NuevoAvisoPage() {
               )}
             </div>
 
-            {/* Tarjeta de Precio y condiciones */}
             <div className="card-surface pub-card-side">
               <h2 className="title-section pub-section-title">
                 Precio y condiciones
@@ -520,7 +509,6 @@ export default function NuevoAvisoPage() {
           </div>
         </div>
 
-        {/* Barra inferior de acciones */}
         <div className="pub-form-footer">
           <Link to="/mis-publicaciones" className="btn btn-tertiary">
             Cancelar

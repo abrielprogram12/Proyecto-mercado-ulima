@@ -65,7 +65,6 @@ export default function HiloNegociacionPage() {
   const inicialesVendedor = obtenerInicialesComprador(oferta.vendedorNombre);
   const inicialesComprador = obtenerInicialesComprador(oferta.compradorNombre);
 
-  // El vendedor acepta la oferta/propuesta del comprador
   const handleAceptarComoVendedor = () => {
     if (!esVendedor) return;
 
@@ -90,7 +89,6 @@ export default function HiloNegociacionPage() {
     }
   };
 
-  // El comprador acepta la contraoferta enviada por el vendedor
   const handleAceptarContraofertaComoComprador = () => {
     if (!esComprador || !contraofertaVigente) return;
 
@@ -159,7 +157,6 @@ export default function HiloNegociacionPage() {
     }
   };
 
-  // Determinar etiqueta de estado contextual según quién mira el hilo
   const obtenerTextoEstadoHilo = () => {
     if (oferta.estado === 'Contraofertada') {
       const ultimoFueVendedor = ultimoMovimiento?.rolAutor === 'vendedor';
@@ -200,9 +197,7 @@ export default function HiloNegociacionPage() {
         />
       )}
 
-      {/* Grilla principal — Vista 4.4 */}
       <div className="of-thread-layout">
-        {/* Columna izquierda: Línea de tiempo de propuestas y contraofertas */}
         <div className="card-surface of-thread-main-card">
           <div className="of-thread-header">
             <div>
@@ -295,7 +290,6 @@ export default function HiloNegociacionPage() {
             })}
           </div>
 
-          {/* Barra inferior de acciones — Separación estricta Vendedor vs Comprador */}
           <div className="of-thread-actions-bar">
             {oferta.estado === 'Aceptada' ? (
               <>
@@ -320,7 +314,6 @@ export default function HiloNegociacionPage() {
                 Esta negociación está cerrada ({oferta.estado.toLowerCase()}).
               </span>
             ) : esVendedor ? (
-              /* VISTA DEL VENDEDOR: puede aceptar la oferta del comprador, enviar contraoferta o rechazar */
               <>
                 <span className="text-aux">
                   {oferta.estado === 'Contraofertada' &&
@@ -362,7 +355,6 @@ export default function HiloNegociacionPage() {
                 </div>
               </>
             ) : esComprador ? (
-              /* VISTA DEL COMPRADOR: NO puede aceptar su propia oferta inicial; solo puede aceptar si el vendedor le envió una contraoferta */
               oferta.estado === 'Enviada' ? (
                 <>
                   <span className="text-aux">
@@ -429,7 +421,6 @@ export default function HiloNegociacionPage() {
           </div>
         </div>
 
-        {/* Columna derecha: Aviso en negociación + Contraparte + Resumen de montos */}
         <div className="of-thread-side">
           <div className="card-surface of-side-card">
             <span className="label-upper of-side-label">

@@ -6,10 +6,6 @@ import TarjetaAviso from '../../../components/TarjetaAviso/TarjetaAviso';
 import EstadoVacio from '../../../components/EstadoVacio/EstadoVacio';
 import './catalogo.css';
 
-/**
- * MÓDULO: Catálogo y Búsqueda (Integrante 3 · HU-3)
- * Vista 3.7 — Avisos guardados en favoritos
- */
 export default function FavoritosPage() {
   const { usuarioActual } = useAuth();
   const { avisos, favoritosPorUsuario, toggleFavorito } = useAviso();

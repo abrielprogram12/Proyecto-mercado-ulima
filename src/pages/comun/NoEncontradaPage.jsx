@@ -1,10 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import './comun.css';
 
-/**
- * MÓDULO: Páginas comunes (Integrante 1 · HU-1)
- * Vista 1.7 — Página no encontrada (404)
- */
 export default function NoEncontradaPage() {
   const navigate = useNavigate();
 

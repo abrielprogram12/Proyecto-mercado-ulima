@@ -29,7 +29,6 @@ export default function MisPublicacionesPage() {
   const [busqueda, setBusqueda] = useState('');
   const [notificacion, setNotificacion] = useState(null);
 
-  // Estados para los modales de confirmación (Vista 2.6)
   const [avisoParaEliminar, setAvisoParaEliminar] = useState(null);
   const [avisoParaEstado, setAvisoParaEstado] = useState(null);
   const [estadoSugeridoModal, setEstadoSugeridoModal] = useState('Vendido');
@@ -88,7 +87,6 @@ export default function MisPublicacionesPage() {
 
   return (
     <div className="page-container">
-      {/* Encabezado — Vista 2.1 */}
       <div className="pub-header-row">
         <div>
           <h1 className="title-screen">Mis publicaciones</h1>
@@ -110,7 +108,6 @@ export default function MisPublicacionesPage() {
         />
       )}
 
-      {/* Pestañas por estado y buscador */}
       <div className="pub-filters-bar">
         <div className="pub-tabs-group">
           {PESTAÑAS_ESTADO_PUBLICACION.map((tab) => {
@@ -137,7 +134,6 @@ export default function MisPublicacionesPage() {
         />
       </div>
 
-      {/* Estado vacío (Vista 2.2) o Tabla de publicaciones (Vista 2.1) */}
       {avisosFiltrados.length === 0 ? (
         <EstadoVacio
           icono="📚"
@@ -342,7 +338,6 @@ export default function MisPublicacionesPage() {
         </div>
       )}
 
-      {/* Paginación inferior */}
       {avisosFiltrados.length > 0 && (
         <div className="pub-table-footer">
           <span>
@@ -363,7 +358,6 @@ export default function MisPublicacionesPage() {
         </div>
       )}
 
-      {/* Modales de Confirmación — Vista 2.6 */}
       <ModalEstadoAviso
         abierto={Boolean(avisoParaEliminar)}
         onClose={() => setAvisoParaEliminar(null)}

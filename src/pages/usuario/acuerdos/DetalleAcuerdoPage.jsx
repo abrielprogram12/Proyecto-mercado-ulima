@@ -24,11 +24,6 @@ import {
 } from './acuerdosUtils';
 import './acuerdos.css';
 
-/**
- * MÓDULO: Acuerdos de entrega (Integrante 5 · HU-5)
- * Vista 5.4 — Detalle del acuerdo (+ modales 5.5)
- */
-
 function ParteAcuerdo({ etiqueta, nombre, detalle, esYo }) {
   return (
     <div className="acu-parte">
@@ -65,7 +60,7 @@ export default function DetalleAcuerdoPage() {
     reabrirCoordinacion
   } = useAcuerdo();
 
-  const [modal, setModal] = useState(null); // 'entrega' | 'cancelar' | 'modificar' | 'reporte'
+  const [modal, setModal] = useState(null);
   const [notificacion, setNotificacion] = useState(location.state?.notificacion ?? null);
 
   const usuarioId = usuarioActual?.id;

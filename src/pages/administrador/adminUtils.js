@@ -1,15 +1,9 @@
-/**
- * Opciones de periodo para el Tablero de Métricas (HU-7 · Vista 7.4)
- */
 export const OPCIONES_PERIODO_METRICAS = [
   { id: '7dias', label: 'Últimos 7 días' },
   { id: '30dias', label: 'Últimos 30 días' },
   { id: 'todo', label: 'Todo el periodo' }
 ];
 
-/**
- * Filtra la lista de reportes según pestaña de estado, tipo y búsqueda (Vista 7.1)
- */
 export function filtrarReportesBandeja(
   reportes = [],
   { tabEstado = 'Todos', filtroTipo = 'Todos', busqueda = '' } = {}
@@ -37,16 +31,10 @@ export function filtrarReportesBandeja(
   });
 }
 
-/**
- * Verifica si una cuenta de estudiante está bloqueada
- */
 export function esUsuarioBloqueado(u) {
   return u?.estadoCuenta === 'Bloqueado' || u?.estadoCuenta === 'Bloqueada';
 }
 
-/**
- * Verifica si una cuenta activa tiene reportes acumulados
- */
 export function usuarioTieneReportes(u) {
   return (
     !esUsuarioBloqueado(u) &&
@@ -55,9 +43,6 @@ export function usuarioTieneReportes(u) {
   );
 }
 
-/**
- * Filtra las cuentas de estudiantes en Gestión de Usuarios (Vista 7.3)
- */
 export function filtrarUsuariosPadron(
   cuentasEstudiantes = [],
   {
@@ -115,16 +100,10 @@ export function filtrarUsuariosPadron(
   });
 }
 
-/**
- * Obtiene la clase de ancho porcentual para barras analíticas en TableroMetricasPage
- */
 export function obtenerClaseAnchoPorcentaje(porcentaje = 0) {
   return `adm-w-${porcentaje}`;
 }
 
-/**
- * Obtiene la clase de color semántico según el estado de oferta en el desglose analítico
- */
 export function obtenerClaseColorOferta(estado = '') {
   if (estado === 'Aceptadas') return 'adm-seg-bg--aceptadas';
   if (estado === 'Contraoferta' || estado === 'En contraoferta') {

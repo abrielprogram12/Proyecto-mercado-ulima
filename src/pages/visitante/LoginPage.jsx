@@ -6,10 +6,6 @@ import { ILUSTRACION_HERO_CAMPUS } from '../../data/imagenesDatos';
 import Notificacion from '../../components/Notificacion/Notificacion';
 import './visitante.css';
 
-/**
- * MÓDULO: Visitante y Acceso (Integrante 1 · HU-1)
- * Vista 1.2 y 1.8 — Inicio de sesión y estados de credenciales / cuenta bloqueada / cargando
- */
 export default function LoginPage() {
   const { login, obtenerCorreoRecordado } = useAuth();
   const navigate = useNavigate();
@@ -104,7 +100,6 @@ export default function LoginPage() {
 
   return (
     <div className="vis-login-layout">
-      {/* Columna izquierda — Ilustración y cita */}
       <div className="vis-login-izq">
         <div className="striped-placeholder vis-login-foto">
           <img
@@ -123,7 +118,6 @@ export default function LoginPage() {
         </span>
       </div>
 
-      {/* Columna derecha — Formulario de inicio de sesión */}
       <div className="vis-login-der">
         <div className="vis-login-caja">
           <h1 className="title-screen">Iniciar sesión</h1>
@@ -238,7 +232,6 @@ export default function LoginPage() {
             </Link>
           </p>
 
-          {/* Cuentas institucionales registradas (Roles del sistema: Usuario y Admin) */}
           <div className="vis-demo-seccion">
             <span className="label-upper">
               Cuentas institucionales registradas (Contraseña: Password123)

@@ -28,10 +28,6 @@ export function OfertaProvider({ children }) {
 
   const obtenerOfertaPorId = (id) => ofertas.find((o) => o.id === id) || null;
 
-  /**
-   * Envío de nueva oferta (HU-4)
-   * Valida que el comprador no sea el propio vendedor, 1 sola oferta activa por aviso y usuario, y monto mínimo si aplica.
-   */
   const enviarOferta = ({ aviso, comprador, monto, mensaje }) => {
     if (!aviso || !comprador) {
       return { ok: false, error: 'Datos incompletos para enviar la oferta.' };
@@ -105,10 +101,6 @@ export function OfertaProvider({ children }) {
     };
   };
 
-  /**
-   * Aceptar oferta o contraoferta (HU-4)
-   * Rechaza automáticamente las demás ofertas activas del mismo aviso.
-   */
   const aceptarOferta = (ofertaId, codigoAcuerdoExterno, montoFinalAcordado) => {
     const objetivo = obtenerOfertaPorId(ofertaId);
     if (!objetivo) {
@@ -167,9 +159,6 @@ export function OfertaProvider({ children }) {
     };
   };
 
-  /**
-   * Rechazar oferta (HU-4)
-   */
   const rechazarOferta = (ofertaId) => {
     setOfertas((prev) =>
       prev.map((o) => (o.id === ofertaId ? { ...o, estado: 'Rechazada' } : o))
@@ -180,9 +169,6 @@ export function OfertaProvider({ children }) {
     };
   };
 
-  /**
-   * Enviar contraoferta del vendedor y registrar en el hilo de negociación (HU-4 · Vistas 4.4 y 4.5)
-   */
   const enviarContraoferta = (
     ofertaId,
     { monto, mensaje, autorNombre = 'Vendedor', rolAutor = 'vendedor' }
@@ -233,9 +219,6 @@ export function OfertaProvider({ children }) {
     };
   };
 
-  /**
-   * Retirar oferta enviada mientras no haya sido respondida (HU-4 · Vista 4.2)
-   */
   const retirarOferta = (ofertaId) => {
     const objetivo = obtenerOfertaPorId(ofertaId);
     if (!objetivo || objetivo.estado !== 'Enviada') {

@@ -1,8 +1,3 @@
-/**
- * DATOS SEMILLA DE USUARIOS — Tablón ULima
- * Incluye los usuarios de prueba y casos límite de los mockups (Vistas 1.2, 1.5, 3.8, 7.3).
- * Contraseña por defecto para cuentas de prueba: Password123
- */
 
 export const usuariosIniciales = [
   {

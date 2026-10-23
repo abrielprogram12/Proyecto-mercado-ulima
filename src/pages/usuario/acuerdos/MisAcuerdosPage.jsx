@@ -20,11 +20,6 @@ import {
 } from './acuerdosUtils';
 import './acuerdos.css';
 
-/**
- * MÓDULO: Acuerdos de entrega (Integrante 5 · HU-5)
- * Vista 5.3 — Mis acuerdos
- */
-
 const GRUPOS = [
   ['todos', 'Todos'],
   ['curso', 'En curso'],
@@ -43,7 +38,6 @@ function lineaDetalle(acuerdo, estado) {
   return 'Sin punto de encuentro definido';
 }
 
-/** Acción principal de cada fila según el estado y lo que le toca hacer al usuario. */
 function accionPrincipal(acuerdo, estado, rol) {
   const verDetalle = { texto: 'Ver detalle', clase: 'btn-outline', ruta: `/acuerdos/${acuerdo.id}` };
   switch (estado) {

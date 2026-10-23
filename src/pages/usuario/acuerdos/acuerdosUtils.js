@@ -10,13 +10,11 @@ export const esEnCurso = (estado) => ESTADOS_EN_CURSO.includes(estado);
 
 const dos = (n) => String(n).padStart(2, '0');
 
-/** Fecha de hoy en formato AAAA-MM-DD (para el atributo min de <input type="date">). */
 export function hoyIso() {
   const d = new Date();
   return `${d.getFullYear()}-${dos(d.getMonth() + 1)}-${dos(d.getDate())}`;
 }
 
-/** '2026-09-03' -> '03/09/2026' */
 export function isoAFecha(iso) {
   if (!iso) return '';
   const [y, m, d] = iso.split('-');
@@ -26,7 +24,6 @@ export function isoAFecha(iso) {
 export const primerNombre = (nombreCompleto = '') => nombreCompleto.split(' ')[0];
 export const minusculaInicial = (texto = '') => texto.charAt(0).toLowerCase() + texto.slice(1);
 
-/** 'Rosa María Quispe Ríos' -> 'RQ' */
 export function inicialesDe(nombreCompleto = '') {
   const palabras = nombreCompleto.trim().split(/\s+/).filter(Boolean);
   if (palabras.length === 0) return 'UL';
@@ -34,7 +31,6 @@ export function inicialesDe(nombreCompleto = '') {
   return (palabras[0][0] + (palabras[1]?.[0] || '')).toUpperCase();
 }
 
-/** Datos de la otra parte del acuerdo, vistos desde el rol de quien mira. */
 export function datosContraparte(acuerdo, rol, obtenerUsuarioPorId) {
   if (rol === 'vendedor') {
     return {

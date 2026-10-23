@@ -6,7 +6,7 @@ import './Modales.css';
 export default function ModalOferta({
   abierto,
   onClose,
-  modo = 'oferta', // 'oferta' | 'contraoferta' | 'propuesta-comprador'
+  modo = 'oferta',
   aviso,
   ofertaRecibida = null,
   onConfirmar
@@ -204,7 +204,6 @@ export default function ModalOferta({
             </div>
           )}
 
-          {/* Barra visual de comparación de precios (Vista 4.5) */}
           {esContraoferta && (
             <div className="modal-scale-box">
               <div className="modal-scale-labels">

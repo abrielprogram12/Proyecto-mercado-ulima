@@ -111,7 +111,6 @@ export default function OfertasRecibidasPage() {
     <div className="page-container">
       <h1 className="title-screen of-page-title">Ofertas</h1>
 
-      {/* Pestañas superiores Recibidas / Enviadas — Vista 4.1 */}
       <div className="of-tabs-nav">
         <Link to="/ofertas" className="of-tab-link of-tab-link--active">
           Recibidas · {recibidas.length}
@@ -129,7 +128,6 @@ export default function OfertasRecibidasPage() {
         />
       )}
 
-      {/* Filtros por estado */}
       <div className="of-filters-bar">
         <div className="of-filters-chips">
           {PESTAÑAS_ESTADO_OFERTA.map((tab) => (
@@ -151,7 +149,6 @@ export default function OfertasRecibidasPage() {
         </span>
       </div>
 
-      {/* Estado vacío (Vista 4.3) o Listado agrupado por aviso (Vista 4.1) */}
       {gruposPorAviso.length === 0 ? (
         <EstadoVacio
           icono="💬"
@@ -174,7 +171,6 @@ export default function OfertasRecibidasPage() {
                 key={grupo.avisoId}
                 className="card-surface of-group-card"
               >
-                {/* Cabecera del aviso */}
                 <div className="of-group-header">
                   <div className="of-group-aviso-info">
                     <div className="striped-placeholder of-group-thumb">
@@ -223,7 +219,6 @@ export default function OfertasRecibidasPage() {
                   </div>
                 </div>
 
-                {/* Filas de ofertas de este aviso */}
                 <div>
                   {grupo.ofertas.map((of) => (
                     <FilaOferta

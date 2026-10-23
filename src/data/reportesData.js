@@ -1,8 +1,3 @@
-/**
- * DATOS SEMILLA DE REPORTES Y MÉTRICAS — Tablón ULima
- * Incluye los 12 reportes del ciclo (3 Nuevos, 2 En revisión, 5 Resueltos, 2 Descartados)
- * alineados con las Vistas 7.1, 7.2 y 7.4 de los mockups.
- */
 
 export const reportesIniciales = [
   {

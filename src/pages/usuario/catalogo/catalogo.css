@@ -1,6 +1,4 @@
-/* HU-3 · Catálogo y búsqueda — usa las variables de index.css y las clases base de App.css */
 
-/* ---------- Catálogo general (Vistas 3.1, 3.2 y 3.3) ---------- */
 .cat-layout {
   display: flex;
   gap: 28px;
@@ -72,7 +70,6 @@
   padding: 7px 14px;
 }
 
-/* Esqueletos de carga (Vista 3.3) */
 .cat-esqueletos-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -122,7 +119,6 @@
   text-align: center;
 }
 
-/* Sin resultados (Vista 3.2) */
 .cat-vacio-card {
   padding: 48px 32px;
   text-align: center;
@@ -163,7 +159,6 @@
   gap: 16px;
 }
 
-/* Grilla principal y paginación */
 .cat-resultados-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(225px, 1fr));
@@ -184,7 +179,6 @@
   gap: 6px;
 }
 
-/* ---------- Detalle de aviso con sesión (Vistas 3.5 y 3.6) ---------- */
 .cat-detalle-columnas {
   display: grid;
   grid-template-columns: 1.6fr 1fr;
@@ -360,7 +354,6 @@
   color: var(--color-error);
 }
 
-/* ---------- Favoritos (Vista 3.7) ---------- */
 .cat-favoritos-encabezado {
   display: flex;
   align-items: center;
@@ -403,7 +396,6 @@
   padding: 0;
 }
 
-/* ---------- Perfil de vendedor (Vista 3.8) ---------- */
 .cat-perfil-cabecera {
   padding: 28px 32px;
   display: flex;

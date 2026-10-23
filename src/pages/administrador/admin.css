@@ -1,8 +1,3 @@
-/* ==========================================================================
-   MÓDULO DE MODERACIÓN Y MÉTRICAS (HU-7 — Integrante 7)
-   Vistas 7.1 (Bandeja de reportes), 7.2 (Detalle y resolución de reporte),
-   7.3 (Gestión de usuarios) y 7.4 (Tablero de métricas)
-   ========================================================================== */
 
 .adm-header-row {
   display: flex;
@@ -35,7 +30,6 @@
   height: 40px;
 }
 
-/* Barra de pestañas institucional (Vistas 7.1 y 7.3) */
 .adm-tabs-bar {
   display: flex;
   align-items: center;
@@ -68,7 +62,6 @@
   border-bottom-color: var(--color-primary);
 }
 
-/* Tablas de datos (Vistas 7.1 y 7.3) */
 .adm-table-card {
   overflow-x: auto;
 }
@@ -151,7 +144,6 @@
   color: var(--color-text-secondary);
 }
 
-/* Vista 7.2 — Detalle y resolución del reporte */
 .adm-detail-layout {
   display: grid;
   grid-template-columns: 1.55fr 1fr;
@@ -321,7 +313,6 @@
   font-size: 13px;
 }
 
-/* Vista 7.3 — Gestión de usuarios */
 .adm-user-cell {
   display: flex;
   align-items: center;
@@ -391,7 +382,6 @@
   gap: 6px;
 }
 
-/* Vista 7.4 — Tablero de métricas */
 .adm-period-switcher {
   display: flex;
   align-items: center;
@@ -514,7 +504,6 @@
 .adm-w-10  { width: 10%; }
 .adm-w-9   { width: 9%; }
 
-/* Gráfico de dona para Ofertas por estado (Vista 7.4) */
 .adm-donut-layout {
   display: flex;
   align-items: center;
@@ -598,7 +587,6 @@
   background-color: #9E9388;
 }
 
-/* Tarjetas de Puntos de encuentro más usados (Vista 7.4) */
 .adm-spots-grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);

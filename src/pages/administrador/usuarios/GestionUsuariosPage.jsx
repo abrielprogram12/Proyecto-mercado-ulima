@@ -29,7 +29,6 @@ export default function GestionUsuariosPage() {
 
   const POR_PAGINA = 6;
 
-  // Excluir la cuenta administrativa del listado de estudiantes
   const cuentasEstudiantes = useMemo(
     () => usuarios.filter((u) => u.rol !== 'admin'),
     [usuarios]
@@ -139,7 +138,6 @@ export default function GestionUsuariosPage() {
 
   return (
     <div className="page-container">
-      {/* Encabezado y controles en línea — Vista 7.3 */}
       <div className="adm-header-row">
         <div>
           <h1 className="title-screen">Gestión de usuarios</h1>
@@ -201,7 +199,6 @@ export default function GestionUsuariosPage() {
         />
       )}
 
-      {/* Pestañas — Vista 7.3 */}
       <div className="adm-tabs-bar">
         {[
           { id: 'Todos', label: `Todos · ${conteos.todos}` },
@@ -225,7 +222,6 @@ export default function GestionUsuariosPage() {
         ))}
       </div>
 
-      {/* Tabla de usuarios — Vista 7.3 */}
       {usuariosPaginados.length === 0 ? (
         <EstadoVacio
           icono="👤"
@@ -349,7 +345,6 @@ export default function GestionUsuariosPage() {
             </tbody>
           </table>
 
-          {/* Paginación — Vista 7.3 */}
           <div className="adm-pagination-bar">
             <span className="text-aux">
               Mostrando {(paginaSegura - 1) * POR_PAGINA + 1}–
@@ -394,7 +389,6 @@ export default function GestionUsuariosPage() {
         </div>
       )}
 
-      {/* Modal de bloqueo de cuenta (Vista 7.5) */}
       <ModalBloquearCuenta
         abierto={Boolean(usuarioParaBloquear)}
         onClose={() => setUsuarioParaBloquear(null)}

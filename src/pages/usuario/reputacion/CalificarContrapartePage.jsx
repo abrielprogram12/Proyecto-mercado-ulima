@@ -135,9 +135,7 @@ export default function CalificarContrapartePage() {
         />
       )}
 
-      {/* Grilla de 2 columnas — Vista 6.1 */}
       <div className="rep-rate-grid">
-        {/* Columna izquierda: Formulario de calificación */}
         <form
           onSubmit={handlePublicar}
           className="card-surface rep-rate-form-card"
@@ -150,7 +148,6 @@ export default function CalificarContrapartePage() {
             confiable.
           </p>
 
-          {/* Resumen del acuerdo entregado */}
           <div className="card-surface rep-acuerdo-summary">
             <div className="striped-placeholder rep-acuerdo-thumb">
               {portadaUrl && (
@@ -182,7 +179,6 @@ export default function CalificarContrapartePage() {
             </div>
           </div>
 
-          {/* Selector de puntaje */}
           <div className="form-group">
             <span className="label-upper">Tu puntaje</span>
             <div className="rep-stars-selector-wrap">
@@ -203,7 +199,6 @@ export default function CalificarContrapartePage() {
             {errorPuntaje && <span className="field-error">{errorPuntaje}</span>}
           </div>
 
-          {/* Chips de aspectos positivos */}
           <div className="form-group">
             <span className="label-upper">¿Qué destacarías? (Opcional)</span>
             <div className="rep-aspectos-chips">
@@ -222,7 +217,6 @@ export default function CalificarContrapartePage() {
             </div>
           </div>
 
-          {/* Comentario con contador de 300 caracteres */}
           <div className="form-group">
             <label className="label-upper">Comentario</label>
             <textarea
@@ -254,7 +248,6 @@ export default function CalificarContrapartePage() {
           </div>
         </form>
 
-        {/* Columna derecha: Guía de escala y estado de publicación */}
         <div className="rep-side-col">
           <div className="card-surface rep-side-card">
             <span className="label-upper rep-side-label">

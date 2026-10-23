@@ -145,7 +145,6 @@ export default function CargaFotografiasPage() {
 
   return (
     <div className="page-container">
-      {/* Breadcrumbs */}
       <div className="breadcrumbs">
         <Link to="/mis-publicaciones">Mis publicaciones</Link>
         <span>›</span>
@@ -165,9 +164,7 @@ export default function CargaFotografiasPage() {
         />
       )}
 
-      {/* Grilla de 2 columnas — Vista 2.5 */}
       <div className="pub-photos-grid">
-        {/* Columna izquierda: Zona de arrastre y casillas reordenables */}
         <div className="card-surface pub-photos-card">
           <h1 className="title-screen pub-photos-title">
             Fotografías del aviso
@@ -186,7 +183,6 @@ export default function CargaFotografiasPage() {
             onChange={handleSeleccionarArchivos}
           />
 
-          {/* Dropzone */}
           <div
             onClick={() => inputFotosRef.current?.click()}
             onDragOver={(e) => {
@@ -208,7 +204,6 @@ export default function CargaFotografiasPage() {
             </span>
           </div>
 
-          {/* Encabezado de reordenamiento */}
           <div className="pub-reorder-header">
             <span className="label-upper">
               Orden de aparición · {fotos.length} de 6 cargadas
@@ -218,7 +213,6 @@ export default function CargaFotografiasPage() {
             </span>
           </div>
 
-          {/* 6 casillas */}
           <div className="pub-reorder-slots">
             {Array.from({ length: 6 }).map((_, idx) => {
               const foto = fotos[idx];
@@ -322,7 +316,6 @@ export default function CargaFotografiasPage() {
           </div>
         </div>
 
-        {/* Columna derecha: Recomendaciones para fotografías claras */}
         <div className="pub-side-stack">
           <div className="card-surface pub-card-side">
             <h2 className="title-section pub-section-title">

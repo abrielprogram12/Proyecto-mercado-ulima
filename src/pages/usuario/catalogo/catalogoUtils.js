@@ -1,6 +1,3 @@
-/**
- * Utilidades y constantes del módulo de Catálogo y Búsqueda (Integrante 3 · HU-3)
- */
 
 export const ITEMS_POR_PAGINA_CATALOGO = 12;
 
@@ -32,7 +29,6 @@ export function filtrarYOrdenarCatalogo(
       : '';
 
   const resultado = avisos.filter((a) => {
-    // En el catálogo público solo se muestran avisos Publicados o Vendidos (nunca Borradores, Pausados ni Retirados)
     if (a.estado && a.estado !== 'Publicado' && a.estado !== 'Vendido') {
       return false;
     }

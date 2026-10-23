@@ -92,10 +92,6 @@ export function AuthProvider({ children }) {
     }
   };
 
-  /**
-   * Inicio de sesión (HU-1)
-   * Impide el ingreso a cuentas bloqueadas y lleva el conteo de intentos antes del bloqueo temporal.
-   */
   const login = ({ correo, password, recordarme = false }) => {
     const correoLimpio = (correo || '').trim().toLowerCase();
     const usuario = usuarios.find((u) => u.correo.toLowerCase() === correoLimpio);
@@ -128,16 +124,10 @@ export function AuthProvider({ children }) {
     };
   };
 
-  /**
-   * Cierre de sesión (HU-1)
-   */
   const logout = () => {
     setUsuarioActual(null);
   };
 
-  /**
-   * Registro de nueva cuenta de estudiante (HU-1)
-   */
   const registrarUsuario = ({
     nombres,
     apellidos,
@@ -216,9 +206,6 @@ export function AuthProvider({ children }) {
     };
   };
 
-  /**
-   * Edición de datos personales y punto de encuentro preferido (HU-1 · Vista 1.5)
-   */
   const actualizarDatosCuenta = (cambios) => {
     if (!usuarioActual) {
       return { ok: false, error: 'Debes iniciar sesión para editar tu cuenta.' };
@@ -241,9 +228,6 @@ export function AuthProvider({ children }) {
     };
   };
 
-  /**
-   * Cambio de contraseña desde Mi Cuenta (HU-1 · Vista 1.5)
-   */
   const cambiarPassword = ({ passwordActual, nuevaPassword }) => {
     if (!usuarioActual) {
       return { ok: false, error: 'No hay una sesión activa.' };
@@ -282,9 +266,6 @@ export function AuthProvider({ children }) {
     };
   };
 
-  /**
-   * Flujo de recuperación de contraseña (HU-1 · Vista 1.4 y 1.8)
-   */
   const solicitarEnlaceRecuperacion = (correo) => {
     const correoLimpio = (correo || '').trim().toLowerCase();
     if (!correoLimpio.endsWith('@aloe.ulima.edu.pe')) {
@@ -328,9 +309,6 @@ export function AuthProvider({ children }) {
     };
   };
 
-  /**
-   * Selector rápido de sesión de prueba en el Header
-   */
   const cambiarSesionPrueba = (claveSesion) => {
     if (claveSesion === 'visitante') {
       setUsuarioActual(null);

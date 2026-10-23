@@ -5,10 +5,6 @@ import Notificacion from '../../components/Notificacion/Notificacion';
 import { PASOS_RECUPERACION, formatearTiempoMMSS } from './visitanteUtils';
 import './visitante.css';
 
-/**
- * MÓDULO: Visitante y Acceso (Integrante 1 · HU-1)
- * Vista 1.4 y 1.8 — Flujo de 3 pasos para recuperar contraseña
- */
 export default function RecuperarPasswordPage() {
   const { solicitarEnlaceRecuperacion, restablecerPassword } = useAuth();
   const navigate = useNavigate();
@@ -17,10 +13,8 @@ export default function RecuperarPasswordPage() {
   const [correo, setCorreo] = useState('20201234@aloe.ulima.edu.pe');
   const [errorCorreo, setErrorCorreo] = useState('');
 
-  // Temporizador para el Paso 2 (02:41 = 161 segundos)
   const [segundosRestantes, setSegundosRestantes] = useState(161);
 
-  // Paso 3
   const [nuevaPassword, setNuevaPassword] = useState('');
   const [confirmarPassword, setConfirmarPassword] = useState('');
   const [mostrarNueva, setMostrarNueva] = useState(false);
@@ -84,7 +78,6 @@ export default function RecuperarPasswordPage() {
 
   return (
     <div className="page-container vis-contenedor-recuperar">
-      {/* Barra de progreso de 3 pasos — Vista 1.4 */}
       <div className="vis-pasos-barra">
         {PASOS_RECUPERACION.map((item) => {
           const estadoClase =
@@ -110,7 +103,6 @@ export default function RecuperarPasswordPage() {
       )}
 
       <div className="card-surface vis-tarjeta-amplia">
-        {/* PASO 1 · Correo (Vista 1.4) */}
         {paso === 1 && (
           <form onSubmit={handleEnviarEnlace} noValidate>
             <h1 className="title-screen">Ingresa tu correo institucional</h1>
@@ -148,7 +140,6 @@ export default function RecuperarPasswordPage() {
           </form>
         )}
 
-        {/* PASO 2 · Revisa tu correo (Vista 1.8) */}
         {paso === 2 && (
           <div>
             <div className="vis-circulo-correo">✉</div>
@@ -198,7 +189,6 @@ export default function RecuperarPasswordPage() {
           </div>
         )}
 
-        {/* PASO 3 · Crea tu nueva contraseña (Vista 1.8) */}
         {paso === 3 && (
           <form onSubmit={handleGuardarPassword} noValidate>
             <h1 className="title-screen vis-espacio-abajo">
@@ -229,7 +219,6 @@ export default function RecuperarPasswordPage() {
                 </button>
               </div>
 
-              {/* Barra de fortaleza de 4 segmentos (Vista 1.8) */}
               <div className="vis-fortaleza-barra">
                 {[1, 2, 3, 4].map((seg) => (
                   <div

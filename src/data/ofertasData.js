@@ -1,8 +1,3 @@
-/**
- * DATOS SEMILLA DE OFERTAS — Tablón ULima
- * Incluye ofertas recibidas por Rosa Quispe (Vista 4.1), enviadas por Diego Vargas (Vista 4.2)
- * y el hilo de negociación completo con Lucía Ramírez (Vista 4.4).
- */
 
 export const ofertasIniciales = [
   {

@@ -150,9 +150,6 @@ export function ReporteProvider({ children }) {
     }
   }, [reportes]);
 
-  /**
-   * Crea un nuevo reporte desde el catálogo o perfil de vendedor
-   */
   const crearReporte = ({
     tipo = 'Aviso',
     elementoId,
@@ -214,9 +211,6 @@ export function ReporteProvider({ children }) {
     return reportes.filter((r) => r.usuarioReportadoId === usuarioId);
   };
 
-  /**
-   * Pasa un reporte de "Nuevo" a "En revisión" cuando el administrador lo abre o presiona Revisar
-   */
   const iniciarRevision = (reporteId) => {
     setReportes((prev) =>
       prev.map((r) =>
@@ -227,9 +221,6 @@ export function ReporteProvider({ children }) {
     );
   };
 
-  /**
-   * Guarda o actualiza la nota interna de bitácora de un reporte
-   */
   const guardarNotaBitacora = (reporteId, notaBitacora) => {
     setReportes((prev) =>
       prev.map((r) =>
@@ -242,9 +233,6 @@ export function ReporteProvider({ children }) {
     };
   };
 
-  /**
-   * Resuelve un reporte (por retiro de aviso o bloqueo de cuenta)
-   */
   const resolverReporte = (reporteId, { accion, notaBitacora }) => {
     const notaFinal =
       (notaBitacora || '').trim() ||
@@ -275,9 +263,6 @@ export function ReporteProvider({ children }) {
     };
   };
 
-  /**
-   * Descarta un reporte improcedente
-   */
   const descartarReporte = (reporteId, notaBitacora) => {
     const notaFinal =
       (notaBitacora || '').trim() ||

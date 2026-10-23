@@ -1,7 +1,3 @@
-/**
- * DATOS SEMILLA DE ACUERDOS DE ENTREGA — Tablón ULima
- * Incluye los acuerdos A-2314, A-2287, A-2201, A-2109 y A-1998 (Vistas 5.1 a 5.5).
- */
 
 export const acuerdosIniciales = [
   {

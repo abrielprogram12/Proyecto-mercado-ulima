@@ -10,10 +10,6 @@ import TrazabilidadAcuerdo from './TrazabilidadAcuerdo';
 import { datosContraparte, hoyIso, isoAFecha, primerNombre, textoReputacion, tituloNotificacion } from './acuerdosUtils';
 import './acuerdos.css';
 
-/**
- * MÓDULO: Acuerdos de entrega (Integrante 5 · HU-5)
- * Vista 5.2 — Coordinar punto y horario
- */
 export default function CoordinarEntregaPage() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -32,7 +28,6 @@ export default function CoordinarEntregaPage() {
   const rol = rolEnAcuerdo(acuerdo, usuarioId);
   if (!acuerdo || !rol) return <AcuerdoNoDisponible />;
 
-  // Coordinar solo aplica mientras el acuerdo está en coordinación; después se ve el detalle.
   const estado = estadoParaUsuario(acuerdo, usuarioId);
   const enCoordinacion =
     estado === ESTADOS_ACUERDO.ESPERANDO_RESPUESTA || estado === ESTADOS_ACUERDO.PROPUESTA_RECIBIDA;

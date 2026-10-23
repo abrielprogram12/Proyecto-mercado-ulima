@@ -70,7 +70,6 @@ export default function Footer() {
         </div>
       </footer>
 
-      {/* Modal de Mesa de Ayuda (reemplaza mailto: para no abrir selector de apps de Windows) */}
       {modalContactoAbierto && (
         <div
           className="modal-backdrop"
@@ -175,7 +174,6 @@ export default function Footer() {
         </div>
       )}
 
-      {/* Modal de Normas de Convivencia */}
       {modalNormasAbierto && (
         <div
           className="modal-backdrop"

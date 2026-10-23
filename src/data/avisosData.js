@@ -1,8 +1,3 @@
-/**
- * DATOS SEMILLA DE AVISOS — Tablón ULima
- * Incluye los avisos de Rosa Quispe (Vista 2.1), del catálogo de Cálculo I (Vista 3.1),
- * sugerencias de Química General (Vista 3.2), favoritos (Vista 3.7) y reportes (Vista 7.1).
- */
 
 export const avisosIniciales = [
   {

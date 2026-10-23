@@ -15,14 +15,12 @@ export default function TableroMetricasPage() {
   const [periodo, setPeriodo] = useState('30dias');
   const datos = obtenerMetricasPorPeriodo(periodo);
 
-  // Cálculo de segmentos del gráfico circular (r = 56, circunferencia = 351.86)
   const radio = 56;
   const circunferencia = 2 * Math.PI * radio;
   let acumulado = 0;
 
   return (
     <div className="page-container">
-      {/* Encabezado y selector de periodo — Vista 7.4 */}
       <div className="adm-header-row">
         <div>
           <h1 className="title-screen">Tablero de métricas</h1>
@@ -47,7 +45,6 @@ export default function TableroMetricasPage() {
         </div>
       </div>
 
-      {/* Fila de 5 KPIs principales — Vista 7.4 */}
       <div className="adm-kpi-grid">
         {datos.kpis.map((kpi, idx) => {
           const esTendenciaNeutral = idx === 2 || idx === 3;
@@ -85,9 +82,7 @@ export default function TableroMetricasPage() {
         })}
       </div>
 
-      {/* Fila central: Avisos por categoría + Ofertas por estado (Dona) — Vista 7.4 */}
       <div className="adm-charts-row">
-        {/* Tarjeta izquierda: Avisos por categoría */}
         <div className="card-surface adm-chart-card">
           <h2 className="adm-chart-title">Avisos por categoría</h2>
 
@@ -108,7 +103,6 @@ export default function TableroMetricasPage() {
           </div>
         </div>
 
-        {/* Tarjeta derecha: Ofertas por estado (gráfico de dona) */}
         <div className="card-surface adm-chart-card">
           <h2 className="adm-chart-title">Ofertas por estado</h2>
 
@@ -174,7 +168,6 @@ export default function TableroMetricasPage() {
         </div>
       </div>
 
-      {/* Tarjeta inferior: Puntos de encuentro más usados — Vista 7.4 */}
       <div className="card-surface adm-chart-card">
         <h2 className="adm-chart-title">Puntos de encuentro más usados</h2>
 

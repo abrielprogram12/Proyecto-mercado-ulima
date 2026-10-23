@@ -12,11 +12,6 @@ import { useAviso } from './AvisoContext';
 
 const AcuerdoContext = createContext(null);
 
-/**
- * HU-5: al cancelar un acuerdo el aviso vuelve a "Publicado" y al cerrarse la entrega pasa a "Vendido".
- * Es la única escritura que este módulo hace sobre otra entidad (avisos). Si el grupo prefiere
- * que AvisoContext derive ese estado desde los acuerdos, poner esta constante en false.
- */
 const SINCRONIZAR_ESTADO_AVISO = true;
 
 const ETAPA_COORDINACION = [ESTADOS_ACUERDO.ESPERANDO_RESPUESTA, ESTADOS_ACUERDO.PROPUESTA_RECIBIDA];
@@ -48,7 +43,6 @@ function generarCodigoEntrega() {
   return `${tramo()}-${tramo()}`;
 }
 
-/** Validación de la propuesta de encuentro (se repite aquí aunque el formulario también valide). */
 function validarEncuentro({ punto, fecha, franja }) {
   const errores = {};
   if (!PUNTOS_ENCUENTRO.includes(punto)) errores.punto = 'Elige un punto de encuentro.';
@@ -92,11 +86,8 @@ export function AcuerdoProvider({ children }) {
     }
   }, [acuerdos]);
 
-  // ---------- Consultas ----------
-
   const obtenerAcuerdoPorId = (id) => acuerdos.find((a) => a.id === id) || null;
 
-  /** 'vendedor' | 'comprador' | null (si el usuario no participa en el acuerdo) */
   const rolEnAcuerdo = (acuerdo, usuarioId) => {
     if (!acuerdo || !usuarioId) return null;
     if (acuerdo.vendedorId === usuarioId) return 'vendedor';
@@ -107,15 +98,10 @@ export function AcuerdoProvider({ children }) {
   const obtenerAcuerdosDeUsuario = (usuarioId) =>
     acuerdos.filter((a) => rolEnAcuerdo(a, usuarioId) !== null);
 
-  /** Quién envió la última propuesta. Los datos semilla antiguos no lo traen: se infiere. */
   const proponenteDe = (acuerdo) =>
     acuerdo.propuestaPor ||
     (acuerdo.estado === ESTADOS_ACUERDO.PROPUESTA_RECIBIDA ? acuerdo.compradorId : acuerdo.vendedorId);
 
-  /**
-   * Estado tal como lo ve cada usuario: durante la coordinación, quien envió la propuesta
-   * ve "Esperando respuesta" y quien la recibe ve "Propuesta recibida".
-   */
   const estadoParaUsuario = (acuerdo, usuarioId) => {
     if (!ETAPA_COORDINACION.includes(acuerdo.estado)) return acuerdo.estado;
     if (!acuerdo.puntoEncuentro) return ESTADOS_ACUERDO.ESPERANDO_RESPUESTA;
@@ -123,8 +109,6 @@ export function AcuerdoProvider({ children }) {
       ? ESTADOS_ACUERDO.ESPERANDO_RESPUESTA
       : ESTADOS_ACUERDO.PROPUESTA_RECIBIDA;
   };
-
-  // ---------- Utilidades internas ----------
 
   const nombreEnAcuerdo = (acuerdo, usuarioId) =>
     usuarioId === acuerdo.vendedorId ? acuerdo.vendedorNombre : acuerdo.compradorNombre;
@@ -145,12 +129,6 @@ export function AcuerdoProvider({ children }) {
     return { acuerdo, rol };
   };
 
-  // ---------- Acciones ----------
-
-  /**
-   * Para HU-4 (Ofertas): llamar al aceptar una oferta y luego navegar a `/acuerdo-generado/${acuerdo.id}`.
-   * `oferta` es un objeto de ofertasData. Si ya existe un acuerdo para esa oferta, lo devuelve sin duplicar.
-   */
   const crearAcuerdoDesdeOferta = (oferta, { otrasOfertasRechazadas } = {}) => {
     if (!oferta) return { ok: false, error: 'No se encontró la oferta aceptada.' };
 
@@ -204,7 +182,6 @@ export function AcuerdoProvider({ children }) {
     return { ok: true, acuerdo: nuevo };
   };
 
-  /** Propone punto y horario, o responde con una alternativa. `fecha` va en formato DD/MM/AAAA. */
   const proponerEncuentro = (id, usuarioId, { punto, fecha, franja, mensaje = '' }) => {
     const { acuerdo, rol, error } = buscarParaActuar(id, usuarioId);
     if (error) return { ok: false, error };
@@ -244,7 +221,6 @@ export function AcuerdoProvider({ children }) {
     return { ok: true, mensaje: `Tu propuesta se envió. Te avisaremos cuando ${primerNombre(otro)} responda.` };
   };
 
-  /** Acepta la propuesta pendiente de la contraparte: queda "Acordado" y se genera el código de entrega. */
   const aceptarPropuesta = (id, usuarioId) => {
     const { acuerdo, error } = buscarParaActuar(id, usuarioId);
     if (error) return { ok: false, error };
@@ -272,7 +248,6 @@ export function AcuerdoProvider({ children }) {
     return { ok: true, mensaje: 'Aceptaste la propuesta. Se generó el código de entrega para ambos.' };
   };
 
-  /** "Modificar punto y horario": anula lo acordado y el código, y vuelve a la coordinación. */
   const reabrirCoordinacion = (id, usuarioId) => {
     const { acuerdo, error } = buscarParaActuar(id, usuarioId);
     if (error) return { ok: false, error };
@@ -301,7 +276,6 @@ export function AcuerdoProvider({ children }) {
     return { ok: true, mensaje: 'El código de entrega anterior quedó sin efecto. Propongan un nuevo punto y horario.' };
   };
 
-  /** Confirma la entrega de la parte que actúa. Cuando confirman ambas, el acuerdo se cierra. */
   const confirmarEntrega = (id, usuarioId) => {
     const { acuerdo, rol, error } = buscarParaActuar(id, usuarioId);
     if (error) return { ok: false, error };
@@ -343,7 +317,6 @@ export function AcuerdoProvider({ children }) {
     };
   };
 
-  /** Cancela un acuerdo en curso con motivo obligatorio. El aviso vuelve a "Publicado". */
   const cancelarAcuerdo = (id, usuarioId, { motivo, comentario = '' } = {}) => {
     const { acuerdo, rol, error } = buscarParaActuar(id, usuarioId);
     if (error) return { ok: false, error };

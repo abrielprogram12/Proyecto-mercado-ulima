@@ -1,6 +1,3 @@
-/**
- * Utilidades y constantes del módulo de Visitante y Acceso (Integrante 1 · HU-1)
- */
 
 export const PASOS_COMO_FUNCIONA = [
   {
@@ -32,14 +29,12 @@ export const PASOS_RECUPERACION = [
   { num: 3, texto: 'Paso 3 · Nueva contraseña' }
 ];
 
-/** Formatea segundos totales en MM:SS (ej. 161 -> '02:41') */
 export function formatearTiempoMMSS(totalSegundos) {
   const min = String(Math.floor(totalSegundos / 60)).padStart(2, '0');
   const seg = String(totalSegundos % 60).padStart(2, '0');
   return `${min}:${seg}`;
 }
 
-/** Valida los campos del formulario de registro institucional (Vista 1.3) */
 export function validarFormularioRegistro(datos, validarPasswordSegura) {
   const errores = {};
 

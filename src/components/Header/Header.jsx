@@ -45,7 +45,6 @@ export default function Header() {
 
   return (
     <header className="site-header">
-      {/* Barra superior principal */}
       <div className="header-top">
         <div className="header-left">
           <Link to="/" className="header-logo">
@@ -82,7 +81,6 @@ export default function Header() {
         </div>
 
         <div className="header-right">
-          {/* Insignia de Rol */}
           {rolActual === ROLES_USUARIO.VISITANTE && (
             <>
               <span className="role-badge role-badge-visitante">VISITANTE</span>
@@ -219,7 +217,6 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Sub-barra de navegación para Estudiante (Usuario) */}
       {rolActual === ROLES_USUARIO.USUARIO && (
         <nav className="header-subnav-user">
           <NavLink to="/catalogo" className="subnav-tab">
@@ -246,7 +243,6 @@ export default function Header() {
         </nav>
       )}
 
-      {/* Sub-barra oscura para Administrador */}
       {rolActual === ROLES_USUARIO.ADMIN && (
         <nav className="header-subnav-admin">
           <div className="admin-tabs-left">

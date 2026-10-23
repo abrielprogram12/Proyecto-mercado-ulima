@@ -5,7 +5,7 @@ export default function ModalEstadoAviso({
   abierto,
   onClose,
   aviso,
-  modo = 'estado', // 'estado' | 'eliminar'
+  modo = 'estado',
   estadoInicial,
   onConfirmarEstado,
   onConfirmarEliminar

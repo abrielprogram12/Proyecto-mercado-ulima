@@ -1,4 +1,3 @@
-/* Layout y componentes base compartidos — Tablón ULima */
 
 .app-shell {
   min-height: 100vh;
@@ -20,7 +19,6 @@
   padding: 32px 48px 64px;
 }
 
-/* Tarjetas */
 .card-surface {
   background-color: var(--color-surface);
   border: 1px solid var(--color-border);
@@ -28,7 +26,6 @@
   box-shadow: var(--shadow-card);
 }
 
-/* Botones del sistema de diseño (Página 2 de mockups) */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -120,7 +117,6 @@
   font-size: 13px;
 }
 
-/* Campos de formulario */
 .form-group {
   margin-bottom: 20px;
 }
@@ -183,7 +179,6 @@
   color: var(--color-success);
 }
 
-/* Chips */
 .chip {
   display: inline-flex;
   align-items: center;
@@ -216,7 +211,6 @@
   border-color: var(--color-primary);
 }
 
-/* Breadcrumbs */
 .breadcrumbs {
   font-size: 13px;
   color: var(--color-text-secondary);

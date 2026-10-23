@@ -1,8 +1,3 @@
-/**
- * CONTRATO DE DATOS OFICIAL — Tablón ULima
- * Define las constantes compartidas por todos los integrantes del equipo
- * para evitar acoplamientos y conflictos entre módulos.
- */
 
 export const CATEGORIAS = [
   'Libros de texto',
@@ -128,9 +123,6 @@ export const STORAGE_KEYS = {
   CORREO_RECORDADO: 'tablon_ulima_correo_recordado_v1'
 };
 
-/**
- * Formatea un monto numérico siempre con el formato oficial: S/ 95.00
- */
 export function formatearPrecio(monto) {
   const numero = Number(monto || 0);
   return `S/ ${numero.toLocaleString('en-US', {
@@ -139,9 +131,6 @@ export function formatearPrecio(monto) {
   })}`;
 }
 
-/**
- * Obtiene las iniciales de un usuario (ej. Rosa Quispe -> RQ)
- */
 export function obtenerIniciales(nombres = '', apellidos = '') {
   const n = nombres.trim().charAt(0) || '';
   const a = apellidos.trim().charAt(0) || '';

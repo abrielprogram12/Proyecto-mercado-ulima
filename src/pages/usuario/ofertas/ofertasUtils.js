@@ -1,8 +1,5 @@
 import { formatearPrecio, obtenerIniciales } from '../../../data/contratoDatos';
 
-/**
- * Pestañas de filtro por estado para Ofertas Recibidas y Enviadas (HU-4)
- */
 export const PESTAÑAS_ESTADO_OFERTA = [
   { clave: 'Todas', etiqueta: 'Todas' },
   { clave: 'Enviada', etiqueta: 'Enviadas' },
@@ -11,9 +8,6 @@ export const PESTAÑAS_ESTADO_OFERTA = [
   { clave: 'Rechazada', etiqueta: 'Rechazadas' }
 ];
 
-/**
- * Calcula los conteos por estado para una lista de ofertas
- */
 export function calcularConteosOfertas(lista = []) {
   return {
     Todas: lista.length,
@@ -24,17 +18,11 @@ export function calcularConteosOfertas(lista = []) {
   };
 }
 
-/**
- * Filtra una lista de ofertas según la pestaña activa
- */
 export function filtrarOfertasPorEstado(lista = [], filtroEstado = 'Todas') {
   if (filtroEstado === 'Todas') return lista;
   return lista.filter((o) => o.estado === filtroEstado);
 }
 
-/**
- * Agrupa las ofertas recibidas por aviso y destaca la mejor oferta activa (Vista 4.1)
- */
 export function agruparOfertasPorAviso(recibidasFiltradas = []) {
   const mapa = new Map();
   recibidasFiltradas.forEach((of) => {
@@ -78,9 +66,6 @@ export function agruparOfertasPorAviso(recibidasFiltradas = []) {
   });
 }
 
-/**
- * Obtiene la lista de movimientos del hilo de negociación o construye uno por defecto
- */
 export function obtenerMovimientosHilo(oferta) {
   if (!oferta) return [];
   if (Array.isArray(oferta.movimientos) && oferta.movimientos.length > 0) {
@@ -100,9 +85,6 @@ export function obtenerMovimientosHilo(oferta) {
   ];
 }
 
-/**
- * Calcula las iniciales del comprador a partir de su nombre completo
- */
 export function obtenerInicialesComprador(nombreCompleto = 'Lucía Ramírez') {
   const partes = (nombreCompleto || 'Lucía Ramírez').split(' ');
   return obtenerIniciales(partes[0], partes[1] || '');

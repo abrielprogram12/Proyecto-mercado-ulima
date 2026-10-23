@@ -11,10 +11,6 @@ import Notificacion from '../../components/Notificacion/Notificacion';
 import ModalReporte from '../../components/Modales/ModalReporte';
 import './visitante.css';
 
-/**
- * MÓDULO: Visitante y Acceso (Integrante 1 · HU-1)
- * Vista 3.4 — Detalle de aviso para visitante sin sesión
- */
 export default function DetalleAvisoVisitantePage() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -81,7 +77,6 @@ export default function DetalleAvisoVisitantePage() {
       )}
 
       <div className="vis-detalle-columnas">
-        {/* Columna izquierda: Galería + Descripción */}
         <div className="vis-pila">
           <GaleriaFotos
             fotos={fotosGaleria}
@@ -113,7 +108,6 @@ export default function DetalleAvisoVisitantePage() {
           </div>
         </div>
 
-        {/* Columna derecha: Ficha de precio sin sesión + Vendedor + Reportar */}
         <div className="vis-pila">
           <div className="card-surface vis-tarjeta">
             <div className="vis-espacio-abajo">
@@ -159,7 +153,6 @@ export default function DetalleAvisoVisitantePage() {
             </button>
           </div>
 
-          {/* Tarjeta del vendedor */}
           <div className="card-surface vis-tarjeta">
             <span className="label-upper">Vendedor</span>
 
@@ -205,7 +198,6 @@ export default function DetalleAvisoVisitantePage() {
             </Link>
           </div>
 
-          {/* Bloque de reportar aviso */}
           <div className="card-surface vis-reportar-fila">
             <span className="text-aux">
               ¿Este aviso incumple las normas del tablón?

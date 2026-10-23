@@ -14,10 +14,6 @@ import ModalOferta from '../../../components/Modales/ModalOferta';
 import ModalReporte from '../../../components/Modales/ModalReporte';
 import './catalogo.css';
 
-/**
- * MÓDULO: Catálogo y Búsqueda (Integrante 3 · HU-3)
- * Vistas 3.5 (Detalle con sesión y oferta activa) y 3.6 (Variantes vendido/pausado y similares)
- */
 export default function DetalleAvisoUsuarioPage() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -139,7 +135,6 @@ export default function DetalleAvisoUsuarioPage() {
 
   return (
     <div className="page-container">
-      {/* Breadcrumbs */}
       <div className="breadcrumbs">
         <Link to="/catalogo">Catálogo</Link>
         <span>›</span>
@@ -160,9 +155,7 @@ export default function DetalleAvisoUsuarioPage() {
         />
       )}
 
-      {/* Grilla de 2 columnas — Vista 3.5 */}
       <div className="cat-detalle-columnas">
-        {/* Columna izquierda: Galería + Descripción + Avisos similares */}
         <div className="cat-pila">
           <GaleriaFotos fotos={fotosGaleria} vendido={esVendido} />
 
@@ -190,7 +183,6 @@ export default function DetalleAvisoUsuarioPage() {
             </div>
           </div>
 
-          {/* Avisos similares (Vista 3.6) */}
           {similares.length > 0 && (
             <div>
               <h2 className="title-section cat-titulo-primario">
@@ -209,7 +201,6 @@ export default function DetalleAvisoUsuarioPage() {
           )}
         </div>
 
-        {/* Columna derecha: Ficha de acción + Oferta activa + Vendedor + Reportar */}
         <div className="cat-pila-derecha">
           <div className="card-surface cat-tarjeta-ficha">
             <div className="cat-espacio-abajo">
@@ -222,7 +213,6 @@ export default function DetalleAvisoUsuarioPage() {
               {formatearPrecio(aviso.precio)}
             </div>
 
-            {/* Variante: Aviso vendido o pausado (Vista 3.6) */}
             {(esVendido || esPausado) ? (
               <div>
                 <div className="card-surface cat-aviso-cerrado">
@@ -253,7 +243,6 @@ export default function DetalleAvisoUsuarioPage() {
                 </Link>
               </div>
             ) : esPropioAviso ? (
-              /* Variante: El usuario actual es el vendedor dueño del aviso */
               <div>
                 <div className="cat-oferta-activa-box">
                   <div className="cat-oferta-activa-head">
@@ -293,7 +282,6 @@ export default function DetalleAvisoUsuarioPage() {
                 </div>
               </div>
             ) : (
-              /* Variante normal: Comprador con o sin oferta activa (Vista 3.5) */
               <div>
                 {aviso.aceptaOfertas && (
                   <p className="text-aux cat-nota-minimo">
@@ -407,7 +395,6 @@ export default function DetalleAvisoUsuarioPage() {
             )}
           </div>
 
-          {/* Tarjeta del Vendedor */}
           <div className="card-surface cat-tarjeta-vendedor">
             <span className="label-upper">Vendedor</span>
             <div className="cat-vendedor-fila">
@@ -446,7 +433,6 @@ export default function DetalleAvisoUsuarioPage() {
             </div>
           </div>
 
-          {/* Reportar aviso */}
           {!esPropioAviso && (
             <div className="card-surface cat-reportar-card">
               <span className="text-aux">¿Algo no cuadra con este aviso?</span>
@@ -462,7 +448,6 @@ export default function DetalleAvisoUsuarioPage() {
         </div>
       </div>
 
-      {/* Modal para enviar oferta (Vista 4.5) */}
       <ModalOferta
         abierto={modalOfertaAbierto}
         onClose={() => setModalOfertaAbierto(false)}
@@ -471,7 +456,6 @@ export default function DetalleAvisoUsuarioPage() {
         onConfirmar={handleConfirmarOferta}
       />
 
-      {/* Modal para reportar aviso (Vista 7.5) */}
       <ModalReporte
         abierto={modalReporteAbierto}
         onClose={() => setModalReporteAbierto(false)}

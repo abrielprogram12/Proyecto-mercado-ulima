@@ -1,73 +1,49 @@
-/**
- * UTILIDADES E ILUSTRACIONES EDITORIALES DE IMÁGENES — Tablón ULima
- * Provee ilustraciones SVG en Data URI con la paleta cálida editorial de la ULima
- * para los avisos semilla y portadas, además del lector de archivos reales (JPG, PNG, WEBP <= 5 MB)
- * para que cualquier usuario pueda subir sus propias fotografías desde su equipo.
- */
 
 const svgToDataUri = (svgString) =>
   `data:image/svg+xml;utf8,${encodeURIComponent(svgString.trim())}`;
 
-/**
- * Genera una ilustración SVG editorial de libro académico
- */
 function crearSvgLibro({ titulo, subtitulo, autor, edicion, colorCubierta = '#B84A27', colorAcento = '#F5E3DC', codigo = 'MAT-101' }) {
   return svgToDataUri(`
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 360" width="480" height="360">
       <rect width="480" height="360" fill="#F6F1EB"/>
       <circle cx="410" cy="60" r="95" fill="#EFE8DF" opacity="0.7"/>
       <circle cx="70" cy="310" r="80" fill="#EFE8DF" opacity="0.7"/>
-      <!-- Sombra del libro -->
       <rect x="136" y="48" width="220" height="276" rx="10" fill="#D8CFC8"/>
-      <!-- Páginas laterales -->
       <rect x="130" y="42" width="218" height="272" rx="8" fill="#FFFDF9" stroke="#D8CFC8" stroke-width="2"/>
-      <!-- Cubierta principal -->
       <rect x="122" y="38" width="212" height="272" rx="8" fill="${colorCubierta}"/>
-      <!-- Lomo del libro -->
       <rect x="122" y="38" width="24" height="272" rx="6" fill="#2A211C" opacity="0.28"/>
-      <!-- Banda editorial superior -->
       <rect x="158" y="64" width="152" height="24" rx="4" fill="${colorAcento}" opacity="0.92"/>
       <text x="234" y="80" font-family="Plus Jakarta Sans, Arial, sans-serif" font-size="11" font-weight="700" fill="${colorCubierta}" text-anchor="middle" letter-spacing="1">${codigo}</text>
-      <!-- Título del libro -->
       <text x="234" y="128" font-family="Plus Jakarta Sans, Georgia, serif" font-size="20" font-weight="800" fill="#FFFFFF" text-anchor="middle">${titulo}</text>
       <text x="234" y="152" font-family="Inter, Arial, sans-serif" font-size="13" font-weight="600" fill="${colorAcento}" text-anchor="middle">${subtitulo}</text>
-      <!-- Gráfico matemático / decorativo en portada -->
       <rect x="164" y="174" width="140" height="72" rx="6" fill="#2A211C" opacity="0.18"/>
       <path d="M 176 232 Q 205 180 234 212 T 292 188" fill="none" stroke="${colorAcento}" stroke-width="3" stroke-linecap="round"/>
       <circle cx="205" cy="198" r="4" fill="#FFFFFF"/>
       <circle cx="264" cy="204" r="4" fill="#FFFFFF"/>
-      <!-- Pie de autor -->
       <text x="234" y="274" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="700" fill="#FFFFFF" text-anchor="middle">${autor}</text>
       <text x="234" y="292" font-family="Inter, Arial, sans-serif" font-size="10" fill="${colorAcento}" text-anchor="middle">${edicion}</text>
     </svg>
   `);
 }
 
-/**
- * Genera una ilustración SVG para calculadoras y electrónica
- */
 function crearSvgCalculadora({ modelo = 'ClassWiz fx-991', subtitulo = 'Científica · Solar y batería', pantalla = '∫(x²+2x)dx = 28.5' }) {
   return svgToDataUri(`
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 360" width="480" height="360">
       <rect width="480" height="360" fill="#F6F1EB"/>
       <rect x="148" y="34" width="192" height="298" rx="22" fill="#D8CFC8"/>
       <rect x="140" y="28" width="192" height="296" rx="20" fill="#2E2724" stroke="#4A3F3A" stroke-width="2"/>
-      <!-- Panel solar -->
       <rect x="252" y="44" width="60" height="18" rx="3" fill="#4A3831" stroke="#6E5D54" stroke-width="1"/>
       <text x="160" y="54" font-family="Plus Jakarta Sans, Arial, sans-serif" font-size="11" font-weight="800" fill="#F5E3DC">CASIO</text>
       <text x="160" y="68" font-family="Inter, Arial, sans-serif" font-size="9" font-weight="600" fill="#D97706">${modelo}</text>
-      <!-- Pantalla LCD -->
       <rect x="158" y="78" width="156" height="58" rx="6" fill="#DCE8DF" stroke="#9BB5A2" stroke-width="2"/>
       <text x="168" y="98" font-family="JetBrains Mono, monospace" font-size="10" fill="#2A3B2E">MATH  D  FIX</text>
       <text x="304" y="122" font-family="JetBrains Mono, monospace" font-size="13" font-weight="700" fill="#1B2A1E" text-anchor="end">${pantalla}</text>
-      <!-- Botones superiores -->
       <g fill="#4A3F3A">
         <rect x="158" y="150" width="32" height="18" rx="4"/>
         <rect x="198" y="150" width="32" height="18" rx="4"/>
         <rect x="242" y="150" width="32" height="18" rx="4"/>
         <rect x="282" y="150" width="32" height="18" rx="4"/>
       </g>
-      <!-- Teclado numérico -->
       <g fill="#F8F3ED" stroke="#2A211C" stroke-width="1">
         <rect x="158" y="182" width="34" height="24" rx="4"/>
         <rect x="200" y="182" width="34" height="24" rx="4"/>
@@ -81,7 +57,6 @@ function crearSvgCalculadora({ modelo = 'ClassWiz fx-991', subtitulo = 'Científ
         <rect x="158" y="278" width="76" height="24" rx="4"/>
         <rect x="242" y="278" width="34" height="24" rx="4"/>
       </g>
-      <!-- Botones naranja/terracota -->
       <rect x="284" y="182" width="30" height="24" rx="4" fill="#B84A27"/>
       <rect x="284" y="214" width="30" height="24" rx="4" fill="#B84A27"/>
       <rect x="284" y="246" width="30" height="56" rx="4" fill="#2E7D5B"/>
@@ -90,21 +65,14 @@ function crearSvgCalculadora({ modelo = 'ClassWiz fx-991', subtitulo = 'Científ
   `);
 }
 
-/**
- * Genera una ilustración SVG para instrumentos de dibujo / arquitectura
- */
 function crearSvgDibujo({ titulo = 'Escuadras y Escalímetro', subtitulo = 'Faber-Castell · 30 cm · Biseladas' }) {
   return svgToDataUri(`
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 360" width="480" height="360">
       <rect width="480" height="360" fill="#F6F1EB"/>
-      <!-- Cuadrícula de mesa de dibujo -->
       <rect x="56" y="42" width="368" height="256" rx="12" fill="#FFFDF9" stroke="#E5DDD5" stroke-width="2"/>
-      <!-- Escuadra 45° -->
       <polygon points="96,264 276,264 96,84" fill="#2B5B84" fill-opacity="0.22" stroke="#2B5B84" stroke-width="3"/>
       <polygon points="122,242 218,242 122,146" fill="#FFFDF9" stroke="#2B5B84" stroke-width="2"/>
-      <!-- Cartabón -->
       <polygon points="210,256 386,256 386,104" fill="#2E7D5B" fill-opacity="0.22" stroke="#2E7D5B" stroke-width="3"/>
-      <!-- Escalímetro -->
       <rect x="110" y="64" width="260" height="28" rx="5" fill="#F5E3DC" stroke="#B84A27" stroke-width="2"/>
       <text x="240" y="82" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700" fill="#B84A27" text-anchor="middle">1:100   1:200   1:250   1:500</text>
       <text x="240" y="328" font-family="Plus Jakarta Sans, Arial, sans-serif" font-size="14" font-weight="700" fill="#2A211C" text-anchor="middle">${titulo} — ${subtitulo}</text>
@@ -112,16 +80,12 @@ function crearSvgDibujo({ titulo = 'Escuadras y Escalímetro', subtitulo = 'Fabe
   `);
 }
 
-/**
- * Genera una ilustración SVG para apuntes anillados y separatas
- */
 function crearSvgApuntes({ titulo = 'Apuntes Anillados', curso = 'Contabilidad General', nota = 'Ejercicios y prácticas resueltas' }) {
   return svgToDataUri(`
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 360" width="480" height="360">
       <rect width="480" height="360" fill="#F6F1EB"/>
       <rect x="134" y="42" width="224" height="278" rx="10" fill="#D8CFC8"/>
       <rect x="126" y="34" width="224" height="276" rx="8" fill="#FFFDF9" stroke="#C8BCB2" stroke-width="2"/>
-      <!-- Anillado izquierdo -->
       <g fill="#6E5D54">
         <rect x="116" y="56" width="20" height="8" rx="4"/>
         <rect x="116" y="88" width="20" height="8" rx="4"/>
@@ -132,11 +96,9 @@ function crearSvgApuntes({ titulo = 'Apuntes Anillados', curso = 'Contabilidad G
         <rect x="116" y="248" width="20" height="8" rx="4"/>
         <rect x="116" y="280" width="20" height="8" rx="4"/>
       </g>
-      <!-- Etiqueta superior -->
       <rect x="154" y="60" width="172" height="58" rx="6" fill="#F5E3DC" stroke="#B84A27" stroke-width="1.5"/>
       <text x="240" y="84" font-family="Plus Jakarta Sans, Arial, sans-serif" font-size="14" font-weight="800" fill="#B84A27" text-anchor="middle">${titulo}</text>
       <text x="240" y="104" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="600" fill="#2A211C" text-anchor="middle">${curso}</text>
-      <!-- Líneas de cuaderno -->
       <g stroke="#E5DDD5" stroke-width="2">
         <line x1="154" y1="146" x2="324" y2="146"/>
         <line x1="154" y1="170" x2="324" y2="170"/>
@@ -144,29 +106,22 @@ function crearSvgApuntes({ titulo = 'Apuntes Anillados', curso = 'Contabilidad G
         <line x1="154" y1="218" x2="324" y2="218"/>
         <line x1="154" y1="242" x2="290" y2="242"/>
       </g>
-      <!-- Sello destacado -->
       <rect x="154" y="262" width="172" height="28" rx="5" fill="#E6F3EC"/>
       <text x="240" y="280" font-family="Inter, Arial, sans-serif" font-size="11" font-weight="700" fill="#2E7D5B" text-anchor="middle">${nota}</text>
     </svg>
   `);
 }
 
-/**
- * Genera una ilustración SVG para mandil de laboratorio
- */
 function crearSvgMandil({ talla = 'Talla M', curso = 'Laboratorio de Química' }) {
   return svgToDataUri(`
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 360" width="480" height="360">
       <rect width="480" height="360" fill="#F6F1EB"/>
       <circle cx="240" cy="180" r="136" fill="#EFE8DF"/>
-      <!-- Silueta de mandil blanco -->
       <path d="M 176 68 L 212 68 L 240 112 L 268 68 L 304 68 L 346 144 L 318 162 L 298 124 L 298 294 L 182 294 L 182 124 L 162 162 L 134 144 Z" fill="#FFFDF9" stroke="#C8BCB2" stroke-width="3" stroke-linejoin="round"/>
-      <!-- Solapas y botones -->
       <path d="M 212 68 L 240 128 L 268 68" fill="none" stroke="#9B8B82" stroke-width="2"/>
       <circle cx="240" cy="154" r="4" fill="#6E5D54"/>
       <circle cx="240" cy="186" r="4" fill="#6E5D54"/>
       <circle cx="240" cy="218" r="4" fill="#6E5D54"/>
-      <!-- Bolsillo con insignia ULima -->
       <rect x="256" y="138" width="28" height="32" rx="3" fill="#F5E3DC" stroke="#B84A27" stroke-width="1.5"/>
       <text x="270" y="158" font-family="Plus Jakarta Sans, Arial, sans-serif" font-size="10" font-weight="800" fill="#B84A27" text-anchor="middle">UL</text>
       <text x="240" y="332" font-family="Plus Jakarta Sans, Arial, sans-serif" font-size="13" font-weight="700" fill="#2A211C" text-anchor="middle">Mandil de Laboratorio · ${talla} · ${curso}</text>
@@ -174,9 +129,6 @@ function crearSvgMandil({ talla = 'Talla M', curso = 'Laboratorio de Química' }
   `);
 }
 
-/**
- * Genera una ilustración SVG para laptops y accesorios
- */
 function crearSvgLaptop({ titulo = 'Accesorios y Equipos', subtitulo = 'Campus ULima', colorPantalla = '#2B5B84' }) {
   return svgToDataUri(`
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 360" width="480" height="360">
@@ -191,28 +143,22 @@ function crearSvgLaptop({ titulo = 'Accesorios y Equipos', subtitulo = 'Campus U
   `);
 }
 
-/**
- * Ilustración Hero para Landing y Login (intercambio estudiantil en el campus ULima)
- */
 export const ILUSTRACION_HERO_CAMPUS = svgToDataUri(`
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420" width="640" height="420">
     <rect width="640" height="420" fill="#F3E6DE"/>
     <circle cx="520" cy="90" r="130" fill="#EAD5C8"/>
     <circle cx="110" cy="340" r="110" fill="#EAD5C8"/>
-    <!-- Pabellón Campus Monterrico estilizado -->
     <rect x="64" y="68" width="512" height="284" rx="16" fill="#FFFDF9" stroke="#E5DDD5" stroke-width="2"/>
     <rect x="64" y="68" width="512" height="46" rx="16" fill="#B84A27"/>
     <circle cx="92" cy="91" r="6" fill="#F5E3DC"/>
     <circle cx="112" cy="91" r="6" fill="#F5E3DC"/>
     <text x="320" y="96" font-family="Plus Jakarta Sans, Arial, sans-serif" font-size="13" font-weight="700" fill="#FFFFFF" text-anchor="middle" letter-spacing="0.8">CAMPUS MONTERRICO · INTERCAMBIO ACADÉMICO</text>
-    <!-- Pila de libros y calculadora en mesa de estudio -->
     <rect x="114" y="232" width="180" height="34" rx="6" fill="#B84A27"/>
     <text x="204" y="254" font-family="Plus Jakarta Sans, Arial, sans-serif" font-size="13" font-weight="700" fill="#FFFFFF" text-anchor="middle">CÁLCULO I · STEWART</text>
     <rect x="126" y="196" width="168" height="34" rx="6" fill="#2E7D5B"/>
     <text x="210" y="218" font-family="Plus Jakarta Sans, Arial, sans-serif" font-size="13" font-weight="700" fill="#FFFFFF" text-anchor="middle">FÍSICA II · SERWAY</text>
     <rect x="138" y="160" width="152" height="34" rx="6" fill="#2B5B84"/>
     <text x="214" y="182" font-family="Plus Jakarta Sans, Arial, sans-serif" font-size="12" font-weight="700" fill="#FFFFFF" text-anchor="middle">QUÍMICA · CHANG</text>
-    <!-- Tarjeta de acuerdo verificado -->
     <rect x="336" y="146" width="196" height="136" rx="12" fill="#F6F1EB" stroke="#D8CFC8" stroke-width="2"/>
     <rect x="356" y="166" width="96" height="22" rx="11" fill="#E6F3EC"/>
     <text x="404" y="181" font-family="Inter, Arial, sans-serif" font-size="11" font-weight="700" fill="#2E7D5B" text-anchor="middle">✓ Trato cerrado</text>
@@ -223,9 +169,6 @@ export const ILUSTRACION_HERO_CAMPUS = svgToDataUri(`
   </svg>
 `);
 
-/**
- * Mapa de ilustraciones específicas por ID de aviso semilla
- */
 export const IMAGENES_POR_AVISO_ID = {
   'av-101': [
     crearSvgLibro({
@@ -394,9 +337,6 @@ export const IMAGENES_POR_AVISO_ID = {
   ]
 };
 
-/**
- * Ilustraciones vectoriales (Data URI SVG) para las 7 categorías destacadas en LandingPage (Vista 1.1)
- */
 export const ICONOS_CATEGORIAS_DESTACADAS = {
   'Libros de texto': svgToDataUri(`
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
@@ -476,9 +416,6 @@ export const ICONOS_CATEGORIAS_DESTACADAS = {
   `)
 };
 
-/**
- * Obtiene el icono SVG para una categoría destacada
- */
 export function obtenerIconoCategoria(categoria) {
   return (
     ICONOS_CATEGORIAS_DESTACADAS[categoria] ||
@@ -486,9 +423,6 @@ export function obtenerIconoCategoria(categoria) {
   );
 }
 
-/**
- * Obtiene la imagen de respaldo según la categoría del aviso si se requiere explícitamente
- */
 export function obtenerImagenPorCategoria(categoria = 'Libros de texto', titulo = 'Material académico') {
   const cat = (categoria || '').toLowerCase();
   if (cat.includes('calculadora')) {
@@ -515,12 +449,6 @@ export function obtenerImagenPorCategoria(categoria = 'Libros de texto', titulo 
   });
 }
 
-/**
- * Devuelve la URL de la portada de un aviso:
- * 1) Si el usuario subió una foto con `url` válida, devuelve esa URL.
- * 2) Si es uno de los avisos semilla (`av-101`..`av-117`) y conserva fotos, devuelve su ilustración semilla.
- * 3) Si el aviso NO tiene ninguna imagen cargada, devuelve `null` para que se muestre el recuadro `.striped-placeholder` vacío fiel al mockup.
- */
 export function obtenerPortadaAviso(aviso) {
   if (!aviso) return null;
   const fotos = Array.isArray(aviso.fotos) ? aviso.fotos : null;
@@ -531,7 +459,6 @@ export function obtenerPortadaAviso(aviso) {
     if (fotoPrincipal?.url) {
       return fotoPrincipal.url;
     }
-    // Si el usuario dejó el arreglo de fotos vacío a propósito, no hay imagen
     if (fotos.length === 0) {
       return null;
     }
@@ -545,12 +472,6 @@ export function obtenerPortadaAviso(aviso) {
   return null;
 }
 
-/**
- * Devuelve el arreglo de fotos de un aviso para la galería:
- * - Respeta las fotos subidas por el usuario (`foto.url`).
- * - Para los avisos semilla (`av-101`..`av-117`), asigna la ilustración semilla correspondiente a su índice `listaId[idx]` si existe.
- * - Si una casilla secundaria no tiene imagen subida ni ilustración para ese índice, deja `url: null` para que el recuadro muestre el placeholder limpio del mockup.
- */
 export function obtenerFotosEnriquecidasAviso(aviso) {
   if (!aviso) return [];
   const fotosOriginales = Array.isArray(aviso.fotos) ? aviso.fotos : [];
@@ -566,10 +487,6 @@ export function obtenerFotosEnriquecidasAviso(aviso) {
   }));
 }
 
-/**
- * Lee y valida un archivo de imagen seleccionado por el usuario desde un <input type="file" />
- * Formatos permitidos: JPG, PNG, WEBP. Peso máximo: 5 MB.
- */
 export function leerArchivoImagen(file) {
   return new Promise((resolve) => {
     if (!file) {
@@ -594,7 +511,7 @@ export function leerArchivoImagen(file) {
       return;
     }
 
-    const MAX_BYTES = 5 * 1024 * 1024; // 5 MB
+    const MAX_BYTES = 5 * 1024 * 1024;
     if (file.size > MAX_BYTES) {
       const pesoMb = (file.size / (1024 * 1024)).toFixed(1);
       resolve({

@@ -106,7 +106,6 @@ export default function MisCalificacionesPage() {
     <div className="page-container">
       <h1 className="title-screen rep-page-title">Mis calificaciones</h1>
 
-      {/* Pestañas Emitidas / Recibidas — Vista 6.3 */}
       <div className="rep-tabs-bar">
         <button
           type="button"
@@ -137,9 +136,7 @@ export default function MisCalificacionesPage() {
         />
       )}
 
-      {/* Grilla de 2 columnas — Vista 6.3 */}
       <div className="rep-my-grid">
-        {/* Columna izquierda: Listado según pestaña */}
         <div className="rep-my-list">
           {pestanaActiva === 'Emitidas' ? (
             emitidas.length === 0 && acuerdosPendientesDeCalificar.length === 0 && usuarioId !== 'u-1' ? (
@@ -297,7 +294,6 @@ export default function MisCalificacionesPage() {
                   );
                 })}
 
-                {/* Acuerdo entregado pendiente de calificar de muestra para Rosa (Vista 6.3) */}
                 {usuarioId === 'u-1' && (
                   <div className="card-surface rep-pending-card">
                     <div className="rep-my-card-left">
@@ -361,7 +357,6 @@ export default function MisCalificacionesPage() {
           )}
         </div>
 
-        {/* Columna derecha: Resumen de Reputación Recibida (Vista 6.3) */}
         <div className="rep-my-side-col">
           <div className="card-surface rep-my-side-card">
             <span className="label-upper rep-my-side-label">
@@ -419,7 +414,6 @@ export default function MisCalificacionesPage() {
         </div>
       </div>
 
-      {/* Modal de confirmación para eliminar calificación */}
       {confirmarEliminarId && (
         <div
           className="modal-backdrop"

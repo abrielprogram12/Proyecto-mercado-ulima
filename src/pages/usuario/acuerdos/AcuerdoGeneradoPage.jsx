@@ -8,10 +8,6 @@ import AcuerdoNoDisponible from './AcuerdoNoDisponible';
 import { datosContraparte, textoReputacion } from './acuerdosUtils';
 import './acuerdos.css';
 
-/**
- * MÓDULO: Acuerdos de entrega (Integrante 5 · HU-5)
- * Vista 5.1 — Acuerdo generado (ruta /acuerdo-generado/:id, a la que llega HU-4 al aceptar una oferta)
- */
 export default function AcuerdoGeneradoPage() {
   const { id } = useParams();
   const { usuarioActual, obtenerUsuarioPorId } = useAuth();

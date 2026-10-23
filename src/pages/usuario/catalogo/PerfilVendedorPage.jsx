@@ -12,10 +12,6 @@ import Notificacion from '../../../components/Notificacion/Notificacion';
 import ModalReporte from '../../../components/Modales/ModalReporte';
 import './catalogo.css';
 
-/**
- * MÓDULO: Catálogo y Búsqueda (Integrante 3 · HU-3)
- * Vista 3.8 — Perfil público del vendedor con avisos publicados y calificaciones
- */
 export default function PerfilVendedorPage() {
   const { id } = useParams();
   const { obtenerUsuarioPorId, usuarioActual } = useAuth();
@@ -97,7 +93,6 @@ export default function PerfilVendedorPage() {
         />
       )}
 
-      {/* Cabecera del vendedor — Vista 3.8 */}
       <div className="card-surface cat-perfil-cabecera">
         <div className="cat-perfil-identidad">
           <div className="striped-placeholder cat-avatar-grande">
@@ -170,7 +165,6 @@ export default function PerfilVendedorPage() {
         </div>
       </div>
 
-      {/* Avisos publicados del vendedor */}
       <div className="cat-seccion-vendedor">
         <div className="cat-seccion-header">
           <h2 className="title-section cat-titulo-sin-margen">
@@ -212,7 +206,6 @@ export default function PerfilVendedorPage() {
         </div>
       </div>
 
-      {/* Últimas calificaciones recibidas */}
       <div>
         <h2 className="title-section cat-titulo-primario">
           Últimas calificaciones recibidas

@@ -6,10 +6,6 @@ import Notificacion from '../../components/Notificacion/Notificacion';
 import { validarFormularioRegistro } from './visitanteUtils';
 import './visitante.css';
 
-/**
- * MÓDULO: Visitante y Acceso (Integrante 1 · HU-1)
- * Vista 1.3 y 1.8 — Registro de cuenta institucional y pantalla de confirmación
- */
 export default function RegistroPage() {
   const { registrarUsuario } = useAuth();
 
@@ -69,7 +65,6 @@ export default function RegistroPage() {
     setCuentaCreada(true);
   };
 
-  // Vista 1.8 — CUENTA CREADA · CONFIRMACIÓN
   if (cuentaCreada) {
     return (
       <div className="page-container vis-contenedor-confirmacion">
@@ -140,7 +135,6 @@ export default function RegistroPage() {
 
         <form onSubmit={handleSubmit} noValidate>
           <div className="vis-registro-grid">
-            {/* Nombres */}
             <div className="form-group">
               <label className="label-upper" htmlFor="reg-nombres">
                 Nombres
@@ -157,7 +151,6 @@ export default function RegistroPage() {
               )}
             </div>
 
-            {/* Apellidos */}
             <div className="form-group">
               <label className="label-upper" htmlFor="reg-apellidos">
                 Apellidos
@@ -174,7 +167,6 @@ export default function RegistroPage() {
               )}
             </div>
 
-            {/* Correo institucional */}
             <div className="form-group vis-col-completa">
               <label className="label-upper" htmlFor="reg-correo">
                 Correo institucional
@@ -192,7 +184,6 @@ export default function RegistroPage() {
               )}
             </div>
 
-            {/* Contraseña */}
             <div className="form-group">
               <label className="label-upper" htmlFor="reg-pass">
                 Contraseña
@@ -229,7 +220,6 @@ export default function RegistroPage() {
               )}
             </div>
 
-            {/* Confirmar contraseña */}
             <div className="form-group">
               <label className="label-upper" htmlFor="reg-confirmar">
                 Confirmar contraseña
@@ -259,7 +249,6 @@ export default function RegistroPage() {
               )}
             </div>
 
-            {/* Carrera */}
             <div className="form-group">
               <label className="label-upper" htmlFor="reg-carrera">
                 Carrera
@@ -281,7 +270,6 @@ export default function RegistroPage() {
               )}
             </div>
 
-            {/* Ciclo */}
             <div className="form-group">
               <label className="label-upper" htmlFor="reg-ciclo">
                 Ciclo
@@ -303,7 +291,6 @@ export default function RegistroPage() {
               )}
             </div>
 
-            {/* Normas de convivencia */}
             <div className="vis-col-completa">
               <label className="vis-check-label">
                 <input

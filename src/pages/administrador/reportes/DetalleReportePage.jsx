@@ -194,16 +194,13 @@ export default function DetalleReportePage() {
 
   return (
     <div className="page-container">
-      {/* Migas de pan — Vista 7.2 */}
       <nav className="breadcrumbs">
         <Link to="/admin/reportes">Bandeja de reportes</Link>
         <span>›</span>
         <span>{reporte.id}</span>
       </nav>
 
-      {/* Grilla de 2 columnas — Vista 7.2 */}
       <div className="adm-detail-layout">
-        {/* Columna izquierda: Detalle del reporte, elemento y trazabilidad */}
         <div className="card-surface adm-report-main-card">
           <div className="adm-report-header-bar">
             <div className="adm-report-header-left">
@@ -215,7 +212,6 @@ export default function DetalleReportePage() {
             </span>
           </div>
 
-          {/* Elemento reportado */}
           <div className="adm-reported-item-card">
             <span className="label-upper">
               ELEMENTO REPORTADO · {reporte.tipo.toUpperCase()}
@@ -276,7 +272,6 @@ export default function DetalleReportePage() {
             </div>
           </div>
 
-          {/* Motivo del reporte */}
           <div>
             <span className="label-upper">MOTIVO DEL REPORTE</span>
             <div className="adm-motivo-badge-wrap">
@@ -297,7 +292,6 @@ export default function DetalleReportePage() {
             </div>
           </div>
 
-          {/* Historial del elemento y del vendedor */}
           <div className="adm-section-block">
             <span className="label-upper">
               HISTORIAL DE ESTE ELEMENTO Y DEL VENDEDOR
@@ -340,7 +334,6 @@ export default function DetalleReportePage() {
           </div>
         </div>
 
-        {/* Columna derecha: Panel de resolución y bitácora */}
         <div className="adm-right-col">
           <div className="card-surface adm-resolve-card">
             <h2 className="adm-resolve-title">Resolver reporte</h2>
@@ -421,7 +414,6 @@ export default function DetalleReportePage() {
         </div>
       </div>
 
-      {/* Modal de confirmación de bloqueo de cuenta (Vista 7.5) */}
       <ModalBloquearCuenta
         abierto={modalBloqueoAbierto}
         onClose={() => setModalBloqueoAbierto(false)}

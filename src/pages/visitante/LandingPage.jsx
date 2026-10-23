@@ -11,10 +11,6 @@ import {
 import { PASOS_COMO_FUNCIONA } from './visitanteUtils';
 import './visitante.css';
 
-/**
- * MÓDULO: Visitante y Acceso (Integrante 1 · HU-1)
- * Vista 1.1 — Portada pública (Landing)
- */
 export default function LandingPage() {
   const [terminoBusqueda, setTerminoBusqueda] = useState('');
   const navigate = useNavigate();
@@ -31,7 +27,6 @@ export default function LandingPage() {
 
   return (
     <div>
-      {/* Hero Section — Vista 1.1 */}
       <section className="vis-hero">
         <div className="vis-hero-inner">
           <div>
@@ -86,7 +81,6 @@ export default function LandingPage() {
       </section>
 
       <div className="page-container">
-        {/* Categorías destacadas */}
         <section className="vis-seccion">
           <span className="label-upper">Categorías destacadas</span>
           <div className="vis-categorias-grid">
@@ -109,7 +103,6 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* Avisos recientes */}
         <section className="vis-seccion">
           <div className="vis-seccion-encabezado">
             <h2 className="title-section">Avisos recientes</h2>
@@ -158,7 +151,6 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* Pasos de uso */}
         <section id="como-funciona" className="vis-pasos-grid">
           {PASOS_COMO_FUNCIONA.map((paso) => (
             <div key={paso.num} className="vis-paso">

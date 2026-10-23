@@ -56,9 +56,6 @@ export function AvisoProvider({ children }) {
     return avisos.filter((a) => a.vendedorId === vendedorId);
   };
 
-  /**
-   * Crear nuevo aviso como Publicado o Borrador (HU-2 · Vistas 2.3 y 2.4)
-   */
   const crearAviso = (datos, estadoInicial = 'Publicado') => {
     const fechaHoy = '17/10/2026';
     const nuevo = {
@@ -94,9 +91,6 @@ export function AvisoProvider({ children }) {
     };
   };
 
-  /**
-   * Editar aviso existente (HU-2)
-   */
   const editarAviso = (id, cambios) => {
     let avisoActualizado = null;
     setAvisos((prev) =>
@@ -129,9 +123,6 @@ export function AvisoProvider({ children }) {
     };
   };
 
-  /**
-   * Cambiar estado del aviso: Publicado, Pausado, Vendido, Borrador (HU-2 · Vista 2.6)
-   */
   const cambiarEstadoAviso = (id, nuevoEstado) => {
     let avisoObjetivo = null;
     setAvisos((prev) =>
@@ -163,9 +154,6 @@ export function AvisoProvider({ children }) {
     };
   };
 
-  /**
-   * Duplicar un aviso existente como nuevo borrador (HU-2)
-   */
   const duplicarAvisoComoBorrador = (id) => {
     const original = obtenerAvisoPorId(id);
     if (!original) {
@@ -189,9 +177,6 @@ export function AvisoProvider({ children }) {
     };
   };
 
-  /**
-   * Eliminar aviso (HU-2 · Vista 2.6)
-   */
   const eliminarAviso = (id) => {
     const original = obtenerAvisoPorId(id);
     if (!original) {
@@ -210,9 +195,6 @@ export function AvisoProvider({ children }) {
     };
   };
 
-  /**
-   * Guardar y reordenar fotografías del aviso (HU-2 · Vista 2.5)
-   */
   const actualizarFotosAviso = (id, nuevasFotos = []) => {
     const normalizadas = nuevasFotos.slice(0, 6).map((f, idx) => ({
       ...f,
@@ -230,9 +212,6 @@ export function AvisoProvider({ children }) {
     };
   };
 
-  /**
-   * Gestión de favoritos por usuario (HU-3)
-   */
   const toggleFavorito = (usuarioId, avisoId) => {
     if (!usuarioId) return false;
     setFavoritosPorUsuario((prev) => {

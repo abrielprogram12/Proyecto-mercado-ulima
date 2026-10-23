@@ -76,7 +76,6 @@ export default function PerfilReputacionPage() {
         />
       )}
 
-      {/* Cabecera — Vista 6.2 */}
       <div className="card-surface rep-profile-hero">
         <div className="rep-profile-hero-left">
           <div className="striped-placeholder rep-profile-avatar">
@@ -115,9 +114,7 @@ export default function PerfilReputacionPage() {
         )}
       </div>
 
-      {/* Grilla de 2 columnas — Vista 6.2 */}
       <div className="rep-profile-grid">
-        {/* Panel izquierdo: Distribución de estrellas y distintivo de confiable */}
         <div className="card-surface rep-stats-card">
           <div className="rep-score-header">
             <strong className="rep-score-big">
@@ -131,7 +128,6 @@ export default function PerfilReputacionPage() {
             </div>
           </div>
 
-          {/* Barras de distribución 5★ a 1★ */}
           <div className="rep-bars-list">
             {DISTRIBUCION_ESTRELLAS.map((fila) => (
               <div key={fila.estrellas} className="rep-bar-row">
@@ -170,7 +166,6 @@ export default function PerfilReputacionPage() {
           </div>
         </div>
 
-        {/* Panel derecho: Comentarios recibidos filtrables */}
         <div className="card-surface rep-reviews-card">
           <div className="rep-reviews-header">
             <h2 className="title-section rep-reviews-title">

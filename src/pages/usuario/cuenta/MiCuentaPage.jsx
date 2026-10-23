@@ -11,10 +11,6 @@ import { leerArchivoImagen } from '../../../data/imagenesDatos';
 import Notificacion from '../../../components/Notificacion/Notificacion';
 import './cuenta.css';
 
-/**
- * MÓDULO: Cuenta y Acceso (Integrante 1 · HU-1)
- * Vista 1.5 — Mi cuenta: editar datos personales, foto de perfil, punto de encuentro y cambiar contraseña
- */
 export default function MiCuentaPage() {
   const { usuarioActual, actualizarDatosCuenta, cambiarPassword, logout } =
     useAuth();
@@ -167,9 +163,7 @@ export default function MiCuentaPage() {
         />
       )}
 
-      {/* Grilla de 3 columnas — Vista 1.5 */}
       <div className="cue-columnas">
-        {/* Columna 1: Datos personales */}
         <form
           onSubmit={handleGuardarDatos}
           className="card-surface cue-tarjeta"
@@ -280,7 +274,6 @@ export default function MiCuentaPage() {
           </div>
         </form>
 
-        {/* Columna 2: Cambiar contraseña + Punto de encuentro preferido */}
         <div className="cue-pila">
           <form
             onSubmit={handleGuardarPassword}
@@ -375,7 +368,6 @@ export default function MiCuentaPage() {
             </button>
           </form>
 
-          {/* Punto de encuentro preferido */}
           <div className="card-surface cue-tarjeta-compacta">
             <h2 className="title-section cue-titulo-punto">
               Punto de encuentro preferido
@@ -402,7 +394,6 @@ export default function MiCuentaPage() {
           </div>
         </div>
 
-        {/* Columna 3: Tarjeta de foto de perfil, actividad y cerrar sesión */}
         <div className="cue-pila">
           <div className="card-surface cue-tarjeta-perfil">
             <div className="striped-placeholder cue-avatar-grande">
