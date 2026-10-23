@@ -1,8 +1,10 @@
 import { useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
+import { useAviso } from '../../../context/AvisoContext';
 import { useOferta } from '../../../context/OfertaContext';
 import { formatearPrecio } from '../../../data/contratoDatos';
+import { obtenerPortadaAviso } from '../../../data/imagenesDatos';
 import BadgeEstado from '../../../components/BadgeEstado/BadgeEstado';
 import EstadoVacio from '../../../components/EstadoVacio/EstadoVacio';
 import Notificacion from '../../../components/Notificacion/Notificacion';
@@ -15,23 +17,18 @@ import './ofertas.css';
 
 export default function OfertasEnviadasPage() {
   const { usuarioActual } = useAuth();
+  const { obtenerAvisoPorId } = useAviso();
   const { ofertas, retirarOferta } = useOferta();
   const navigate = useNavigate();
 
   const [filtroEstado, setFiltroEstado] = useState('Todas');
-  const [notificacion, setNotificacion] = useState({
-    tipo: 'exito',
-    mensaje:
-      'Éxito. Tu oferta de S/ 72.00 se envió. Te avisaremos cuando el vendedor responda.'
-  });
+  const [notificacion, setNotificacion] = useState(null);
 
-  // Para probar con datos ricos, si Rosa Quispe no tiene enviadas usamos las de Diego Vargas o las propias
-  const usuarioId = usuarioActual?.id || 'u-2';
+  const usuarioId = usuarioActual?.id || '';
 
+  // Estrictamente las ofertas enviadas por el usuario autenticado
   const enviadas = useMemo(() => {
-    const propias = ofertas.filter((o) => o.compradorId === usuarioId);
-    if (propias.length > 0) return propias;
-    return ofertas.filter((o) => o.compradorId === 'u-2');
+    return ofertas.filter((o) => o.compradorId === usuarioId);
   }, [ofertas, usuarioId]);
 
   const recibidasCount = useMemo(() => {
@@ -78,6 +75,14 @@ export default function OfertasEnviadasPage() {
         </Link>
       </div>
 
+      {notificacion && (
+        <Notificacion
+          tipo={notificacion.tipo}
+          mensaje={notificacion.mensaje}
+          onClose={() => setNotificacion(null)}
+        />
+      )}
+
       {/* Filtros por estado */}
       <div className="of-filters-chips of-filters-chips--spaced">
         {PESTAÑAS_ESTADO_OFERTA.map((tab) => (
@@ -99,7 +104,7 @@ export default function OfertasEnviadasPage() {
         <EstadoVacio
           icono="🏷️"
           titulo="No has enviado ofertas"
-          descripcion="Cuando encuentres algo que te sirva, envía tu monto y el vendedor podrá aceptarlo, rechazarlo o proponerte otro precio."
+          descripcion="Cuando encuentres algo que te sirva en el catálogo, envía tu monto y el vendedor podrá aceptarlo, rechazarlo o proponerte otro precio."
           textoBoton="Explorar catálogo"
           rutaBoton="/catalogo"
         />
@@ -107,6 +112,12 @@ export default function OfertasEnviadasPage() {
         <div className="of-sent-list">
           {enviadasFiltradas.map((of) => {
             const esContraoferta = of.estado === 'Contraofertada';
+            const avisoObj = obtenerAvisoPorId(of.avisoId) || {
+              id: of.avisoId,
+              titulo: of.avisoTitulo
+            };
+            const portada = obtenerPortadaAviso(avisoObj);
+
             return (
               <div
                 key={of.id}
@@ -115,7 +126,13 @@ export default function OfertasEnviadasPage() {
                 }`}
               >
                 <div className="of-sent-left">
-                  <div className="striped-placeholder of-sent-thumb" />
+                  <div className="striped-placeholder of-sent-thumb">
+                    <img
+                      src={portada}
+                      alt={of.avisoTitulo}
+                      className="media-img-cover"
+                    />
+                  </div>
                   <div>
                     <Link
                       to={`/aviso/${of.avisoId}`}
@@ -125,7 +142,7 @@ export default function OfertasEnviadasPage() {
                     </Link>
                     <div className="text-aux">
                       Vendedor: {of.vendedorNombre} ·{' '}
-                      {of.vendedorReputacion || 4.5} ★ · {of.mensaje}
+                      {of.vendedorReputacion || 4.8} ★ · {of.mensaje}
                     </div>
                   </div>
                 </div>
@@ -186,7 +203,7 @@ export default function OfertasEnviadasPage() {
                       </button>
                     )}
 
-                    {of.estado === 'Rechazada' && (
+                    {(of.estado === 'Rechazada' || of.estado === 'Vencida') && (
                       <button
                         type="button"
                         className="btn btn-outline btn-sm"
@@ -203,23 +220,11 @@ export default function OfertasEnviadasPage() {
         </div>
       )}
 
-      {/* Pie informativo y notificaciones (Vista 4.2) */}
-      <div className="of-footer-grid">
-        <div className="of-rules-banner">
-          <strong>Reglas de la negociación.</strong> Una sola oferta activa por
-          aviso. Solo puedes retirar tu oferta mientras el vendedor no haya
-          respondido. Toda oferta sin respuesta vence a los 7 días.
-        </div>
-
-        <div>
-          {notificacion && (
-            <Notificacion
-              tipo={notificacion.tipo}
-              mensaje={notificacion.mensaje}
-              onClose={() => setNotificacion(null)}
-            />
-          )}
-        </div>
+      {/* Pie informativo (Vista 4.2) */}
+      <div className="of-rules-banner">
+        <strong>Reglas de la negociación.</strong> Una sola oferta activa por
+        aviso. Solo puedes retirar tu oferta mientras el vendedor no haya
+        respondido. Toda oferta sin respuesta vence a los 7 días.
       </div>
     </div>
   );

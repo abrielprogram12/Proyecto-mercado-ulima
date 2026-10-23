@@ -1,8 +1,11 @@
 import { useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../../context/AuthContext';
+import { useAviso } from '../../../context/AvisoContext';
 import { useOferta } from '../../../context/OfertaContext';
 import { useAcuerdo } from '../../../context/AcuerdoContext';
 import { formatearPrecio } from '../../../data/contratoDatos';
+import { obtenerPortadaAviso } from '../../../data/imagenesDatos';
 import BadgeEstado from '../../../components/BadgeEstado/BadgeEstado';
 import Notificacion from '../../../components/Notificacion/Notificacion';
 import ModalOferta from '../../../components/Modales/ModalOferta';
@@ -15,12 +18,15 @@ import './ofertas.css';
 export default function HiloNegociacionPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { usuarioActual, obtenerUsuarioPorId } = useAuth();
+  const { obtenerAvisoPorId } = useAviso();
   const {
     obtenerOfertaPorId,
     ofertas,
     aceptarOferta,
     rechazarOferta,
-    enviarContraoferta
+    enviarContraoferta,
+    retirarOferta
   } = useOferta();
   const { crearAcuerdoDesdeOferta } = useAcuerdo();
 
@@ -34,12 +40,35 @@ export default function HiloNegociacionPage() {
 
   if (!oferta) return null;
 
+  const esVendedor = usuarioActual?.id === oferta.vendedorId;
+  const esComprador = usuarioActual?.id === oferta.compradorId;
+
   const movimientos = obtenerMovimientosHilo(oferta);
+  const ultimoMovimiento = movimientos[movimientos.length - 1];
   const primeraOfertaMonto = movimientos[0]?.monto || oferta.monto;
   const ultimaCompradorMonto = oferta.monto;
-  const contraofertaVigente = oferta.montoContraoferta || 84.0;
+  const contraofertaVigente = oferta.montoContraoferta || null;
 
-  const handleAceptar = () => {
+  const avisoObj = obtenerAvisoPorId(oferta.avisoId) || {
+    id: oferta.avisoId,
+    titulo: oferta.avisoTitulo
+  };
+  const portadaAviso = obtenerPortadaAviso(avisoObj);
+
+  const contraparteUsuario = obtenerUsuarioPorId(
+    esVendedor ? oferta.compradorId : oferta.vendedorId
+  );
+  const contraparteNombre = esVendedor
+    ? oferta.compradorNombre
+    : oferta.vendedorNombre;
+  const inicialesContraparte = obtenerInicialesComprador(contraparteNombre);
+  const inicialesVendedor = obtenerInicialesComprador(oferta.vendedorNombre);
+  const inicialesComprador = obtenerInicialesComprador(oferta.compradorNombre);
+
+  // El vendedor acepta la oferta/propuesta del comprador
+  const handleAceptarComoVendedor = () => {
+    if (!esVendedor) return;
+
     const otrasRechazadas = ofertas.filter(
       (o) =>
         o.id !== oferta.id &&
@@ -47,14 +76,40 @@ export default function HiloNegociacionPage() {
         (o.estado === 'Enviada' || o.estado === 'Contraofertada')
     ).length;
 
-    const resAcuerdo = crearAcuerdoDesdeOferta(oferta, {
+    const ofertaConMontoFinal = { ...oferta, monto: ultimaCompradorMonto };
+    const resAcuerdo = crearAcuerdoDesdeOferta(ofertaConMontoFinal, {
       otrasOfertasRechazadas: otrasRechazadas
     });
     const codigoAcuerdo = resAcuerdo.ok
       ? resAcuerdo.acuerdo.id
       : oferta.acuerdoId || 'A-2314';
 
-    const res = aceptarOferta(oferta.id, codigoAcuerdo);
+    const res = aceptarOferta(oferta.id, codigoAcuerdo, ultimaCompradorMonto);
+    if (res.ok) {
+      navigate(`/acuerdo-generado/${res.acuerdoId}`);
+    }
+  };
+
+  // El comprador acepta la contraoferta enviada por el vendedor
+  const handleAceptarContraofertaComoComprador = () => {
+    if (!esComprador || !contraofertaVigente) return;
+
+    const otrasRechazadas = ofertas.filter(
+      (o) =>
+        o.id !== oferta.id &&
+        o.avisoId === oferta.avisoId &&
+        (o.estado === 'Enviada' || o.estado === 'Contraofertada')
+    ).length;
+
+    const ofertaConContraoferta = { ...oferta, monto: contraofertaVigente };
+    const resAcuerdo = crearAcuerdoDesdeOferta(ofertaConContraoferta, {
+      otrasOfertasRechazadas: otrasRechazadas
+    });
+    const codigoAcuerdo = resAcuerdo.ok
+      ? resAcuerdo.acuerdo.id
+      : oferta.acuerdoId || 'A-2314';
+
+    const res = aceptarOferta(oferta.id, codigoAcuerdo, contraofertaVigente);
     if (res.ok) {
       navigate(`/acuerdo-generado/${res.acuerdoId}`);
     }
@@ -70,8 +125,31 @@ export default function HiloNegociacionPage() {
     }
   };
 
-  const handleEnviarNuevaContraoferta = ({ monto, mensaje }) => {
-    const res = enviarContraoferta(oferta.id, { monto, mensaje });
+  const handleRetirarComoComprador = () => {
+    const res = retirarOferta(oferta.id);
+    if (res.ok) {
+      navigate('/ofertas-enviadas');
+    } else {
+      setNotificacion({
+        tipo: 'error',
+        mensaje: res.error
+      });
+    }
+  };
+
+  const handleEnviarPropuestaModal = ({ monto, mensaje }) => {
+    const nombreCorto = usuarioActual
+      ? `${usuarioActual.nombres.split(' ')[0]} ${usuarioActual.apellidos.split(' ')[0]}`
+      : esVendedor
+      ? oferta.vendedorNombre
+      : oferta.compradorNombre;
+
+    const res = enviarContraoferta(oferta.id, {
+      monto,
+      mensaje,
+      autorNombre: nombreCorto,
+      rolAutor: esVendedor ? 'vendedor' : 'comprador'
+    });
     setModalAbierto(false);
     if (res.ok) {
       setNotificacion({
@@ -81,16 +159,37 @@ export default function HiloNegociacionPage() {
     }
   };
 
-  const inicialesComprador = obtenerInicialesComprador(oferta.compradorNombre);
+  // Determinar etiqueta de estado contextual según quién mira el hilo
+  const obtenerTextoEstadoHilo = () => {
+    if (oferta.estado === 'Contraofertada') {
+      const ultimoFueVendedor = ultimoMovimiento?.rolAutor === 'vendedor';
+      if (ultimoFueVendedor) {
+        return esComprador
+          ? 'Contraoferta recibida — tu turno de responder'
+          : 'Contraofertada — esperando al comprador';
+      }
+      return esVendedor
+        ? 'Nueva propuesta del comprador — tu turno'
+        : 'Propuesta enviada — esperando al vendedor';
+    }
+    if (oferta.estado === 'Enviada') {
+      return esVendedor
+        ? 'Oferta recibida — esperando tu respuesta'
+        : 'Oferta enviada — esperando al vendedor';
+    }
+    return oferta.estado;
+  };
 
   return (
     <div className="page-container">
       <div className="breadcrumbs">
-        <Link to="/ofertas">Ofertas recibidas</Link>
+        <Link to={esComprador ? '/ofertas-enviadas' : '/ofertas'}>
+          {esComprador ? 'Ofertas enviadas' : 'Ofertas recibidas'}
+        </Link>
         <span>›</span>
         <Link to={`/aviso/${oferta.avisoId}`}>{oferta.avisoTitulo}</Link>
         <span>›</span>
-        <span>{oferta.compradorNombre}</span>
+        <span>{contraparteNombre}</span>
       </div>
 
       {notificacion && (
@@ -108,30 +207,28 @@ export default function HiloNegociacionPage() {
           <div className="of-thread-header">
             <div>
               <h1 className="title-screen of-thread-title">
-                Negociación con {oferta.compradorNombre}
+                Negociación con {contraparteNombre}
               </h1>
               <span className="text-aux">
-                Iniciada el 27/08/2026 · {movimientos.length} movimientos
+                Iniciada el {oferta.fecha} · {movimientos.length}{' '}
+                {movimientos.length === 1 ? 'movimiento' : 'movimientos'}
               </span>
             </div>
 
-            <BadgeEstado
-              estado={
-                oferta.estado === 'Contraofertada'
-                  ? 'Contraofertada — esperando al comprador'
-                  : oferta.estado
-              }
-            />
+            <BadgeEstado estado={obtenerTextoEstadoHilo()} />
           </div>
 
           <div className="of-timeline-list">
             {movimientos.map((mov, index) => {
-              const esVendedor = mov.rolAutor === 'vendedor';
+              const movDeVendedor = mov.rolAutor === 'vendedor';
+              const esMio =
+                (esVendedor && movDeVendedor) ||
+                (esComprador && !movDeVendedor);
               const esUltimo = index === movimientos.length - 1;
 
               const bubbleClass = [
                 'of-timeline-bubble',
-                esVendedor
+                movDeVendedor
                   ? esUltimo
                     ? 'of-timeline-bubble--seller-latest'
                     : 'of-timeline-bubble--seller'
@@ -141,28 +238,34 @@ export default function HiloNegociacionPage() {
                 .filter(Boolean)
                 .join(' ');
 
+              const etiquetaAutor = esMio
+                ? `Tú (${esVendedor ? 'vendedor/a' : 'comprador/a'})`
+                : movDeVendedor
+                ? oferta.vendedorNombre
+                : oferta.compradorNombre;
+
               return (
                 <div
                   key={mov.id || index}
                   className={`of-timeline-item ${
-                    esVendedor ? 'of-timeline-item--seller' : ''
+                    movDeVendedor ? 'of-timeline-item--seller' : ''
                   }`}
                 >
                   <div
                     className={`of-timeline-avatar ${
-                      esVendedor ? 'of-timeline-avatar--seller' : ''
+                      movDeVendedor ? 'of-timeline-avatar--seller' : ''
                     }`}
                   >
-                    {esVendedor ? 'RQ' : inicialesComprador}
+                    {movDeVendedor ? inicialesVendedor : inicialesComprador}
                   </div>
 
                   <div className={bubbleClass}>
                     <div className="of-timeline-bubble-top">
                       <div className="of-timeline-author-row">
-                        <strong>{mov.autorNombre}</strong>
+                        <strong>{etiquetaAutor}</strong>
                         <BadgeEstado
                           estado={mov.tipo}
-                          variante={esVendedor ? 'warning' : 'info'}
+                          variante={movDeVendedor ? 'warning' : 'info'}
                         />
                       </div>
                       <span className="text-aux">{mov.fechaHora}</span>
@@ -192,36 +295,137 @@ export default function HiloNegociacionPage() {
             })}
           </div>
 
-          {/* Barra inferior de acciones */}
+          {/* Barra inferior de acciones — Separación estricta Vendedor vs Comprador */}
           <div className="of-thread-actions-bar">
-            <span className="text-aux">
-              Acciones disponibles como vendedora mientras la contraoferta esté
-              vigente.
-            </span>
+            {oferta.estado === 'Aceptada' ? (
+              <>
+                <span className="text-aux">
+                  Trato cerrado. Se generó el acuerdo{' '}
+                  <strong>{oferta.acuerdoId || 'A-2201'}</strong>.
+                </span>
+                <div className="of-thread-actions-btns">
+                  <button
+                    type="button"
+                    className="btn btn-success btn-sm"
+                    onClick={() =>
+                      navigate(`/acuerdos/${oferta.acuerdoId || 'A-2201'}`)
+                    }
+                  >
+                    Ir al acuerdo
+                  </button>
+                </div>
+              </>
+            ) : oferta.estado === 'Rechazada' || oferta.estado === 'Vencida' ? (
+              <span className="text-aux">
+                Esta negociación está cerrada ({oferta.estado.toLowerCase()}).
+              </span>
+            ) : esVendedor ? (
+              /* VISTA DEL VENDEDOR: puede aceptar la oferta del comprador, enviar contraoferta o rechazar */
+              <>
+                <span className="text-aux">
+                  {oferta.estado === 'Contraofertada' &&
+                  ultimoMovimiento?.rolAutor === 'vendedor'
+                    ? `Tu contraoferta de ${formatearPrecio(
+                        contraofertaVigente
+                      )} está vigente. También puedes aceptar los ${formatearPrecio(
+                        ultimaCompradorMonto
+                      )} del comprador.`
+                    : `Acciones disponibles como vendedor sobre la propuesta de ${formatearPrecio(
+                        ultimaCompradorMonto
+                      )}.`}
+                </span>
 
-            <div className="of-thread-actions-btns">
-              <button
-                type="button"
-                className="btn btn-success btn-sm"
-                onClick={handleAceptar}
-              >
-                Aceptar {formatearPrecio(ultimaCompradorMonto)}
-              </button>
-              <button
-                type="button"
-                className="btn btn-secondary btn-sm"
-                onClick={() => setModalAbierto(true)}
-              >
-                Nueva contraoferta
-              </button>
-              <button
-                type="button"
-                className="btn btn-outline btn-sm of-btn-danger-text"
-                onClick={handleRechazar}
-              >
-                Rechazar
-              </button>
-            </div>
+                <div className="of-thread-actions-btns">
+                  <button
+                    type="button"
+                    className="btn btn-success btn-sm"
+                    onClick={handleAceptarComoVendedor}
+                  >
+                    Aceptar {formatearPrecio(ultimaCompradorMonto)}
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-secondary btn-sm"
+                    onClick={() => setModalAbierto(true)}
+                  >
+                    {oferta.estado === 'Contraofertada'
+                      ? 'Nueva contraoferta'
+                      : 'Contraofertar'}
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-outline btn-sm of-btn-danger-text"
+                    onClick={handleRechazar}
+                  >
+                    Rechazar
+                  </button>
+                </div>
+              </>
+            ) : esComprador ? (
+              /* VISTA DEL COMPRADOR: NO puede aceptar su propia oferta inicial; solo puede aceptar si el vendedor le envió una contraoferta */
+              oferta.estado === 'Enviada' ? (
+                <>
+                  <span className="text-aux">
+                    Enviaste una oferta de{' '}
+                    <strong>{formatearPrecio(ultimaCompradorMonto)}</strong>.
+                    Esperando respuesta del vendedor ({oferta.vendedorNombre}).
+                  </span>
+                  <div className="of-thread-actions-btns">
+                    <button
+                      type="button"
+                      className="btn btn-outline btn-sm of-btn-danger-text"
+                      onClick={handleRetirarComoComprador}
+                    >
+                      Retirar oferta
+                    </button>
+                  </div>
+                </>
+              ) : ultimoMovimiento?.rolAutor === 'vendedor' &&
+                contraofertaVigente ? (
+                <>
+                  <span className="text-aux">
+                    El vendedor propone cerrar en{' '}
+                    <strong>{formatearPrecio(contraofertaVigente)}</strong>.
+                    Puedes aceptar su contraoferta o enviar otra propuesta.
+                  </span>
+                  <div className="of-thread-actions-btns">
+                    <button
+                      type="button"
+                      className="btn btn-success btn-sm"
+                      onClick={handleAceptarContraofertaComoComprador}
+                    >
+                      Aceptar contraoferta (
+                      {formatearPrecio(contraofertaVigente)})
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-secondary btn-sm"
+                      onClick={() => setModalAbierto(true)}
+                    >
+                      Enviar nueva propuesta
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-outline btn-sm of-btn-danger-text"
+                      onClick={handleRechazar}
+                    >
+                      Rechazar
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <span className="text-aux">
+                  Enviaste una propuesta de{' '}
+                  <strong>{formatearPrecio(ultimaCompradorMonto)}</strong>.
+                  Esperando respuesta de {oferta.vendedorNombre}.
+                </span>
+              )
+            ) : (
+              <span className="text-aux">
+                Solo el comprador y el vendedor de este aviso pueden intervenir
+                en la negociación.
+              </span>
+            )}
           </div>
         </div>
 
@@ -231,7 +435,13 @@ export default function HiloNegociacionPage() {
             <span className="label-upper of-side-label">
               Aviso en negociación
             </span>
-            <div className="striped-placeholder of-side-aviso-banner" />
+            <div className="striped-placeholder of-side-aviso-banner">
+              <img
+                src={portadaAviso}
+                alt={oferta.avisoTitulo}
+                className="media-img-cover"
+              />
+            </div>
             <strong className="of-side-aviso-title">
               {oferta.avisoTitulo}
             </strong>
@@ -244,23 +454,41 @@ export default function HiloNegociacionPage() {
           </div>
 
           <div className="card-surface of-side-card">
-            <span className="label-upper of-side-label">Contraparte</span>
+            <span className="label-upper of-side-label">
+              {esVendedor ? 'Comprador interesado' : 'Vendedor del aviso'}
+            </span>
             <div className="of-counterpart-row">
-              <div className="of-counterpart-avatar">{inicialesComprador}</div>
+              <div className="of-counterpart-avatar">
+                {contraparteUsuario?.fotoPerfil ? (
+                  <img
+                    src={contraparteUsuario.fotoPerfil}
+                    alt={contraparteNombre}
+                    className="media-img-cover"
+                  />
+                ) : (
+                  inicialesContraparte
+                )}
+              </div>
               <div>
                 <strong className="of-counterpart-name">
-                  {oferta.compradorNombre}
+                  {contraparteNombre}
                 </strong>
                 <span className="text-aux">
-                  {oferta.compradorCarrera} ·{' '}
-                  {oferta.compradorCiclo || 'sexto ciclo'} ·{' '}
-                  {oferta.compradorReputacion} ★ ·{' '}
-                  {oferta.compradorAcuerdos || 5} acuerdos
+                  {contraparteUsuario?.carrera ||
+                    oferta.compradorCarrera ||
+                    'Administración'}{' '}
+                  ·{' '}
+                  {contraparteUsuario?.reputacion ||
+                    oferta.compradorReputacion ||
+                    4.8}{' '}
+                  ★ · {contraparteUsuario?.acuerdosCerrados || 5} acuerdos
                 </span>
               </div>
             </div>
             <Link
-              to={`/vendedor/${oferta.compradorId}`}
+              to={`/vendedor/${
+                esVendedor ? oferta.compradorId : oferta.vendedorId
+              }`}
               className="of-counterpart-link"
             >
               Ver perfil público
@@ -290,12 +518,18 @@ export default function HiloNegociacionPage() {
                 {formatearPrecio(ultimaCompradorMonto)}
               </strong>
             </div>
-            <div className="of-summary-row--highlight">
-              <span className="text-aux">Tu contraoferta vigente</span>
-              <strong className="of-summary-counter-value">
-                {formatearPrecio(contraofertaVigente)}
-              </strong>
-            </div>
+            {contraofertaVigente && (
+              <div className="of-summary-row--highlight">
+                <span className="text-aux">
+                  {esVendedor
+                    ? 'Tu contraoferta vigente'
+                    : 'Contraoferta del vendedor'}
+                </span>
+                <strong className="of-summary-counter-value">
+                  {formatearPrecio(contraofertaVigente)}
+                </strong>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -303,14 +537,16 @@ export default function HiloNegociacionPage() {
       <ModalOferta
         abierto={modalAbierto}
         onClose={() => setModalAbierto(false)}
-        modo="contraoferta"
+        modo={esVendedor ? 'contraoferta' : 'propuesta-comprador'}
         ofertaRecibida={oferta}
         aviso={{
+          id: oferta.avisoId,
           titulo: oferta.avisoTitulo,
           precio: oferta.precioPedido,
-          montoMinimo: oferta.montoMinimo
+          montoMinimo: oferta.montoMinimo,
+          aceptaOfertas: true
         }}
-        onConfirmar={handleEnviarNuevaContraoferta}
+        onConfirmar={handleEnviarPropuestaModal}
       />
     </div>
   );

@@ -1,9 +1,11 @@
 import { useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
+import { useAviso } from '../../../context/AvisoContext';
 import { useOferta } from '../../../context/OfertaContext';
 import { useAcuerdo } from '../../../context/AcuerdoContext';
 import { formatearPrecio } from '../../../data/contratoDatos';
+import { obtenerPortadaAviso } from '../../../data/imagenesDatos';
 import FilaOferta from '../../../components/FilaOferta/FilaOferta';
 import BadgeEstado from '../../../components/BadgeEstado/BadgeEstado';
 import EstadoVacio from '../../../components/EstadoVacio/EstadoVacio';
@@ -19,6 +21,7 @@ import './ofertas.css';
 
 export default function OfertasRecibidasPage() {
   const { usuarioActual } = useAuth();
+  const { obtenerAvisoPorId } = useAviso();
   const {
     ofertas,
     aceptarOferta,
@@ -69,7 +72,7 @@ export default function OfertasRecibidasPage() {
       ? resAcuerdo.acuerdo.id
       : oferta.acuerdoId || 'A-2314';
 
-    const res = aceptarOferta(oferta.id, codigoAcuerdo);
+    const res = aceptarOferta(oferta.id, codigoAcuerdo, oferta.monto);
     if (res.ok) {
       navigate(`/acuerdo-generado/${res.acuerdoId}`);
     }
@@ -89,7 +92,11 @@ export default function OfertasRecibidasPage() {
     if (!ofertaEnContraoferta) return;
     const res = enviarContraoferta(ofertaEnContraoferta.id, {
       monto,
-      mensaje
+      mensaje,
+      autorNombre: usuarioActual
+        ? `${usuarioActual.nombres.split(' ')[0]} ${usuarioActual.apellidos.split(' ')[0]}`
+        : 'Vendedora',
+      rolAutor: 'vendedor'
     });
     setOfertaEnContraoferta(null);
     if (res.ok) {
@@ -155,70 +162,84 @@ export default function OfertasRecibidasPage() {
         />
       ) : (
         <div className="of-groups-list">
-          {gruposPorAviso.map((grupo) => (
-            <div
-              key={grupo.avisoId}
-              className="card-surface of-group-card"
-            >
-              {/* Cabecera del aviso */}
-              <div className="of-group-header">
-                <div className="of-group-aviso-info">
-                  <div className="striped-placeholder of-group-thumb" />
-                  <div>
-                    <Link
-                      to={`/aviso/${grupo.avisoId}`}
-                      className="of-group-aviso-link"
-                    >
-                      {grupo.avisoTitulo}
-                    </Link>
-                    <div className="text-aux">
-                      Precio pedido {formatearPrecio(grupo.precioPedido)} ·
-                      mínimo aceptado {formatearPrecio(grupo.montoMinimo)} ·{' '}
-                      {grupo.ofertas.length}{' '}
-                      {grupo.ofertas.length === 1 ? 'oferta' : 'ofertas'}
+          {gruposPorAviso.map((grupo) => {
+            const avisoObj = obtenerAvisoPorId(grupo.avisoId) || {
+              id: grupo.avisoId,
+              titulo: grupo.avisoTitulo
+            };
+            const portada = obtenerPortadaAviso(avisoObj);
+
+            return (
+              <div
+                key={grupo.avisoId}
+                className="card-surface of-group-card"
+              >
+                {/* Cabecera del aviso */}
+                <div className="of-group-header">
+                  <div className="of-group-aviso-info">
+                    <div className="striped-placeholder of-group-thumb">
+                      <img
+                        src={portada}
+                        alt={grupo.avisoTitulo}
+                        className="media-img-cover"
+                      />
                     </div>
+                    <div>
+                      <Link
+                        to={`/aviso/${grupo.avisoId}`}
+                        className="of-group-aviso-link"
+                      >
+                        {grupo.avisoTitulo}
+                      </Link>
+                      <div className="text-aux">
+                        Precio pedido {formatearPrecio(grupo.precioPedido)} ·
+                        mínimo aceptado {formatearPrecio(grupo.montoMinimo)} ·{' '}
+                        {grupo.ofertas.length}{' '}
+                        {grupo.ofertas.length === 1 ? 'oferta' : 'ofertas'}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    {grupo.acuerdoGenerado ? (
+                      <BadgeEstado
+                        estado={`Acuerdo ${grupo.acuerdoGenerado} generado`}
+                        variante="success"
+                      />
+                    ) : (
+                      grupo.mejorMonto !== null && (
+                        <div className="of-best-offer-box">
+                          <span className="label-upper of-best-offer-label">
+                            Mejor oferta
+                          </span>
+                          <strong className="of-best-offer-amount">
+                            {formatearPrecio(grupo.mejorMonto)}
+                          </strong>
+                        </div>
+                      )
+                    )}
                   </div>
                 </div>
 
+                {/* Filas de ofertas de este aviso */}
                 <div>
-                  {grupo.acuerdoGenerado ? (
-                    <BadgeEstado
-                      estado={`Acuerdo ${grupo.acuerdoGenerado} generado`}
-                      variante="success"
+                  {grupo.ofertas.map((of) => (
+                    <FilaOferta
+                      key={of.id}
+                      oferta={of}
+                      onAceptar={handleAceptar}
+                      onContraofertar={(o) => setOfertaEnContraoferta(o)}
+                      onRechazar={handleRechazar}
+                      onVerHilo={(o) => navigate(`/ofertas/${o.id}/hilo`)}
+                      onIrAcuerdo={(o) =>
+                        navigate(`/acuerdos/${o.acuerdoId || 'A-2201'}`)
+                      }
                     />
-                  ) : (
-                    grupo.mejorMonto !== null && (
-                      <div className="of-best-offer-box">
-                        <span className="label-upper of-best-offer-label">
-                          Mejor oferta
-                        </span>
-                        <strong className="of-best-offer-amount">
-                          {formatearPrecio(grupo.mejorMonto)}
-                        </strong>
-                      </div>
-                    )
-                  )}
+                  ))}
                 </div>
               </div>
-
-              {/* Filas de ofertas de este aviso */}
-              <div>
-                {grupo.ofertas.map((of) => (
-                  <FilaOferta
-                    key={of.id}
-                    oferta={of}
-                    onAceptar={handleAceptar}
-                    onContraofertar={(o) => setOfertaEnContraoferta(o)}
-                    onRechazar={handleRechazar}
-                    onVerHilo={(o) => navigate(`/ofertas/${o.id}/hilo`)}
-                    onIrAcuerdo={(o) =>
-                      navigate(`/acuerdos/${o.acuerdoId || 'A-2201'}`)
-                    }
-                  />
-                ))}
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
@@ -230,6 +251,7 @@ export default function OfertasRecibidasPage() {
         aviso={
           ofertaEnContraoferta
             ? {
+                id: ofertaEnContraoferta.avisoId,
                 titulo: ofertaEnContraoferta.avisoTitulo,
                 precio: ofertaEnContraoferta.precioPedido,
                 montoMinimo: ofertaEnContraoferta.montoMinimo

@@ -30,11 +30,18 @@ export function OfertaProvider({ children }) {
 
   /**
    * Envío de nueva oferta (HU-4)
-   * Valida 1 sola oferta activa por aviso y usuario, y monto mínimo si aplica.
+   * Valida que el comprador no sea el propio vendedor, 1 sola oferta activa por aviso y usuario, y monto mínimo si aplica.
    */
   const enviarOferta = ({ aviso, comprador, monto, mensaje }) => {
     if (!aviso || !comprador) {
       return { ok: false, error: 'Datos incompletos para enviar la oferta.' };
+    }
+
+    if (aviso.vendedorId === comprador.id) {
+      return {
+        ok: false,
+        error: 'No puedes enviar una oferta sobre tu propia publicación.'
+      };
     }
 
     const activaExistente = ofertas.find(
@@ -72,20 +79,20 @@ export function OfertaProvider({ children }) {
       compradorCarrera: comprador.carrera,
       compradorReputacion: comprador.reputacion || 4.8,
       monto: montoNum,
-      mensaje: mensaje || '',
+      mensaje: mensaje || 'Oferta enviada al vendedor',
       estado: 'Enviada',
-      fecha: '17/10/2026',
+      fecha: '04/09/2026',
       movimientos: [
         {
           id: `m-${Date.now()}`,
           autorId: comprador.id,
-          autorNombre: comprador.nombres,
+          autorNombre: `${comprador.nombres.split(' ')[0]} ${comprador.apellidos.split(' ')[0]}`,
           rolAutor: 'comprador',
           tipo: 'Oferta enviada',
           monto: montoNum,
           notaMonto: `sobre ${formatearPrecio(aviso.precio)} pedidos`,
           mensaje: mensaje || '',
-          fechaHora: '17/10/2026 · 10:30'
+          fechaHora: '04/09/2026 · 10:30'
         }
       ]
     };
@@ -99,14 +106,19 @@ export function OfertaProvider({ children }) {
   };
 
   /**
-   * Aceptar oferta (HU-4)
+   * Aceptar oferta o contraoferta (HU-4)
    * Rechaza automáticamente las demás ofertas activas del mismo aviso.
    */
-  const aceptarOferta = (ofertaId, codigoAcuerdoExterno) => {
+  const aceptarOferta = (ofertaId, codigoAcuerdoExterno, montoFinalAcordado) => {
     const objetivo = obtenerOfertaPorId(ofertaId);
     if (!objetivo) {
       return { ok: false, error: 'No se encontró la oferta.' };
     }
+
+    const montoCerrado =
+      montoFinalAcordado !== undefined
+        ? Number(montoFinalAcordado)
+        : Number(objetivo.monto);
 
     const codigoAcuerdo = codigoAcuerdoExterno || objetivo.acuerdoId || 'A-2314';
     const otrasRechazadas = ofertas.filter(
@@ -121,8 +133,10 @@ export function OfertaProvider({ children }) {
         if (o.id === ofertaId) {
           return {
             ...o,
+            monto: montoCerrado,
             estado: 'Aceptada',
-            acuerdoId: codigoAcuerdo
+            acuerdoId: codigoAcuerdo,
+            mensaje: `aceptada por ${formatearPrecio(montoCerrado)}`
           };
         }
         if (
@@ -142,7 +156,12 @@ export function OfertaProvider({ children }) {
     return {
       ok: true,
       acuerdoId: codigoAcuerdo,
-      oferta: { ...objetivo, estado: 'Aceptada', acuerdoId: codigoAcuerdo },
+      oferta: {
+        ...objetivo,
+        monto: montoCerrado,
+        estado: 'Aceptada',
+        acuerdoId: codigoAcuerdo
+      },
       otrasOfertasRechazadas: otrasRechazadas,
       mensaje: `Oferta aceptada. Se generó el acuerdo ${codigoAcuerdo}.`
     };
@@ -157,16 +176,16 @@ export function OfertaProvider({ children }) {
     );
     return {
       ok: true,
-      mensaje: 'La oferta fue rechazada y se notificó al comprador.'
+      mensaje: 'La negociación fue rechazada y se notificó a la contraparte.'
     };
   };
 
   /**
-   * Enviar contraoferta y registrar en el hilo de negociación (HU-4 · Vistas 4.4 y 4.5)
+   * Enviar contraoferta del vendedor y registrar en el hilo de negociación (HU-4 · Vistas 4.4 y 4.5)
    */
   const enviarContraoferta = (
     ofertaId,
-    { monto, mensaje, autorNombre = 'Tú (vendedora)', rolAutor = 'vendedor' }
+    { monto, mensaje, autorNombre = 'Vendedor', rolAutor = 'vendedor' }
   ) => {
     const montoNum = Number(monto || 0);
     setOfertas((prev) =>
@@ -174,20 +193,32 @@ export function OfertaProvider({ children }) {
         if (o.id !== ofertaId) return o;
         const nuevoMov = {
           id: `m-${Date.now()}`,
-          autorId: o.vendedorId,
+          autorId: rolAutor === 'vendedor' ? o.vendedorId : o.compradorId,
           autorNombre,
           rolAutor,
           tipo: 'Contraoferta',
           monto: montoNum,
-          notaMonto: `propuesta vigente sobre ${formatearPrecio(o.precioPedido)}`,
+          notaMonto:
+            rolAutor === 'vendedor'
+              ? `propuesta del vendedor sobre ${formatearPrecio(o.precioPedido)}`
+              : `nueva propuesta del comprador`,
           mensaje: mensaje || '',
-          fechaHora: '17/10/2026 · 12:40'
+          fechaHora: '04/09/2026 · 12:40'
         };
+        if (rolAutor === 'comprador') {
+          return {
+            ...o,
+            estado: 'Contraofertada',
+            monto: montoNum,
+            mensaje: `nueva propuesta de ${formatearPrecio(montoNum)} enviada`,
+            movimientos: [...(o.movimientos || []), nuevoMov]
+          };
+        }
         return {
           ...o,
           estado: 'Contraofertada',
           montoContraoferta: montoNum,
-          mensaje: `tu contraoferta de ${formatearPrecio(montoNum)} está pendiente`,
+          mensaje: `contraoferta de ${formatearPrecio(montoNum)} pendiente`,
           movimientos: [...(o.movimientos || []), nuevoMov]
         };
       })
@@ -195,7 +226,10 @@ export function OfertaProvider({ children }) {
 
     return {
       ok: true,
-      mensaje: `Éxito. Se envió tu contraoferta de ${formatearPrecio(montoNum)}.`
+      mensaje:
+        rolAutor === 'comprador'
+          ? `Éxito. Se envió tu nueva propuesta de ${formatearPrecio(montoNum)} al vendedor.`
+          : `Éxito. Se envió tu contraoferta de ${formatearPrecio(montoNum)} al comprador.`
     };
   };
 

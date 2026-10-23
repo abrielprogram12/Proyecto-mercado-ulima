@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { obtenerImagenPorCategoria } from '../../data/imagenesDatos';
 import './Modales.css';
 
 const MOTIVOS_REPORTE = [
@@ -33,6 +34,8 @@ export default function ModalReporte({
     onEnviarReporte && onEnviarReporte({ motivo, descripcion: descripcion.trim() });
   };
 
+  const thumbUrl = obtenerImagenPorCategoria('Libros de texto', tituloElemento);
+
   return (
     <div className="modal-backdrop" onClick={onClose}>
       <div className="modal-card" onClick={(e) => e.stopPropagation()}>
@@ -44,7 +47,13 @@ export default function ModalReporte({
         </div>
 
         <div className="modal-item-preview">
-          <div className="modal-preview-thumb striped-placeholder" />
+          <div className="modal-preview-thumb striped-placeholder">
+            <img
+              src={thumbUrl}
+              alt={tituloElemento}
+              className="media-img-cover"
+            />
+          </div>
           <div>
             <strong>{tituloElemento}</strong>
             <div className="text-aux">{subtituloElemento}</div>
@@ -90,10 +99,8 @@ export default function ModalReporte({
             </span>
           </div>
 
-          <div className="notificacion-banner" style={{ backgroundColor: 'var(--color-primary-soft)', borderColor: '#F2D1C2' }}>
-            <span>
-              Tu reporte es anónimo para la otra parte. Un administrador lo revisará en un plazo de 48 horas.
-            </span>
+          <div className="modal-soft-callout">
+            Tu reporte es anónimo para la otra parte. Un administrador lo revisará en un plazo de 48 horas.
           </div>
 
           <div className="modal-footer">
