@@ -178,11 +178,13 @@ export default function OfertasRecibidasPage() {
                 <div className="of-group-header">
                   <div className="of-group-aviso-info">
                     <div className="striped-placeholder of-group-thumb">
-                      <img
-                        src={portada}
-                        alt={grupo.avisoTitulo}
-                        className="media-img-cover"
-                      />
+                      {portada && (
+                        <img
+                          src={portada}
+                          alt={grupo.avisoTitulo}
+                          className="media-img-cover"
+                        />
+                      )}
                     </div>
                     <div>
                       <Link

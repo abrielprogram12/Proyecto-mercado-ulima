@@ -13,33 +13,62 @@ export const FILTROS_INICIALES_CATALOGO = {
 };
 
 export function filtrarYOrdenarCatalogo(
-  avisosPublicados = [],
+  avisos = [],
   filtros = FILTROS_INICIALES_CATALOGO,
   busquedaTexto = '',
   orden = 'recientes'
 ) {
-  const resultado = avisosPublicados.filter((a) => {
-    if (filtros.categoria && a.categoria !== filtros.categoria) return false;
-    if (filtros.curso && a.curso !== filtros.curso) return false;
-    if (filtros.condicion && a.condicion !== filtros.condicion) return false;
+  const catFiltro =
+    filtros.categoria && filtros.categoria !== 'Todas'
+      ? filtros.categoria
+      : '';
+  const cursoFiltro =
+    filtros.curso && filtros.curso !== 'Todos los cursos'
+      ? filtros.curso
+      : '';
+  const condFiltro =
+    filtros.condicion && filtros.condicion !== 'Todas'
+      ? filtros.condicion
+      : '';
+
+  const resultado = avisos.filter((a) => {
+    // En el catálogo público solo se muestran avisos Publicados o Vendidos (nunca Borradores, Pausados ni Retirados)
+    if (a.estado && a.estado !== 'Publicado' && a.estado !== 'Vendido') {
+      return false;
+    }
+    if (catFiltro && a.categoria !== catFiltro) return false;
+    if (cursoFiltro && a.curso !== cursoFiltro) return false;
+    if (condFiltro && a.condicion !== condFiltro) return false;
     if (
       filtros.precioMin !== '' &&
+      filtros.precioMin !== undefined &&
       Number(a.precio) < Number(filtros.precioMin)
     ) {
       return false;
     }
     if (
       filtros.precioMax !== '' &&
+      filtros.precioMax !== undefined &&
       Number(a.precio) > Number(filtros.precioMax)
     ) {
       return false;
     }
     if (busquedaTexto.trim()) {
       const q = busquedaTexto.trim().toLowerCase();
-      const coincideTitulo = a.titulo.toLowerCase().includes(q);
+      const coincideTitulo = (a.titulo || '').toLowerCase().includes(q);
       const coincideDesc = (a.descripcion || '').toLowerCase().includes(q);
       const coincideCurso = (a.curso || '').toLowerCase().includes(q);
-      if (!coincideTitulo && !coincideDesc && !coincideCurso) return false;
+      const coincideCat = (a.categoria || '').toLowerCase().includes(q);
+      const coincideVendedor = (a.vendedorNombre || '').toLowerCase().includes(q);
+      if (
+        !coincideTitulo &&
+        !coincideDesc &&
+        !coincideCurso &&
+        !coincideCat &&
+        !coincideVendedor
+      ) {
+        return false;
+      }
     }
     return true;
   });

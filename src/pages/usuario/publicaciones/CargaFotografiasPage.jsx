@@ -3,8 +3,7 @@ import { Link, useParams, useNavigate } from 'react-router-dom';
 import { useAviso } from '../../../context/AvisoContext';
 import {
   leerArchivoImagen,
-  obtenerFotosEnriquecidasAviso,
-  obtenerImagenPorCategoria
+  obtenerFotosEnriquecidasAviso
 } from '../../../data/imagenesDatos';
 import Notificacion from '../../../components/Notificacion/Notificacion';
 import './publicaciones.css';
@@ -224,9 +223,6 @@ export default function CargaFotografiasPage() {
             {Array.from({ length: 6 }).map((_, idx) => {
               const foto = fotos[idx];
               if (foto) {
-                const imgSrc =
-                  foto.url ||
-                  obtenerImagenPorCategoria(aviso?.categoria, aviso?.titulo);
                 return (
                   <div
                     key={foto.id}
@@ -235,11 +231,15 @@ export default function CargaFotografiasPage() {
                     }`}
                   >
                     <div className="striped-placeholder pub-reorder-preview">
-                      <img
-                        src={imgSrc}
-                        alt={foto.etiqueta}
-                        className="media-img-cover"
-                      />
+                      {foto.url ? (
+                        <img
+                          src={foto.url}
+                          alt={foto.etiqueta}
+                          className="media-img-cover"
+                        />
+                      ) : (
+                        <span>{foto.etiqueta || 'sin foto'}</span>
+                      )}
                       {idx === 0 && (
                         <span className="pub-reorder-badge">
                           1 · PRINCIPAL

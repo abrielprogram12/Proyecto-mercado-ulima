@@ -48,16 +48,7 @@ export default function Header() {
       {/* Barra superior principal */}
       <div className="header-top">
         <div className="header-left">
-          <Link
-            to={
-              rolActual === ROLES_USUARIO.ADMIN
-                ? '/admin/reportes'
-                : rolActual === ROLES_USUARIO.USUARIO
-                ? '/catalogo'
-                : '/'
-            }
-            className="header-logo"
-          >
+          <Link to="/" className="header-logo">
             <span className="header-logo-mark" />
             <span className="header-logo-text">Tablón ULima</span>
           </Link>

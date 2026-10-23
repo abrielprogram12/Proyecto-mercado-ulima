@@ -436,11 +436,15 @@ export default function HiloNegociacionPage() {
               Aviso en negociación
             </span>
             <div className="striped-placeholder of-side-aviso-banner">
-              <img
-                src={portadaAviso}
-                alt={oferta.avisoTitulo}
-                className="media-img-cover"
-              />
+              {portadaAviso ? (
+                <img
+                  src={portadaAviso}
+                  alt={oferta.avisoTitulo}
+                  className="media-img-cover"
+                />
+              ) : (
+                <span>Sin fotografía</span>
+              )}
             </div>
             <strong className="of-side-aviso-title">
               {oferta.avisoTitulo}

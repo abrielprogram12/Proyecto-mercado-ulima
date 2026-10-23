@@ -23,8 +23,8 @@ export default function CatalogoPage() {
 
   const [filtros, setFiltros] = useState({
     ...FILTROS_INICIALES_CATALOGO,
-    categoria: catParam || 'Libros de texto',
-    curso: cursoParam || (qParam ? 'Todos los cursos' : 'Cálculo I')
+    categoria: catParam || '',
+    curso: cursoParam || ''
   });
 
   const [ordenarPor, setOrdenarPor] = useState('recientes');
@@ -32,12 +32,11 @@ export default function CatalogoPage() {
 
   // Sincronizar parámetros de URL si cambian desde Header o Landing
   useEffect(() => {
-    if (catParam) {
-      setFiltros((prev) => ({ ...prev, categoria: catParam, curso: 'Todos los cursos' }));
-    }
-    if (cursoParam) {
-      setFiltros((prev) => ({ ...prev, curso: cursoParam }));
-    }
+    setFiltros((prev) => ({
+      ...prev,
+      categoria: catParam || prev.categoria,
+      curso: cursoParam || (catParam ? '' : prev.curso)
+    }));
   }, [catParam, cursoParam]);
 
   // Transición suave con esqueletos (Vista 3.3) al cambiar búsqueda o filtros
@@ -45,20 +44,35 @@ export default function CatalogoPage() {
     setMostrarEsqueletos(true);
     const timer = setTimeout(() => {
       setMostrarEsqueletos(false);
-    }, 240);
+    }, 200);
     return () => clearTimeout(timer);
-  }, [qParam, filtros.categoria, filtros.curso, filtros.condicion, ordenarPor]);
+  }, [
+    qParam,
+    filtros.categoria,
+    filtros.curso,
+    filtros.condicion,
+    ordenarPor
+  ]);
 
   const handleLimpiarTodo = () => {
     setFiltros({
-      categoria: 'Todas',
-      curso: 'Todos los cursos',
-      precioMin: '',
-      precioMax: '',
-      condicion: '',
-      soloConOfertas: false
+      ...FILTROS_INICIALES_CATALOGO
     });
     setSearchParams({});
+  };
+
+  const quitarFiltro = (campo) => {
+    setFiltros((prev) => ({ ...prev, [campo]: '' }));
+    if (campo === 'categoria' && catParam) {
+      const next = new URLSearchParams(searchParams);
+      next.delete('categoria');
+      setSearchParams(next);
+    }
+    if (campo === 'curso' && cursoParam) {
+      const next = new URLSearchParams(searchParams);
+      next.delete('curso');
+      setSearchParams(next);
+    }
   };
 
   const avisosFiltrados = useMemo(() => {
@@ -70,6 +84,14 @@ export default function CatalogoPage() {
   }, [avisos]);
 
   const sinResultados = !mostrarEsqueletos && avisosFiltrados.length === 0;
+  const hayAlgunFiltroActivo = Boolean(
+    (filtros.categoria && filtros.categoria !== 'Todas') ||
+      (filtros.curso && filtros.curso !== 'Todos los cursos') ||
+      filtros.condicion ||
+      filtros.precioMin !== '' ||
+      filtros.precioMax !== '' ||
+      qParam
+  );
 
   return (
     <div className="page-container">
@@ -78,6 +100,7 @@ export default function CatalogoPage() {
         <FiltrosCatalogo
           filtros={filtros}
           onChangeFiltros={setFiltros}
+          onLimpiarTodo={handleLimpiarTodo}
           onLimpiar={handleLimpiarTodo}
         />
 
@@ -88,12 +111,16 @@ export default function CatalogoPage() {
             <div className="cat-chips-activos">
               <span className="text-aux">Filtros activos:</span>
 
+              {!hayAlgunFiltroActivo && (
+                <span className="text-aux">Todos los avisos del catálogo</span>
+              )}
+
               {filtros.categoria && filtros.categoria !== 'Todas' && (
                 <span className="chip chip-terracota">
                   {filtros.categoria}
                   <button
                     type="button"
-                    onClick={() => setFiltros({ ...filtros, categoria: 'Todas' })}
+                    onClick={() => quitarFiltro('categoria')}
                     className="cat-btn-quitar-chip"
                   >
                     ✕
@@ -106,9 +133,7 @@ export default function CatalogoPage() {
                   {filtros.curso}
                   <button
                     type="button"
-                    onClick={() =>
-                      setFiltros({ ...filtros, curso: 'Todos los cursos' })
-                    }
+                    onClick={() => quitarFiltro('curso')}
                     className="cat-btn-quitar-chip"
                   >
                     ✕
@@ -121,7 +146,26 @@ export default function CatalogoPage() {
                   {filtros.condicion}
                   <button
                     type="button"
-                    onClick={() => setFiltros({ ...filtros, condicion: '' })}
+                    onClick={() => quitarFiltro('condicion')}
+                    className="cat-btn-quitar-chip"
+                  >
+                    ✕
+                  </button>
+                </span>
+              )}
+
+              {(filtros.precioMin !== '' || filtros.precioMax !== '') && (
+                <span className="chip chip-terracota">
+                  S/ {filtros.precioMin || 0} – S/ {filtros.precioMax || '∞'}
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setFiltros((prev) => ({
+                        ...prev,
+                        precioMin: '',
+                        precioMax: ''
+                      }))
+                    }
                     className="cat-btn-quitar-chip"
                   >
                     ✕
@@ -134,7 +178,11 @@ export default function CatalogoPage() {
                   «{qParam}»
                   <button
                     type="button"
-                    onClick={() => setSearchParams({})}
+                    onClick={() => {
+                      const next = new URLSearchParams(searchParams);
+                      next.delete('q');
+                      setSearchParams(next);
+                    }}
                     className="cat-btn-quitar-chip"
                   >
                     ✕

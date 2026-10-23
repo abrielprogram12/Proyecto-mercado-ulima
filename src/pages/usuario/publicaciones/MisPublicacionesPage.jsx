@@ -161,15 +161,19 @@ export default function MisPublicacionesPage() {
               </tr>
             </thead>
             <tbody>
-              {avisosFiltrados.map((av) => (
+              {avisosFiltrados.map((av) => {
+                const portadaUrl = obtenerPortadaAviso(av);
+                return (
                 <tr key={av.id} className="pub-tr">
                   <td className="pub-td-izq">
                     <div className="striped-placeholder pub-miniatura">
-                      <img
-                        src={obtenerPortadaAviso(av)}
-                        alt={av.titulo}
-                        className="media-img-cover"
-                      />
+                      {portadaUrl && (
+                        <img
+                          src={portadaUrl}
+                          alt={av.titulo}
+                          className="media-img-cover"
+                        />
+                      )}
                     </div>
                   </td>
 
@@ -331,7 +335,8 @@ export default function MisPublicacionesPage() {
                     </div>
                   </td>
                 </tr>
-              ))}
+                );
+              })}
             </tbody>
           </table>
         </div>

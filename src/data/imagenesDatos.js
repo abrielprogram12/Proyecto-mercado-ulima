@@ -395,7 +395,99 @@ export const IMAGENES_POR_AVISO_ID = {
 };
 
 /**
- * Obtiene la imagen de respaldo según la categoría del aviso si no tiene ID en el mapa
+ * Ilustraciones vectoriales (Data URI SVG) para las 7 categorías destacadas en LandingPage (Vista 1.1)
+ */
+export const ICONOS_CATEGORIAS_DESTACADAS = {
+  'Libros de texto': svgToDataUri(`
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+      <rect x="14" y="10" width="36" height="44" rx="5" fill="#F5E3DC" stroke="#B84A27" stroke-width="2.5"/>
+      <rect x="14" y="10" width="9" height="44" rx="3" fill="#B84A27"/>
+      <path d="M 38 10 L 38 24 L 42 20 L 46 24 L 46 10 Z" fill="#D97706"/>
+      <line x1="28" y1="28" x2="43" y2="28" stroke="#B84A27" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="28" y1="35" x2="40" y2="35" stroke="#6E5D54" stroke-width="2" stroke-linecap="round"/>
+      <line x1="28" y1="42" x2="36" y2="42" stroke="#6E5D54" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+  `),
+  'Calculadoras': svgToDataUri(`
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+      <rect x="16" y="8" width="32" height="48" rx="6" fill="#FFFDF9" stroke="#2A211C" stroke-width="2.5"/>
+      <rect x="21" y="14" width="22" height="11" rx="2.5" fill="#DCE8DF" stroke="#2E7D5B" stroke-width="2"/>
+      <circle cx="24" cy="33" r="2.5" fill="#6E5D54"/>
+      <circle cx="32" cy="33" r="2.5" fill="#6E5D54"/>
+      <circle cx="40" cy="33" r="2.5" fill="#B84A27"/>
+      <circle cx="24" cy="41" r="2.5" fill="#6E5D54"/>
+      <circle cx="32" cy="41" r="2.5" fill="#6E5D54"/>
+      <circle cx="40" cy="41" r="2.5" fill="#B84A27"/>
+      <rect x="21.5" y="47" width="13" height="4" rx="2" fill="#6E5D54"/>
+      <circle cx="40" cy="49" r="2.5" fill="#2E7D5B"/>
+    </svg>
+  `),
+  'Instrumentos de dibujo': svgToDataUri(`
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+      <polygon points="12,50 50,50 12,12" fill="#F5E3DC" stroke="#B84A27" stroke-width="2.5" stroke-linejoin="round"/>
+      <polygon points="19,43 33,43 19,29" fill="#FFFDF9" stroke="#B84A27" stroke-width="2" stroke-linejoin="round"/>
+      <rect x="28" y="12" width="24" height="8" rx="2" transform="rotate(45 40 16)" fill="#DCE8DF" stroke="#2E7D5B" stroke-width="2"/>
+      <line x1="18" y1="50" x2="18" y2="46" stroke="#B84A27" stroke-width="2"/>
+      <line x1="26" y1="50" x2="26" y2="46" stroke="#B84A27" stroke-width="2"/>
+      <line x1="34" y1="50" x2="34" y2="46" stroke="#B84A27" stroke-width="2"/>
+      <line x1="42" y1="50" x2="42" y2="46" stroke="#B84A27" stroke-width="2"/>
+    </svg>
+  `),
+  'Apuntes y guías': svgToDataUri(`
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+      <rect x="16" y="10" width="34" height="44" rx="4" fill="#FFFDF9" stroke="#B84A27" stroke-width="2.5"/>
+      <line x1="13" y1="17" x2="19" y2="17" stroke="#6E5D54" stroke-width="3" stroke-linecap="round"/>
+      <line x1="13" y1="25" x2="19" y2="25" stroke="#6E5D54" stroke-width="3" stroke-linecap="round"/>
+      <line x1="13" y1="33" x2="19" y2="33" stroke="#6E5D54" stroke-width="3" stroke-linecap="round"/>
+      <line x1="13" y1="41" x2="19" y2="41" stroke="#6E5D54" stroke-width="3" stroke-linecap="round"/>
+      <line x1="13" y1="49" x2="19" y2="49" stroke="#6E5D54" stroke-width="3" stroke-linecap="round"/>
+      <rect x="23" y="16" width="20" height="8" rx="2" fill="#F5E3DC"/>
+      <line x1="23" y1="31" x2="43" y2="31" stroke="#B84A27" stroke-width="2" stroke-linecap="round"/>
+      <line x1="23" y1="38" x2="43" y2="38" stroke="#9B8B82" stroke-width="2" stroke-linecap="round"/>
+      <line x1="23" y1="45" x2="35" y2="45" stroke="#9B8B82" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+  `),
+  'Laptops y accesorios': svgToDataUri(`
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+      <rect x="14" y="14" width="36" height="24" rx="4" fill="#F5E3DC" stroke="#2A211C" stroke-width="2.5"/>
+      <rect x="18" y="18" width="28" height="16" rx="2" fill="#FFFDF9" stroke="#B84A27" stroke-width="1.5"/>
+      <path d="M 8 39 L 56 39 L 52 46 L 12 46 Z" fill="#E5DDD5" stroke="#2A211C" stroke-width="2.5" stroke-linejoin="round"/>
+      <line x1="28" y1="42.5" x2="36" y2="42.5" stroke="#B84A27" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+  `),
+  'Uniformes y mandiles': svgToDataUri(`
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+      <path d="M 22 12 L 28 12 L 32 20 L 36 12 L 42 12 L 52 24 L 46 30 L 42 24 L 42 52 L 22 52 L 22 24 L 18 30 L 12 24 Z" fill="#FFFDF9" stroke="#B84A27" stroke-width="2.5" stroke-linejoin="round"/>
+      <path d="M 28 12 L 32 24 L 36 12" fill="none" stroke="#6E5D54" stroke-width="2" stroke-linejoin="round"/>
+      <rect x="34" y="28" width="5" height="6" rx="1" fill="#F5E3DC" stroke="#B84A27" stroke-width="1.5"/>
+      <circle cx="32" cy="31" r="1.5" fill="#B84A27"/>
+      <circle cx="32" cy="38" r="1.5" fill="#B84A27"/>
+      <circle cx="32" cy="45" r="1.5" fill="#B84A27"/>
+    </svg>
+  `),
+  'Material de laboratorio': svgToDataUri(`
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+      <path d="M 26 12 L 38 12 M 29 12 L 29 24 L 16 46 C 14.5 49 16.5 52 20 52 L 44 52 C 47.5 52 49.5 49 48 46 L 35 24 L 35 12" fill="#FFFDF9" stroke="#2E7D5B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M 21 38 L 43 38 L 47 46 C 48 48 46.5 50 44 50 L 20 50 C 17.5 50 16 48 17 46 Z" fill="#DCE8DF"/>
+      <circle cx="28" cy="44" r="2" fill="#2E7D5B"/>
+      <circle cx="35" cy="41" r="1.5" fill="#2E7D5B"/>
+      <circle cx="33" cy="32" r="1.5" fill="#B84A27"/>
+    </svg>
+  `)
+};
+
+/**
+ * Obtiene el icono SVG para una categoría destacada
+ */
+export function obtenerIconoCategoria(categoria) {
+  return (
+    ICONOS_CATEGORIAS_DESTACADAS[categoria] ||
+    ICONOS_CATEGORIAS_DESTACADAS['Libros de texto']
+  );
+}
+
+/**
+ * Obtiene la imagen de respaldo según la categoría del aviso si se requiere explícitamente
  */
 export function obtenerImagenPorCategoria(categoria = 'Libros de texto', titulo = 'Material académico') {
   const cat = (categoria || '').toLowerCase();
@@ -424,54 +516,53 @@ export function obtenerImagenPorCategoria(categoria = 'Libros de texto', titulo 
 }
 
 /**
- * Devuelve la URL de la portada de un aviso (prioriza la foto subida por el usuario,
- * luego la ilustración del aviso semilla, y finalmente una ilustración acorde a su categoría).
+ * Devuelve la URL de la portada de un aviso:
+ * 1) Si el usuario subió una foto con `url` válida, devuelve esa URL.
+ * 2) Si es uno de los avisos semilla (`av-101`..`av-117`) y conserva fotos, devuelve su ilustración semilla.
+ * 3) Si el aviso NO tiene ninguna imagen cargada, devuelve `null` para que se muestre el recuadro `.striped-placeholder` vacío fiel al mockup.
  */
 export function obtenerPortadaAviso(aviso) {
-  if (!aviso) return obtenerImagenPorCategoria('Libros de texto', 'Aviso');
-  const fotos = Array.isArray(aviso.fotos) ? aviso.fotos : [];
-  const fotoPrincipal = fotos.find((f) => f?.principal && f?.url) || fotos.find((f) => f?.url);
-  if (fotoPrincipal?.url) {
-    return fotoPrincipal.url;
+  if (!aviso) return null;
+  const fotos = Array.isArray(aviso.fotos) ? aviso.fotos : null;
+
+  if (fotos) {
+    const fotoPrincipal =
+      fotos.find((f) => f?.principal && f?.url) || fotos.find((f) => f?.url);
+    if (fotoPrincipal?.url) {
+      return fotoPrincipal.url;
+    }
+    // Si el usuario dejó el arreglo de fotos vacío a propósito, no hay imagen
+    if (fotos.length === 0) {
+      return null;
+    }
   }
+
   const listaId = IMAGENES_POR_AVISO_ID[aviso.id];
   if (listaId && listaId.length > 0) {
     return listaId[0];
   }
-  return obtenerImagenPorCategoria(aviso.categoria, aviso.titulo);
+
+  return null;
 }
 
 /**
- * Devuelve el arreglo de fotos de un aviso enriquecido con `url` para la galería.
+ * Devuelve el arreglo de fotos de un aviso para la galería:
+ * - Respeta las fotos subidas por el usuario (`foto.url`).
+ * - Para los avisos semilla (`av-101`..`av-117`), asigna la ilustración semilla correspondiente a su índice `listaId[idx]` si existe.
+ * - Si una casilla secundaria no tiene imagen subida ni ilustración para ese índice, deja `url: null` para que el recuadro muestre el placeholder limpio del mockup.
  */
 export function obtenerFotosEnriquecidasAviso(aviso) {
   if (!aviso) return [];
   const fotosOriginales = Array.isArray(aviso.fotos) ? aviso.fotos : [];
   const listaId = IMAGENES_POR_AVISO_ID[aviso.id] || [];
-  const fallbackCat = obtenerImagenPorCategoria(aviso.categoria, aviso.titulo);
 
   if (fotosOriginales.length === 0) {
-    if (listaId.length > 0) {
-      return listaId.map((url, idx) => ({
-        id: `f-auto-${idx}`,
-        etiqueta: idx === 0 ? 'fotografía principal' : `vista ${idx + 1}`,
-        url,
-        principal: idx === 0
-      }));
-    }
-    return [
-      {
-        id: 'f-auto-0',
-        etiqueta: 'fotografía principal',
-        url: fallbackCat,
-        principal: true
-      }
-    ];
+    return [];
   }
 
   return fotosOriginales.map((foto, idx) => ({
     ...foto,
-    url: foto.url || listaId[idx] || listaId[0] || fallbackCat
+    url: foto.url || listaId[idx] || null
   }));
 }
 

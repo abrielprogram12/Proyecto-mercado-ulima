@@ -1,3 +1,5 @@
+import { useMemo } from 'react';
+import { useAviso } from '../../context/AvisoContext';
 import {
   CATEGORIAS,
   CURSOS_ASOCIADOS,
@@ -5,21 +7,14 @@ import {
 } from '../../data/contratoDatos';
 import './FiltrosCatalogo.css';
 
-const CONTEO_CATEGORIAS_MOCK = {
-  'Libros de texto': 48,
-  Calculadoras: 22,
-  'Instrumentos de dibujo': 17,
-  'Apuntes y guías': 31,
-  'Laptops y accesorios': 9,
-  'Uniformes y mandiles': 14,
-  'Material de laboratorio': 6
-};
-
 export default function FiltrosCatalogo({
   filtros,
   onChangeFiltros,
-  onLimpiarTodo
+  onLimpiarTodo,
+  onLimpiar
 }) {
+  const { avisos } = useAviso();
+
   const {
     categoria = '',
     curso = '',
@@ -27,6 +22,52 @@ export default function FiltrosCatalogo({
     precioMax = '',
     condicion = ''
   } = filtros || {};
+
+  // Avisos visibles en catálogo (Publicado o Vendido)
+  const avisosVisibles = useMemo(() => {
+    return (avisos || []).filter(
+      (a) => !a.estado || a.estado === 'Publicado' || a.estado === 'Vendido'
+    );
+  }, [avisos]);
+
+  // Conteo real por categoría basado en los avisos guardados
+  const conteoPorCategoria = useMemo(() => {
+    const mapa = {};
+    CATEGORIAS.forEach((c) => {
+      mapa[c] = 0;
+    });
+    avisosVisibles.forEach((a) => {
+      if (a.categoria) {
+        mapa[a.categoria] = (mapa[a.categoria] || 0) + 1;
+      }
+    });
+    return mapa;
+  }, [avisosVisibles]);
+
+  // Conteo real por estado/condición del artículo
+  const conteoPorCondicion = useMemo(() => {
+    const mapa = {};
+    CONDICIONES_PRODUCTO.forEach((c) => {
+      mapa[c] = 0;
+    });
+    avisosVisibles.forEach((a) => {
+      if (a.condicion) {
+        mapa[a.condicion] = (mapa[a.condicion] || 0) + 1;
+      }
+    });
+    return mapa;
+  }, [avisosVisibles]);
+
+  // Cursos dinámicos (combina CURSOS_ASOCIADOS con cualquier curso guardado en los avisos reales)
+  const cursosDisponibles = useMemo(() => {
+    const conjunto = new Set(CURSOS_ASOCIADOS);
+    avisosVisibles.forEach((a) => {
+      if (a.curso && a.curso.trim()) {
+        conjunto.add(a.curso.trim());
+      }
+    });
+    return Array.from(conjunto);
+  }, [avisosVisibles]);
 
   const actualizar = (campo, valor) => {
     if (!onChangeFiltros) return;
@@ -36,6 +77,16 @@ export default function FiltrosCatalogo({
     });
   };
 
+  const handleLimpiar = () => {
+    if (onLimpiarTodo) onLimpiarTodo();
+    else if (onLimpiar) onLimpiar();
+  };
+
+  const categoriaNormalizada =
+    categoria === 'Todas' ? '' : categoria;
+  const cursoNormalizado =
+    curso === 'Todos los cursos' ? '' : curso;
+
   return (
     <aside className="filtros-catalogo card-surface">
       <div className="filtros-header">
@@ -43,7 +94,7 @@ export default function FiltrosCatalogo({
         <button
           type="button"
           className="filtros-limpiar-btn"
-          onClick={onLimpiarTodo}
+          onClick={handleLimpiar}
         >
           Limpiar
         </button>
@@ -54,7 +105,7 @@ export default function FiltrosCatalogo({
         <span className="label-upper">Categoría</span>
         <div className="filtro-lista-checks">
           {CATEGORIAS.map((cat) => {
-            const activo = categoria === cat;
+            const activo = categoriaNormalizada === cat;
             return (
               <label key={cat} className="filtro-check-item">
                 <span className="filtro-check-left">
@@ -66,7 +117,7 @@ export default function FiltrosCatalogo({
                   <span>{cat}</span>
                 </span>
                 <span className="filtro-check-count">
-                  {CONTEO_CATEGORIAS_MOCK[cat] || 5}
+                  {conteoPorCategoria[cat] ?? 0}
                 </span>
               </label>
             );
@@ -82,11 +133,11 @@ export default function FiltrosCatalogo({
         <select
           id="filtro-curso-select"
           className="form-select"
-          value={curso}
+          value={cursoNormalizado}
           onChange={(e) => actualizar('curso', e.target.value)}
         >
           <option value="">Todos los cursos</option>
-          {CURSOS_ASOCIADOS.map((c) => (
+          {cursosDisponibles.map((c) => (
             <option key={c} value={c}>
               {c}
             </option>
@@ -132,6 +183,9 @@ export default function FiltrosCatalogo({
                     onChange={() => actualizar('condicion', activo ? '' : cond)}
                   />
                   <span>{cond}</span>
+                </span>
+                <span className="filtro-check-count">
+                  {conteoPorCondicion[cond] ?? 0}
                 </span>
               </label>
             );

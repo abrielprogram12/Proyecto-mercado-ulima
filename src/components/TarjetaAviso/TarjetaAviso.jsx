@@ -43,14 +43,22 @@ export default function TarjetaAviso({
     <div className={`tarjeta-aviso card-surface ${vendido ? 'es-vendido' : ''}`}>
       <Link to={rutaDetalle} className="tarjeta-aviso-media">
         <div className="tarjeta-aviso-imagen striped-placeholder">
-          <img
-            src={portadaUrl}
-            alt={aviso.titulo}
-            className="media-img-cover"
-          />
+          {portadaUrl ? (
+            <img
+              src={portadaUrl}
+              alt={aviso.titulo}
+              className="media-img-cover"
+            />
+          ) : (
+            <span>Sin fotografía</span>
+          )}
         </div>
 
-        {vendido && <span className="tarjeta-vendido-ribbon">VENDIDO</span>}
+        {vendido && (
+          <div className="tarjeta-vendido-overlay">
+            <span className="tarjeta-vendido-ribbon">VENDIDO</span>
+          </div>
+        )}
 
         {mostrarCorazon && (
           <button

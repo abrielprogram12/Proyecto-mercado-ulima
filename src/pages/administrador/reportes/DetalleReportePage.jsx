@@ -224,11 +224,13 @@ export default function DetalleReportePage() {
             <div className="adm-reported-item-row">
               <div className="adm-reported-item-left">
                 <div className="striped-placeholder adm-reported-thumb">
-                  <img
-                    src={portadaUrl}
-                    alt={reporte.elementoTitulo}
-                    className="media-img-cover"
-                  />
+                  {portadaUrl && (
+                    <img
+                      src={portadaUrl}
+                      alt={reporte.elementoTitulo}
+                      className="media-img-cover"
+                    />
+                  )}
                 </div>
                 <div>
                   <div className="adm-reported-item-title">

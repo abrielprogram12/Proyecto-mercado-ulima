@@ -238,7 +238,7 @@ export default function LoginPage() {
             </Link>
           </p>
 
-          {/* Cuentas de demostración para cambiar rápidamente entre Vendedor, Comprador y Admin */}
+          {/* Cuentas institucionales registradas (Roles del sistema: Usuario y Admin) */}
           <div className="vis-demo-seccion">
             <span className="label-upper">
               Cuentas institucionales registradas (Contraseña: Password123)
@@ -251,7 +251,7 @@ export default function LoginPage() {
                   seleccionarCuentaRapida('20201234@aloe.ulima.edu.pe')
                 }
               >
-                Rosa Quispe (Vendedora)
+                Rosa Quispe (Usuario)
               </button>
               <button
                 type="button"
@@ -260,7 +260,7 @@ export default function LoginPage() {
                   seleccionarCuentaRapida('20204455@aloe.ulima.edu.pe')
                 }
               >
-                Diego Vargas (Comprador)
+                Diego Vargas (Usuario)
               </button>
               <button
                 type="button"
@@ -269,7 +269,7 @@ export default function LoginPage() {
                   seleccionarCuentaRapida('20208899@aloe.ulima.edu.pe')
                 }
               >
-                Lucía Ramírez (Compradora)
+                Lucía Ramírez (Usuario)
               </button>
               <button
                 type="button"

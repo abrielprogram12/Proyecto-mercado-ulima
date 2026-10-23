@@ -49,11 +49,13 @@ export default function AcuerdoGeneradoPage() {
 
           <div className="acu-resumen-aviso">
             <div className="acu-miniatura striped-placeholder" aria-hidden="true">
-              <img
-                src={portada}
-                alt={acuerdo.avisoTitulo}
-                className="media-img-cover"
-              />
+              {portada && (
+                <img
+                  src={portada}
+                  alt={acuerdo.avisoTitulo}
+                  className="media-img-cover"
+                />
+              )}
             </div>
             <div className="acu-resumen-texto">
               <h2 className="subtitle">{acuerdo.avisoTitulo}</h2>

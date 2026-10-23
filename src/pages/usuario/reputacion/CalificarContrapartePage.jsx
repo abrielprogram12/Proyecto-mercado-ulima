@@ -153,11 +153,13 @@ export default function CalificarContrapartePage() {
           {/* Resumen del acuerdo entregado */}
           <div className="card-surface rep-acuerdo-summary">
             <div className="striped-placeholder rep-acuerdo-thumb">
-              <img
-                src={portadaUrl}
-                alt={acuerdo?.avisoTitulo || 'Aviso'}
-                className="media-img-cover"
-              />
+              {portadaUrl && (
+                <img
+                  src={portadaUrl}
+                  alt={acuerdo?.avisoTitulo || 'Aviso'}
+                  className="media-img-cover"
+                />
+              )}
             </div>
             <div>
               <strong className="rep-acuerdo-title">

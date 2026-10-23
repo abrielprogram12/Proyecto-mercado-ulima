@@ -5,14 +5,21 @@ export default function GaleriaFotos({ fotos = [], vendido = false }) {
   const listaFotos =
     Array.isArray(fotos) && fotos.length > 0
       ? fotos
-      : [{ id: 'f-default', etiqueta: 'fotografía principal · portada del libro', principal: true }];
+      : [
+          {
+            id: 'f-default',
+            etiqueta: 'Sin fotografía disponible',
+            url: null,
+            principal: true
+          }
+        ];
 
   const [indiceActivo, setIndiceActivo] = useState(0);
   const fotoActiva = listaFotos[indiceActivo] || listaFotos[0];
 
   return (
     <div className="galeria-fotos">
-      <div className="galeria-principal striped-placeholder">
+      <div className="galeria-visor-principal striped-placeholder">
         {fotoActiva.url ? (
           <img
             src={fotoActiva.url}
@@ -20,11 +27,15 @@ export default function GaleriaFotos({ fotos = [], vendido = false }) {
             className="media-img-cover"
           />
         ) : (
-          <span className="galeria-etiqueta-central">
-            {fotoActiva.etiqueta || 'fotografía principal'}
+          <span className="galeria-visor-etiqueta">
+            {fotoActiva.etiqueta || 'Sin fotografía disponible'}
           </span>
         )}
-        {vendido && <span className="galeria-vendido-badge">VENDIDO</span>}
+        {vendido && (
+          <div className="galeria-vendido-badge">
+            <span className="galeria-vendido-pill">VENDIDO</span>
+          </div>
+        )}
       </div>
 
       <div className="galeria-miniaturas">
@@ -36,7 +47,7 @@ export default function GaleriaFotos({ fotos = [], vendido = false }) {
             return (
               <div
                 key={`vacio-${idx}`}
-                className="galeria-thumb galeria-thumb-vacio"
+                className="galeria-miniatura galeria-miniatura-vacia"
               >
                 vacío
               </div>
@@ -47,7 +58,9 @@ export default function GaleriaFotos({ fotos = [], vendido = false }) {
             <button
               key={foto.id || idx}
               type="button"
-              className={`galeria-thumb striped-placeholder ${activa ? 'activa' : ''}`}
+              className={`galeria-miniatura striped-placeholder ${
+                activa ? 'activa' : ''
+              }`}
               onClick={() => setIndiceActivo(idx)}
             >
               {foto.url ? (
@@ -57,7 +70,9 @@ export default function GaleriaFotos({ fotos = [], vendido = false }) {
                   className="media-img-cover"
                 />
               ) : (
-                <span>{idx + 1}</span>
+                <span className="galeria-miniatura-etiqueta">
+                  {idx + 1} · {foto.etiqueta || 'sin foto'}
+                </span>
               )}
             </button>
           );

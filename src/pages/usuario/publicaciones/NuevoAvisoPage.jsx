@@ -9,8 +9,7 @@ import {
 } from '../../../data/contratoDatos';
 import {
   leerArchivoImagen,
-  obtenerFotosEnriquecidasAviso,
-  obtenerImagenPorCategoria
+  obtenerFotosEnriquecidasAviso
 } from '../../../data/imagenesDatos';
 import Notificacion from '../../../components/Notificacion/Notificacion';
 import {
@@ -39,7 +38,7 @@ export default function NuevoAvisoPage() {
     montoMinimo: '70.00',
     fotos: FOTOS_INICIALES_FORMULARIO.map((f) => ({
       ...f,
-      url: obtenerImagenPorCategoria('Libros de texto', 'Cálculo Stewart')
+      url: null
     }))
   });
 
@@ -113,7 +112,11 @@ export default function NuevoAvisoPage() {
     }
 
     if (nuevas.length > 0) {
-      const combinadas = [...formData.fotos, ...nuevas].map((f, idx) => ({
+      // Si solo había casillas de ejemplo sin imagen subida, las reemplazamos por las fotos reales subidas
+      const fotosConImagenReal = formData.fotos.filter((f) => Boolean(f.url));
+      const base =
+        fotosConImagenReal.length > 0 ? formData.fotos : [];
+      const combinadas = [...base, ...nuevas].slice(0, 6).map((f, idx) => ({
         ...f,
         principal: idx === 0
       }));
@@ -387,12 +390,6 @@ export default function NuevoAvisoPage() {
                 {Array.from({ length: 6 }).map((_, idx) => {
                   const foto = formData.fotos[idx];
                   if (foto) {
-                    const imgSrc =
-                      foto.url ||
-                      obtenerImagenPorCategoria(
-                        formData.categoria,
-                        formData.titulo
-                      );
                     return (
                       <div
                         key={foto.id}
@@ -400,11 +397,13 @@ export default function NuevoAvisoPage() {
                           idx === 0 ? 'pub-slot-card--principal' : ''
                         }`}
                       >
-                        <img
-                          src={imgSrc}
-                          alt={foto.etiqueta}
-                          className="pub-slot-img"
-                        />
+                        {foto.url && (
+                          <img
+                            src={foto.url}
+                            alt={foto.etiqueta}
+                            className="pub-slot-img"
+                          />
+                        )}
                         {idx === 0 ? (
                           <span className="pub-slot-badge">PORTADA</span>
                         ) : (

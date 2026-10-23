@@ -3,7 +3,11 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAviso } from '../../context/AvisoContext';
 import { useAuth } from '../../context/AuthContext';
 import { CATEGORIAS, formatearPrecio, ROLES_USUARIO } from '../../data/contratoDatos';
-import { ILUSTRACION_HERO_CAMPUS, obtenerPortadaAviso } from '../../data/imagenesDatos';
+import {
+  ILUSTRACION_HERO_CAMPUS,
+  obtenerIconoCategoria,
+  obtenerPortadaAviso
+} from '../../data/imagenesDatos';
 import { PASOS_COMO_FUNCIONA } from './visitanteUtils';
 import './visitante.css';
 
@@ -92,7 +96,13 @@ export default function LandingPage() {
                 to={`/catalogo?categoria=${encodeURIComponent(cat)}`}
                 className="card-surface vis-categoria-card"
               >
-                <div className="vis-categoria-icono" />
+                <div className="vis-categoria-icono">
+                  <img
+                    src={obtenerIconoCategoria(cat)}
+                    alt={cat}
+                    className="vis-categoria-icono-img"
+                  />
+                </div>
                 {cat}
               </Link>
             ))}
@@ -114,6 +124,7 @@ export default function LandingPage() {
                 rolActual === ROLES_USUARIO.VISITANTE
                   ? `/aviso-publico/${aviso.id}`
                   : `/aviso/${aviso.id}`;
+              const portadaUrl = obtenerPortadaAviso(aviso);
               return (
                 <Link
                   key={aviso.id}
@@ -121,11 +132,15 @@ export default function LandingPage() {
                   className="card-surface vis-reciente-card"
                 >
                   <div className="striped-placeholder vis-reciente-miniatura">
-                    <img
-                      src={obtenerPortadaAviso(aviso)}
-                      alt={aviso.titulo}
-                      className="media-img-cover"
-                    />
+                    {portadaUrl ? (
+                      <img
+                        src={portadaUrl}
+                        alt={aviso.titulo}
+                        className="media-img-cover"
+                      />
+                    ) : (
+                      <span>Sin fotografía</span>
+                    )}
                   </div>
                   <div className="vis-reciente-info">
                     <h4 className="vis-reciente-titulo">{aviso.titulo}</h4>

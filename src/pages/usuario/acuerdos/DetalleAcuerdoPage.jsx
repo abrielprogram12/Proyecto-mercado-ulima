@@ -169,11 +169,13 @@ export default function DetalleAcuerdoPage() {
           <section className="acu-tarjeta card-surface">
             <div className="acu-aviso-card">
               <div className="acu-miniatura striped-placeholder" aria-hidden="true">
-                <img
-                  src={portada}
-                  alt={acuerdo.avisoTitulo}
-                  className="media-img-cover"
-                />
+                {portada && (
+                  <img
+                    src={portada}
+                    alt={acuerdo.avisoTitulo}
+                    className="media-img-cover"
+                  />
+                )}
               </div>
               <div className="acu-resumen-texto">
                 <h2 className="title-section">{acuerdo.avisoTitulo}</h2>

@@ -207,11 +207,13 @@ export default function MisAcuerdosPage() {
               return (
                 <li key={acuerdo.id} className={`acu-fila card-surface ${cerrado ? 'acu-fila-cerrada' : ''}`}>
                   <div className="acu-fila-miniatura striped-placeholder" aria-hidden="true">
-                    <img
-                      src={portada}
-                      alt={acuerdo.avisoTitulo}
-                      className="media-img-cover"
-                    />
+                    {portada && (
+                      <img
+                        src={portada}
+                        alt={acuerdo.avisoTitulo}
+                        className="media-img-cover"
+                      />
+                    )}
                   </div>
                   <div className="acu-fila-info">
                     <Link to={`/acuerdos/${acuerdo.id}`} className="acu-fila-titulo">

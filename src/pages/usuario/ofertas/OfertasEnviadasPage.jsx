@@ -127,11 +127,13 @@ export default function OfertasEnviadasPage() {
               >
                 <div className="of-sent-left">
                   <div className="striped-placeholder of-sent-thumb">
-                    <img
-                      src={portada}
-                      alt={of.avisoTitulo}
-                      className="media-img-cover"
-                    />
+                    {portada && (
+                      <img
+                        src={portada}
+                        alt={of.avisoTitulo}
+                        className="media-img-cover"
+                      />
+                    )}
                   </div>
                   <div>
                     <Link
