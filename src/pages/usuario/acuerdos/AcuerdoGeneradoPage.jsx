@@ -1,7 +1,9 @@
 import { Link, useParams } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
+import { useAviso } from '../../../context/AvisoContext';
 import { useAcuerdo } from '../../../context/AcuerdoContext';
 import { formatearPrecio } from '../../../data/contratoDatos';
+import { obtenerPortadaAviso } from '../../../data/imagenesDatos';
 import AcuerdoNoDisponible from './AcuerdoNoDisponible';
 import { datosContraparte, textoReputacion } from './acuerdosUtils';
 import './acuerdos.css';
@@ -13,6 +15,7 @@ import './acuerdos.css';
 export default function AcuerdoGeneradoPage() {
   const { id } = useParams();
   const { usuarioActual, obtenerUsuarioPorId } = useAuth();
+  const { obtenerAvisoPorId } = useAviso();
   const { obtenerAcuerdoPorId, rolEnAcuerdo } = useAcuerdo();
 
   const acuerdo = obtenerAcuerdoPorId(id);
@@ -21,6 +24,11 @@ export default function AcuerdoGeneradoPage() {
 
   const contraparte = datosContraparte(acuerdo, rol, obtenerUsuarioPorId);
   const otras = acuerdo.otrasOfertasRechazadas;
+  const avisoObj = obtenerAvisoPorId(acuerdo.avisoId) || {
+    id: acuerdo.avisoId,
+    titulo: acuerdo.avisoTitulo
+  };
+  const portada = obtenerPortadaAviso(avisoObj);
 
   return (
     <div className="page-container">
@@ -40,7 +48,13 @@ export default function AcuerdoGeneradoPage() {
           </p>
 
           <div className="acu-resumen-aviso">
-            <div className="acu-miniatura striped-placeholder" aria-hidden="true" />
+            <div className="acu-miniatura striped-placeholder" aria-hidden="true">
+              <img
+                src={portada}
+                alt={acuerdo.avisoTitulo}
+                className="media-img-cover"
+              />
+            </div>
             <div className="acu-resumen-texto">
               <h2 className="subtitle">{acuerdo.avisoTitulo}</h2>
               <p className="text-aux">{acuerdo.avisoSubtitulo}</p>

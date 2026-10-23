@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
+import { useAviso } from '../../../context/AvisoContext';
 import { useAcuerdo } from '../../../context/AcuerdoContext';
 import { ESTADOS_ACUERDO, formatearPrecio } from '../../../data/contratoDatos';
+import { obtenerPortadaAviso } from '../../../data/imagenesDatos';
 import BadgeEstado from '../../../components/BadgeEstado/BadgeEstado';
 import EstadoVacio from '../../../components/EstadoVacio/EstadoVacio';
 import Notificacion from '../../../components/Notificacion/Notificacion';
@@ -64,6 +66,7 @@ function accionPrincipal(acuerdo, estado, rol) {
 
 export default function MisAcuerdosPage() {
   const { usuarioActual, obtenerUsuarioPorId } = useAuth();
+  const { obtenerAvisoPorId } = useAviso();
   const { obtenerAcuerdosDeUsuario, rolEnAcuerdo, estadoParaUsuario, confirmarEntrega } = useAcuerdo();
   const navigate = useNavigate();
   const location = useLocation();
@@ -113,10 +116,10 @@ export default function MisAcuerdosPage() {
     return (
       <div className="page-container">
         {avisoNotificacion}
-        <h1 className="title-screen" style={{ marginBottom: '8px' }}>
+        <h1 className="title-screen">
           Mis acuerdos
         </h1>
-        <p className="text-aux" style={{ marginBottom: '24px' }}>
+        <p className="text-aux">
           Ningún acuerdo todavía
         </p>
         <EstadoVacio
@@ -195,10 +198,21 @@ export default function MisAcuerdosPage() {
               const contraparte = datosContraparte(acuerdo, rol, obtenerUsuarioPorId);
               const cerrado = !esEnCurso(acuerdo.estado);
               const accion = accionPrincipal(acuerdo, estado, rol);
+              const avisoObj = obtenerAvisoPorId(acuerdo.avisoId) || {
+                id: acuerdo.avisoId,
+                titulo: acuerdo.avisoTitulo
+              };
+              const portada = obtenerPortadaAviso(avisoObj);
 
               return (
                 <li key={acuerdo.id} className={`acu-fila card-surface ${cerrado ? 'acu-fila-cerrada' : ''}`}>
-                  <div className="acu-fila-miniatura striped-placeholder" aria-hidden="true" />
+                  <div className="acu-fila-miniatura striped-placeholder" aria-hidden="true">
+                    <img
+                      src={portada}
+                      alt={acuerdo.avisoTitulo}
+                      className="media-img-cover"
+                    />
+                  </div>
                   <div className="acu-fila-info">
                     <Link to={`/acuerdos/${acuerdo.id}`} className="acu-fila-titulo">
                       {acuerdo.avisoTitulo}

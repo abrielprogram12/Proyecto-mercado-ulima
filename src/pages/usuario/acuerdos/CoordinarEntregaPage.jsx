@@ -118,14 +118,14 @@ export default function CoordinarEntregaPage() {
             <section className="acu-tarjeta card-surface">
               <span className="label-upper">Propuesta de la contraparte</span>
               {detallePropuesta}
-              <p className="text-aux" style={{ marginBottom: '14px' }}>
+              <p className="text-aux">
                 {contraparte.nombre} · {contraparte.rolTexto} · {contraparte.carrera}{' '}
                 {textoReputacion(contraparte.reputacion) && `· ${textoReputacion(contraparte.reputacion)}`}
               </p>
               <button type="button" className="btn btn-primary" onClick={aceptar}>
                 Aceptar esta propuesta
               </button>
-              <p className="text-aux" style={{ marginTop: '8px' }}>
+              <p className="text-aux">
                 Al aceptar se genera el código de entrega para ambos.
               </p>
             </section>
@@ -135,7 +135,7 @@ export default function CoordinarEntregaPage() {
             <section className="acu-tarjeta card-surface">
               <span className="label-upper">Tu propuesta</span>
               {detallePropuesta}
-              <div className="notificacion-banner notif-info" style={{ marginBottom: 0 }}>
+              <div className="notificacion-banner notif-info">
                 <span>
                   <strong>Esperando respuesta.</strong> Si {primerNombre(contraparte.nombre)} no responde en 48
                   horas, el acuerdo se marca como pendiente y cualquiera de las partes puede cancelarlo sin penalidad.
@@ -146,7 +146,7 @@ export default function CoordinarEntregaPage() {
 
           {!propuestaPropia && (
             <form className="acu-tarjeta acu-formulario card-surface" onSubmit={enviar} noValidate>
-              <h2 className="title-section" style={{ marginBottom: '16px' }}>
+              <h2 className="title-section">
                 {propuestaRecibida ? 'Proponer una alternativa' : 'Proponer punto y horario'}
               </h2>
 
@@ -232,7 +232,7 @@ export default function CoordinarEntregaPage() {
           <section className="acu-tarjeta card-surface">
             <span className="label-upper">Acuerdo {acuerdo.id}</span>
             <h2 className="subtitle">{acuerdo.avisoTitulo}</h2>
-            <p className="price-text" style={{ fontSize: '20px' }}>
+            <p className="price-text acu-fila-monto">
               {formatearPrecio(acuerdo.montoAcordado)} <span className="text-aux">monto acordado</span>
             </p>
           </section>

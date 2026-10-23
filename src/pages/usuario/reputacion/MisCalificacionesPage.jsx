@@ -1,7 +1,10 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
+import { useAviso } from '../../../context/AvisoContext';
+import { useAcuerdo } from '../../../context/AcuerdoContext';
 import { useCalificacion } from '../../../context/CalificacionContext';
+import { obtenerPortadaAviso } from '../../../data/imagenesDatos';
 import Estrellas from '../../../components/Estrellas/Estrellas';
 import BadgeEstado from '../../../components/BadgeEstado/BadgeEstado';
 import EstadoVacio from '../../../components/EstadoVacio/EstadoVacio';
@@ -11,6 +14,8 @@ import './reputacion.css';
 
 export default function MisCalificacionesPage() {
   const { usuarioActual } = useAuth();
+  const { avisos } = useAviso();
+  const { obtenerAcuerdosDeUsuario } = useAcuerdo();
   const {
     calificaciones,
     editarCalificacion,
@@ -34,6 +39,26 @@ export default function MisCalificacionesPage() {
   const recibidas = useMemo(() => {
     return calificaciones.filter((c) => c.receptorId === usuarioId);
   }, [calificaciones, usuarioId]);
+
+  const acuerdosPendientesDeCalificar = useMemo(() => {
+    const misAcuerdos = obtenerAcuerdosDeUsuario(usuarioId);
+    return misAcuerdos.filter(
+      (a) =>
+        a.estado === 'Entregado' &&
+        !emitidas.some((c) => c.acuerdoId === a.id)
+    );
+  }, [obtenerAcuerdosDeUsuario, usuarioId, emitidas]);
+
+  const obtenerMiniatura = (avisoId, avisoTitulo) => {
+    const encontrado =
+      avisos.find((a) => a.id === avisoId) ||
+      avisos.find((a) =>
+        (a.titulo || '').toLowerCase().includes((avisoTitulo || '').toLowerCase().slice(0, 15))
+      );
+    return obtenerPortadaAviso(
+      encontrado || { id: avisoId || 'av-103', titulo: avisoTitulo }
+    );
+  };
 
   const iniciarEdicion = (cal) => {
     setEditandoId(cal.id);
@@ -117,128 +142,199 @@ export default function MisCalificacionesPage() {
         {/* Columna izquierda: Listado según pestaña */}
         <div className="rep-my-list">
           {pestanaActiva === 'Emitidas' ? (
-            <>
-              {emitidas.map((cal) => (
-                <div key={cal.id} className="card-surface rep-my-card">
-                  <div className="rep-my-card-header">
+            emitidas.length === 0 && acuerdosPendientesDeCalificar.length === 0 && usuarioId !== 'u-1' ? (
+              <EstadoVacio
+                icono="★"
+                titulo="Todavía no has calificado a nadie"
+                descripcion="Cuando confirmes una entrega en el campus podrás calificar a la otra parte."
+                textoBoton="Ver mis acuerdos"
+                rutaBoton="/acuerdos"
+              />
+            ) : (
+              <>
+                {emitidas.map((cal) => {
+                  const thumb = obtenerMiniatura(cal.avisoId, cal.avisoTitulo);
+                  return (
+                    <div key={cal.id} className="card-surface rep-my-card">
+                      <div className="rep-my-card-header">
+                        <div className="rep-my-card-left">
+                          <div className="striped-placeholder rep-my-thumb">
+                            <img
+                              src={thumb}
+                              alt={cal.avisoTitulo}
+                              className="media-img-cover"
+                            />
+                          </div>
+                          <div>
+                            <strong className="rep-my-aviso-title">
+                              {cal.avisoTitulo}
+                            </strong>
+                            <span className="text-aux">
+                              {cal.acuerdoId} · a {cal.receptorNombre} · {cal.fecha}
+                            </span>
+                          </div>
+                        </div>
+
+                        <Estrellas valor={cal.puntaje} tamano="sm" />
+                      </div>
+
+                      {editandoId === cal.id ? (
+                        <div className="rep-edit-box">
+                          <div className="rep-edit-stars">
+                            <Estrellas
+                              valor={puntajeEdicion}
+                              interactivo
+                              onChange={setPuntajeEdicion}
+                            />
+                          </div>
+                          <textarea
+                            rows={2}
+                            className="form-textarea rep-edit-textarea"
+                            value={textoEdicion}
+                            onChange={(e) => setTextoEdicion(e.target.value)}
+                          />
+                          <div className="rep-edit-actions">
+                            <button
+                              type="button"
+                              className="btn btn-primary btn-sm"
+                              onClick={() => guardarEdicion(cal.id)}
+                            >
+                              Guardar cambios
+                            </button>
+                            <button
+                              type="button"
+                              className="btn btn-tertiary btn-sm"
+                              onClick={() => setEditandoId(null)}
+                            >
+                              Cancelar
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <>
+                          <p className="rep-my-comment">{cal.comentario}</p>
+
+                          <div className="rep-my-footer">
+                            {cal.dentroDePlazo ? (
+                              <>
+                                <BadgeEstado
+                                  estado={`Editable hasta el ${
+                                    cal.editableHasta || '08/09/2026'
+                                  }`}
+                                  variante="warning"
+                                />
+                                <div className="rep-my-footer-actions">
+                                  <button
+                                    type="button"
+                                    className="btn btn-tertiary btn-sm"
+                                    onClick={() => iniciarEdicion(cal)}
+                                  >
+                                    Editar
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="btn btn-tertiary btn-sm rep-btn-danger-text"
+                                    onClick={() => setConfirmarEliminarId(cal.id)}
+                                  >
+                                    Eliminar
+                                  </button>
+                                </div>
+                              </>
+                            ) : (
+                              <BadgeEstado
+                                estado="Plazo de edición vencido"
+                                variante="neutral"
+                              />
+                            )}
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  );
+                })}
+
+                {acuerdosPendientesDeCalificar.map((ac) => {
+                  const contraparte =
+                    ac.vendedorId === usuarioId
+                      ? ac.compradorNombre
+                      : ac.vendedorNombre;
+                  const thumb = obtenerMiniatura(ac.avisoId, ac.avisoTitulo);
+                  return (
+                    <div key={ac.id} className="card-surface rep-pending-card">
+                      <div className="rep-my-card-left">
+                        <div className="striped-placeholder rep-my-thumb">
+                          <img
+                            src={thumb}
+                            alt={ac.avisoTitulo}
+                            className="media-img-cover"
+                          />
+                        </div>
+                        <div>
+                          <strong className="rep-my-aviso-title">
+                            {ac.avisoTitulo}
+                          </strong>
+                          <span className="text-aux">
+                            {ac.id} · a {contraparte} · entregado el{' '}
+                            {ac.fechaEncuentro || '26/08/2026'}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="rep-pending-right">
+                        <BadgeEstado
+                          estado="Pendiente de calificar"
+                          variante="info"
+                        />
+                        <button
+                          type="button"
+                          className="btn btn-primary btn-sm"
+                          onClick={() => navigate(`/acuerdos/${ac.id}/calificar`)}
+                        >
+                          Calificar
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+
+                {/* Acuerdo entregado pendiente de calificar de muestra para Rosa (Vista 6.3) */}
+                {usuarioId === 'u-1' && (
+                  <div className="card-surface rep-pending-card">
                     <div className="rep-my-card-left">
-                      <div className="striped-placeholder rep-my-thumb" />
+                      <div className="striped-placeholder rep-my-thumb">
+                        <img
+                          src={obtenerMiniatura('av-104', 'Apuntes de Contabilidad General')}
+                          alt="Apuntes de Contabilidad General"
+                          className="media-img-cover"
+                        />
+                      </div>
                       <div>
                         <strong className="rep-my-aviso-title">
-                          {cal.avisoTitulo}
+                          Apuntes de Contabilidad General
                         </strong>
                         <span className="text-aux">
-                          {cal.acuerdoId} · a {cal.receptorNombre} · {cal.fecha}
+                          A-2044 · a Paola Zegarra Ibáñez · entregado el 19/08/2026
                         </span>
                       </div>
                     </div>
 
-                    <Estrellas valor={cal.puntaje} tamano="sm" />
-                  </div>
-
-                  {editandoId === cal.id ? (
-                    <div className="rep-edit-box">
-                      <div className="rep-edit-stars">
-                        <Estrellas
-                          valor={puntajeEdicion}
-                          interactivo
-                          onChange={setPuntajeEdicion}
-                        />
-                      </div>
-                      <textarea
-                        rows={2}
-                        className="form-textarea rep-edit-textarea"
-                        value={textoEdicion}
-                        onChange={(e) => setTextoEdicion(e.target.value)}
+                    <div className="rep-pending-right">
+                      <BadgeEstado
+                        estado="Pendiente de calificar"
+                        variante="info"
                       />
-                      <div className="rep-edit-actions">
-                        <button
-                          type="button"
-                          className="btn btn-primary btn-sm"
-                          onClick={() => guardarEdicion(cal.id)}
-                        >
-                          Guardar cambios
-                        </button>
-                        <button
-                          type="button"
-                          className="btn btn-tertiary btn-sm"
-                          onClick={() => setEditandoId(null)}
-                        >
-                          Cancelar
-                        </button>
-                      </div>
+                      <button
+                        type="button"
+                        className="btn btn-primary btn-sm"
+                        onClick={() => navigate('/acuerdos/A-2201/calificar')}
+                      >
+                        Calificar
+                      </button>
                     </div>
-                  ) : (
-                    <>
-                      <p className="rep-my-comment">{cal.comentario}</p>
-
-                      <div className="rep-my-footer">
-                        {cal.dentroDePlazo ? (
-                          <>
-                            <BadgeEstado
-                              estado={`Editable hasta el ${
-                                cal.editableHasta || '08/09/2026'
-                              }`}
-                              variante="warning"
-                            />
-                            <div className="rep-my-footer-actions">
-                              <button
-                                type="button"
-                                className="btn btn-tertiary btn-sm"
-                                onClick={() => iniciarEdicion(cal)}
-                              >
-                                Editar
-                              </button>
-                              <button
-                                type="button"
-                                className="btn btn-tertiary btn-sm rep-btn-danger-text"
-                                onClick={() => setConfirmarEliminarId(cal.id)}
-                              >
-                                Eliminar
-                              </button>
-                            </div>
-                          </>
-                        ) : (
-                          <BadgeEstado
-                            estado="Plazo de edición vencido"
-                            variante="neutral"
-                          />
-                        )}
-                      </div>
-                    </>
-                  )}
-                </div>
-              ))}
-
-              {/* Acuerdo entregado pendiente de calificar (Vista 6.3) */}
-              <div className="card-surface rep-pending-card">
-                <div className="rep-my-card-left">
-                  <div className="striped-placeholder rep-my-thumb" />
-                  <div>
-                    <strong className="rep-my-aviso-title">
-                      Apuntes de Contabilidad General
-                    </strong>
-                    <span className="text-aux">
-                      A-2044 · a Paola Zegarra Ibáñez · entregado el 19/08/2026
-                    </span>
                   </div>
-                </div>
-
-                <div className="rep-pending-right">
-                  <BadgeEstado
-                    estado="Pendiente de calificar"
-                    variante="info"
-                  />
-                  <button
-                    type="button"
-                    className="btn btn-primary btn-sm"
-                    onClick={() => navigate('/acuerdos/A-2201/calificar')}
-                  >
-                    Calificar
-                  </button>
-                </div>
-              </div>
-            </>
+                )}
+              </>
+            )
           ) : recibidas.length === 0 ? (
             <EstadoVacio
               icono="★"
@@ -254,7 +350,7 @@ export default function MisCalificacionesPage() {
                   <div>
                     <strong>{cal.emisorNombre}</strong>
                     <span className="text-aux rep-received-meta">
-                      {cal.acuerdoId} · {cal.fecha}
+                      {cal.acuerdoId} · {cal.avisoTitulo} · {cal.fecha}
                     </span>
                   </div>
                   <Estrellas valor={cal.puntaje} tamano="sm" />
@@ -265,24 +361,32 @@ export default function MisCalificacionesPage() {
           )}
         </div>
 
-        {/* Columna derecha: Resumen de Recibidas + Estado vacío de muestra (Vista 6.3) */}
+        {/* Columna derecha: Resumen de Reputación Recibida (Vista 6.3) */}
         <div className="rep-my-side-col">
           <div className="card-surface rep-my-side-card">
             <span className="label-upper rep-my-side-label">
-              Pestaña «Recibidas»
+              Resumen de «Recibidas»
             </span>
 
             <div className="rep-my-side-summary">
               <div className="rep-my-side-score-wrap">
-                <strong className="rep-my-side-score">4.8</strong>
+                <strong className="rep-my-side-score">
+                  {usuarioActual?.reputacion || 4.8}
+                </strong>
                 <div>
-                  <Estrellas valor={5} tamano="sm" />
+                  <Estrellas
+                    valor={Math.round(usuarioActual?.reputacion || 5)}
+                    tamano="sm"
+                  />
                   <span className="text-aux rep-score-count">
-                    promedio de 11 calificaciones
+                    promedio de {usuarioActual?.totalCalificaciones || recibidas.length || 11}{' '}
+                    calificaciones
                   </span>
                 </div>
               </div>
-              <BadgeEstado estado="Vendedora confiable" />
+              {(usuarioActual?.acuerdosCerrados || 12) >= 10 && (
+                <BadgeEstado estado="Vendedora confiable" />
+              )}
             </div>
 
             {recibidas.slice(0, 2).map((cal) => {
@@ -312,14 +416,6 @@ export default function MisCalificacionesPage() {
               Las calificaciones recibidas no se pueden editar ni eliminar.
             </p>
           </div>
-
-          <EstadoVacio
-            icono="★"
-            titulo="Todavía no has calificado a nadie"
-            descripcion="Cuando confirmes una entrega podrás calificar a la otra parte."
-            textoBoton="Ver mis acuerdos"
-            rutaBoton="/acuerdos"
-          />
         </div>
       </div>
 

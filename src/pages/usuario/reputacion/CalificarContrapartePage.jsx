@@ -1,8 +1,11 @@
 import { useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../../context/AuthContext';
+import { useAviso } from '../../../context/AvisoContext';
 import { useAcuerdo } from '../../../context/AcuerdoContext';
 import { useCalificacion } from '../../../context/CalificacionContext';
 import { formatearPrecio } from '../../../data/contratoDatos';
+import { obtenerPortadaAviso } from '../../../data/imagenesDatos';
 import Estrellas from '../../../components/Estrellas/Estrellas';
 import BadgeEstado from '../../../components/BadgeEstado/BadgeEstado';
 import Notificacion from '../../../components/Notificacion/Notificacion';
@@ -12,13 +15,44 @@ import './reputacion.css';
 export default function CalificarContrapartePage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { obtenerAcuerdoPorId, acuerdos } = useAcuerdo();
-  const { publicarCalificacion } = useCalificacion();
+  const { usuarioActual, obtenerUsuarioPorId } = useAuth();
+  const { obtenerAvisoPorId } = useAviso();
+  const { obtenerAcuerdoPorId, acuerdos, setAcuerdos } = useAcuerdo();
+  const { calificaciones, publicarCalificacion } = useCalificacion();
 
   const acuerdo =
     obtenerAcuerdoPorId(id) ||
     acuerdos.find((a) => a.id === 'A-2201') ||
     acuerdos[0];
+
+  const esVendedor =
+    !usuarioActual || acuerdo?.vendedorId === usuarioActual.id;
+
+  const contraparteId = esVendedor
+    ? acuerdo?.compradorId || 'u-6'
+    : acuerdo?.vendedorId || 'u-1';
+  const contraparteUsuario = obtenerUsuarioPorId(contraparteId);
+  const contraparteNombre = esVendedor
+    ? acuerdo?.compradorNombre || 'Carla Huamaní Bravo'
+    : acuerdo?.vendedorNombre || 'Rosa María Quispe Ríos';
+  const contraparteCarrera =
+    (esVendedor ? acuerdo?.compradorCarrera : contraparteUsuario?.carrera) ||
+    'Arquitectura';
+  const etiquetaRolContraparte = esVendedor ? 'compradora' : 'vendedor(a)';
+
+  const avisoObj = obtenerAvisoPorId(acuerdo?.avisoId);
+  const portadaUrl = obtenerPortadaAviso(
+    avisoObj || {
+      id: acuerdo?.avisoId || 'av-103',
+      titulo: acuerdo?.avisoTitulo
+    }
+  );
+
+  const calificacionExistente = calificaciones.find(
+    (c) =>
+      c.acuerdoId === acuerdo?.id &&
+      c.emisorId === (usuarioActual?.id || 'u-1')
+  );
 
   const [puntaje, setPuntaje] = useState(5);
   const [aspectos, setAspectos] = useState([
@@ -26,7 +60,7 @@ export default function CalificarContrapartePage() {
     'Producto como se describía'
   ]);
   const [comentario, setComentario] = useState(
-    'Llegó cinco minutos antes al patio del pabellón H y todo salió sin problemas. La recomiendo.'
+    'Llegó cinco minutos antes al punto acordado y todo salió sin problemas. Totalmente recomendable.'
   );
   const [errorPuntaje, setErrorPuntaje] = useState('');
   const [notificacion, setNotificacion] = useState(null);
@@ -47,28 +81,39 @@ export default function CalificarContrapartePage() {
 
     const res = publicarCalificacion({
       acuerdoId: acuerdo?.id || 'A-2201',
+      avisoId: acuerdo?.avisoId || 'av-103',
       avisoTitulo:
         acuerdo?.avisoTitulo || 'Juego de escuadras y escalímetro Faber',
-      receptorId: acuerdo?.compradorId || 'u-6',
-      receptorNombre: acuerdo?.compradorNombre || 'Carla Huamaní Bravo',
-      receptorCarrera: acuerdo?.compradorCarrera || 'Arquitectura',
+      emisorId: usuarioActual?.id || 'u-1',
+      emisorNombre: usuarioActual
+        ? `${usuarioActual.nombres} ${usuarioActual.apellidos}`
+        : 'Rosa María Quispe Ríos',
+      emisorCarrera: usuarioActual?.carrera || 'Administración',
+      receptorId: contraparteId,
+      receptorNombre: contraparteNombre,
+      receptorCarrera: contraparteCarrera,
       puntaje,
       aspectos,
       comentario
     });
 
     if (res.ok) {
+      if (acuerdo?.id && setAcuerdos) {
+        setAcuerdos((prev) =>
+          prev.map((a) =>
+            a.id === acuerdo.id ? { ...a, pendienteCalificar: false } : a
+          )
+        );
+      }
       setNotificacion({
         tipo: 'exito',
         mensaje: res.mensaje
       });
-      setTimeout(() => navigate('/calificaciones'), 1300);
+      setTimeout(() => navigate('/calificaciones'), 1100);
     }
   };
 
-  const nombreCorto = (acuerdo?.compradorNombre || 'Carla Huamaní').split(
-    ' '
-  )[0];
+  const nombreCorto = contraparteNombre.split(' ')[0];
 
   return (
     <div className="page-container">
@@ -81,6 +126,14 @@ export default function CalificarContrapartePage() {
         <span>›</span>
         <span>Calificar</span>
       </div>
+
+      {notificacion && (
+        <Notificacion
+          tipo={notificacion.tipo}
+          mensaje={notificacion.mensaje}
+          onClose={() => setNotificacion(null)}
+        />
+      )}
 
       {/* Grilla de 2 columnas — Vista 6.1 */}
       <div className="rep-rate-grid">
@@ -99,14 +152,21 @@ export default function CalificarContrapartePage() {
 
           {/* Resumen del acuerdo entregado */}
           <div className="card-surface rep-acuerdo-summary">
-            <div className="striped-placeholder rep-acuerdo-thumb" />
+            <div className="striped-placeholder rep-acuerdo-thumb">
+              <img
+                src={portadaUrl}
+                alt={acuerdo?.avisoTitulo || 'Aviso'}
+                className="media-img-cover"
+              />
+            </div>
             <div>
               <strong className="rep-acuerdo-title">
                 {acuerdo?.avisoTitulo ||
                   'Juego de escuadras y escalímetro Faber'}
               </strong>
               <span className="text-aux rep-acuerdo-meta">
-                Acuerdo {acuerdo?.id || 'A-2201'} · entregado el 01/09/2026 ·{' '}
+                Acuerdo {acuerdo?.id || 'A-2201'} · entregado el{' '}
+                {acuerdo?.fechaEncuentro || '01/09/2026'} ·{' '}
                 {acuerdo?.puntoEncuentro || 'Patio del pabellón H'}
               </span>
               <div>
@@ -114,7 +174,7 @@ export default function CalificarContrapartePage() {
                   {formatearPrecio(acuerdo?.montoAcordado || 34)}
                 </strong>{' '}
                 <span className="text-aux">
-                  compradora: {acuerdo?.compradorNombre || 'Carla Huamaní Bravo'}
+                  {etiquetaRolContraparte}: {contraparteNombre}
                 </span>
               </div>
             </div>
@@ -136,7 +196,7 @@ export default function CalificarContrapartePage() {
               />
             </div>
             <span className="field-hint">
-              Puntual, respetuosa y cumplió con lo acordado.
+              Puntual, respetuoso(a) y cumplió con lo acordado en el campus.
             </span>
             {errorPuntaje && <span className="field-error">{errorPuntaje}</span>}
           </div>
@@ -192,88 +252,68 @@ export default function CalificarContrapartePage() {
           </div>
         </form>
 
-        {/* Columna derecha: Estados del selector, Calificación publicada y Notificaciones */}
+        {/* Columna derecha: Guía de escala y estado de publicación */}
         <div className="rep-side-col">
           <div className="card-surface rep-side-card">
             <span className="label-upper rep-side-label">
-              Selector de estrellas · estados
+              Escala de calificación
             </span>
             <div className="rep-states-list">
               <div className="rep-state-row">
-                <Estrellas valor={0} tamano="sm" />
-                <span className="text-aux">Sin puntaje (obligatorio)</span>
+                <Estrellas valor={5} tamano="sm" />
+                <span className="text-aux">5 de 5 — «Excelente»</span>
+              </div>
+              <div className="rep-state-row">
+                <Estrellas valor={4} tamano="sm" />
+                <span className="text-aux">4 de 5 — «Muy bueno»</span>
               </div>
               <div className="rep-state-row">
                 <Estrellas valor={3} tamano="sm" />
                 <span className="text-aux">3 de 5 — «Aceptable»</span>
               </div>
-              <div className="rep-state-row">
-                <Estrellas valor={5} tamano="sm" />
-                <span className="text-aux">5 de 5 — «Excelente»</span>
-              </div>
             </div>
-            <button
-              type="button"
-              className="chip chip-selectable"
-              onClick={() => {
-                setPuntaje(0);
-                setErrorPuntaje(
-                  'Selecciona un puntaje para publicar tu calificación.'
-                );
-              }}
-            >
-              Probar estado sin puntaje
-            </button>
           </div>
 
-          <div className="card-surface rep-side-card">
-            <span className="label-upper rep-side-label">
-              Calificación ya publicada · dentro del plazo
-            </span>
-            <div className="rep-published-header">
-              <div className="rep-published-stars">
-                <Estrellas valor={5} tamano="sm" />
-                <span className="text-aux">Publicada el 01/09/2026</span>
+          {calificacionExistente ? (
+            <div className="card-surface rep-side-card">
+              <span className="label-upper rep-side-label">
+                Calificación ya publicada · dentro del plazo
+              </span>
+              <div className="rep-published-header">
+                <div className="rep-published-stars">
+                  <Estrellas valor={calificacionExistente.puntaje} tamano="sm" />
+                  <span className="text-aux">
+                    Publicada el {calificacionExistente.fecha}
+                  </span>
+                </div>
+                <BadgeEstado estado="Visible en su perfil" variante="success" />
               </div>
-              <BadgeEstado estado="Visible en su perfil" variante="success" />
+              <p className="rep-published-comment">
+                {calificacionExistente.comentario}
+              </p>
+              <div className="rep-published-actions">
+                <Link to="/calificaciones" className="btn btn-secondary btn-sm">
+                  Editar hasta el {calificacionExistente.editableHasta || '08/09/2026'}
+                </Link>
+              </div>
             </div>
-            <p className="rep-published-comment">
-              Llegó cinco minutos antes al patio del pabellón H y todo salió sin
-              problemas. La recomiendo.
-            </p>
-            <div className="rep-published-actions">
-              <Link to="/calificaciones" className="btn btn-secondary btn-sm">
-                Editar hasta el 08/09/2026
-              </Link>
+          ) : (
+            <div className="card-surface rep-side-card">
+              <span className="label-upper rep-side-label">
+                Reputación verificada en el campus
+              </span>
+              <p className="rep-published-comment">
+                Solo los acuerdos entregados y confirmados por ambas partes con el
+                código de entrega habilitan una calificación en el perfil público.
+              </p>
               <Link
-                to="/calificaciones"
-                className="btn btn-tertiary btn-sm rep-btn-danger-text"
+                to={`/reputacion/${contraparteId}`}
+                className="btn btn-secondary btn-sm"
               >
-                Eliminar
+                Ver perfil de {nombreCorto}
               </Link>
             </div>
-          </div>
-
-          <div className="card-surface rep-side-card">
-            <span className="label-upper rep-side-label">Notificaciones</span>
-            {notificacion ? (
-              <Notificacion
-                tipo={notificacion.tipo}
-                mensaje={notificacion.mensaje}
-              />
-            ) : (
-              <Notificacion
-                tipo="exito"
-                titulo="Éxito."
-                mensaje="Tu calificación se publicó en el perfil de Carla Huamaní."
-              />
-            )}
-            <Notificacion
-              tipo="error"
-              titulo="Plazo vencido."
-              mensaje="Ya no puedes editar esta calificación."
-            />
-          </div>
+          )}
         </div>
       </div>
     </div>

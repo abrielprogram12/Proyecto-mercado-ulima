@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
+import { useAviso } from '../../../context/AvisoContext';
 import { useAcuerdo } from '../../../context/AcuerdoContext';
 import { useReporte } from '../../../context/ReporteContext';
 import { ESTADOS_ACUERDO, formatearPrecio } from '../../../data/contratoDatos';
+import { obtenerPortadaAviso } from '../../../data/imagenesDatos';
 import BadgeEstado from '../../../components/BadgeEstado/BadgeEstado';
 import Notificacion from '../../../components/Notificacion/Notificacion';
 import ModalCancelarAcuerdo from '../../../components/Modales/ModalCancelarAcuerdo';
@@ -34,7 +36,7 @@ function ParteAcuerdo({ etiqueta, nombre, detalle, esYo }) {
         {inicialesDe(nombre)}
       </span>
       <div>
-        <span className="label-upper" style={{ marginBottom: 0 }}>
+        <span className="label-upper">
           {etiqueta}
         </span>
         <p className="acu-fuerte">
@@ -52,6 +54,7 @@ export default function DetalleAcuerdoPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { usuarioActual, obtenerUsuarioPorId } = useAuth();
+  const { obtenerAvisoPorId } = useAviso();
   const { crearReporte } = useReporte();
   const {
     obtenerAcuerdoPorId,
@@ -69,6 +72,12 @@ export default function DetalleAcuerdoPage() {
   const acuerdo = obtenerAcuerdoPorId(id);
   const rol = rolEnAcuerdo(acuerdo, usuarioId);
   if (!acuerdo || !rol) return <AcuerdoNoDisponible />;
+
+  const avisoObj = obtenerAvisoPorId(acuerdo.avisoId) || {
+    id: acuerdo.avisoId,
+    titulo: acuerdo.avisoTitulo
+  };
+  const portada = obtenerPortadaAviso(avisoObj);
 
   const estado = estadoParaUsuario(acuerdo, usuarioId);
   const contraparte = datosContraparte(acuerdo, rol, obtenerUsuarioPorId);
@@ -159,11 +168,17 @@ export default function DetalleAcuerdoPage() {
         <div className="acu-pila">
           <section className="acu-tarjeta card-surface">
             <div className="acu-aviso-card">
-              <div className="acu-miniatura striped-placeholder" aria-hidden="true" />
-              <div style={{ flex: 1, minWidth: '200px' }}>
+              <div className="acu-miniatura striped-placeholder" aria-hidden="true">
+                <img
+                  src={portada}
+                  alt={acuerdo.avisoTitulo}
+                  className="media-img-cover"
+                />
+              </div>
+              <div className="acu-resumen-texto">
                 <h2 className="title-section">{acuerdo.avisoTitulo}</h2>
                 <p className="text-aux">{acuerdo.avisoSubtitulo}</p>
-                <p className="price-text" style={{ fontSize: '22px', margin: '6px 0' }}>
+                <p className="price-text">
                   {formatearPrecio(acuerdo.montoAcordado)}{' '}
                   <span className="text-aux">acordado sobre {formatearPrecio(acuerdo.precioPedido)} pedidos</span>
                 </p>
@@ -190,7 +205,7 @@ export default function DetalleAcuerdoPage() {
                 </div>
               </div>
             ) : (
-              <p className="text-aux" style={{ marginBottom: '16px' }}>
+              <p className="text-aux">
                 {cancelado
                   ? 'El acuerdo se canceló, por lo que no hay un encuentro vigente.'
                   : 'Todavía no hay punto ni horario acordados.'}{' '}
@@ -217,7 +232,7 @@ export default function DetalleAcuerdoPage() {
                   .join(' · ')}
               />
             </div>
-            <p className="text-aux" style={{ marginTop: '12px' }}>
+            <p className="text-aux">
               Los teléfonos solo se muestran a las dos partes de este acuerdo.
             </p>
           </section>
@@ -265,7 +280,7 @@ export default function DetalleAcuerdoPage() {
                 )}
               </div>
               {acordado && (
-                <p className="text-aux" style={{ marginTop: '10px' }}>
+                <p className="text-aux">
                   Al confirmar ambos, el aviso pasa a vendido y se abre la calificación.
                 </p>
               )}

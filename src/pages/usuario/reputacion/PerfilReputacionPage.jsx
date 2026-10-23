@@ -80,7 +80,15 @@ export default function PerfilReputacionPage() {
       <div className="card-surface rep-profile-hero">
         <div className="rep-profile-hero-left">
           <div className="striped-placeholder rep-profile-avatar">
-            {obtenerIniciales(usuario?.nombres, usuario?.apellidos)}
+            {usuario?.fotoPerfil ? (
+              <img
+                src={usuario.fotoPerfil}
+                alt={`${usuario.nombres} ${usuario.apellidos}`}
+                className="media-img-cover"
+              />
+            ) : (
+              obtenerIniciales(usuario?.nombres, usuario?.apellidos)
+            )}
           </div>
           <div>
             <div className="rep-profile-name-row">
@@ -96,13 +104,15 @@ export default function PerfilReputacionPage() {
           </div>
         </div>
 
-        <button
-          type="button"
-          className="btn btn-tertiary btn-sm rep-btn-danger-text"
-          onClick={() => setModalReporteAbierto(true)}
-        >
-          Reportar usuario
-        </button>
+        {usuarioActual?.id !== usuario?.id && (
+          <button
+            type="button"
+            className="btn btn-tertiary btn-sm rep-btn-danger-text"
+            onClick={() => setModalReporteAbierto(true)}
+          >
+            Reportar usuario
+          </button>
+        )}
       </div>
 
       {/* Grilla de 2 columnas — Vista 6.2 */}
@@ -116,7 +126,7 @@ export default function PerfilReputacionPage() {
             <div>
               <Estrellas valor={5} tamano="md" />
               <span className="text-aux rep-score-count">
-                11 calificaciones recibidas
+                {usuario?.totalCalificaciones || recibidas.length || 11} calificaciones recibidas
               </span>
             </div>
           </div>

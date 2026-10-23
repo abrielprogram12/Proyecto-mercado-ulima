@@ -29,7 +29,7 @@ export default function ModalCancelarAcuerdo({
             Cancelar el acuerdo {acuerdo?.id || 'A-2314'}
           </h3>
         </div>
-        <p className="text-aux" style={{ marginBottom: '14px' }}>
+        <p className="text-aux modal-desc-mb">
           Cancelar un acuerdo afecta tu reputación y se registra en el historial de ambas partes.
         </p>
 

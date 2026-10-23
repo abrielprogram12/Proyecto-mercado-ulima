@@ -18,7 +18,7 @@
 .acu-fila { display: flex; align-items: center; gap: 16px; padding: 14px 18px; flex-wrap: wrap; }
 .acu-fila-cerrada { background-color: #FBF8F5; }
 .acu-fila-cerrada .acu-fila-titulo, .acu-fila-cerrada .acu-fila-monto { color: var(--color-text-secondary); }
-.acu-fila-miniatura { width: 64px; height: 48px; border-radius: 8px; flex: none; }
+.acu-fila-miniatura { width: 64px; height: 48px; border-radius: 8px; flex: none; overflow: hidden; }
 .acu-fila-info { flex: 1 1 260px; min-width: 0; }
 .acu-fila-titulo { display: block; font-size: 16px; line-height: 24px; font-weight: 600; color: var(--color-text); }
 .acu-fila-titulo:hover { color: var(--color-primary); }
@@ -30,7 +30,7 @@
 .acu-check { width: 60px; height: 60px; border-radius: 50%; background-color: var(--color-success); color: #fff; font-size: 30px; display: flex; align-items: center; justify-content: center; }
 .acu-exito .text-aux { max-width: 56ch; font-size: 15px; line-height: 22px; }
 .acu-resumen-aviso { width: 100%; display: flex; align-items: center; gap: 16px; padding: 14px; border: 1px solid var(--color-border); border-radius: var(--radius-btn); text-align: left; flex-wrap: wrap; }
-.acu-resumen-aviso .acu-miniatura { width: 88px; height: 66px; border-radius: 8px; flex: none; }
+.acu-resumen-aviso .acu-miniatura { width: 88px; height: 66px; border-radius: 8px; flex: none; overflow: hidden; }
 .acu-resumen-texto { flex: 1 1 220px; }
 .acu-resumen-monto { text-align: right; }
 .acu-resumen-monto strong { display: block; font-size: 24px; line-height: 30px; }
@@ -45,7 +45,7 @@
 .acu-parte { display: flex; align-items: center; gap: 12px; }
 .acu-avatar { width: 40px; height: 40px; border-radius: 50%; background-color: var(--color-primary-soft); color: var(--color-primary-hover); font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex: none; }
 .acu-aviso-card { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
-.acu-aviso-card .acu-miniatura { width: 112px; height: 84px; border-radius: 8px; flex: none; }
+.acu-aviso-card .acu-miniatura { width: 112px; height: 84px; border-radius: 8px; flex: none; overflow: hidden; }
 
 /* Código de entrega */
 .acu-codigo-entrega { font-size: 34px; line-height: 42px; font-weight: 700; letter-spacing: 3px; color: var(--color-primary-hover); font-family: ui-monospace, Menlo, Consolas, monospace; margin-bottom: 8px; }
