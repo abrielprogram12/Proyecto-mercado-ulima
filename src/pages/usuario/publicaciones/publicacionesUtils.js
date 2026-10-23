@@ -11,6 +11,8 @@ export const PESTANAS_MIS_AVISOS = [
   { clave: 'Vendido', etiqueta: 'Vendidos' }
 ];
 
+export const PESTAÑAS_ESTADO_PUBLICACION = PESTANAS_MIS_AVISOS;
+
 export const FOTOS_INICIALES_FORMULARIO = [
   { id: 'f-new-1', etiqueta: 'fotografía principal', principal: true },
   { id: 'f-new-2', etiqueta: 'lomo del libro', principal: false },
@@ -34,6 +36,8 @@ export function calcularConteosAvisos(misAvisos = []) {
   };
 }
 
+export const calcularConteosPorEstado = calcularConteosAvisos;
+
 export function filtrarAvisosVendedor(misAvisos = [], filtroEstado = 'Todos', busqueda = '') {
   const termino = busqueda.trim().toLowerCase();
   return misAvisos.filter((a) => {
@@ -46,6 +50,8 @@ export function filtrarAvisosVendedor(misAvisos = [], filtroEstado = 'Todos', bu
     return cumpleEstado && cumpleBusqueda;
   });
 }
+
+export const filtrarPublicaciones = filtrarAvisosVendedor;
 
 export function validarFormularioAviso({
   titulo,

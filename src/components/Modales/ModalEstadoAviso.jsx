@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './Modales.css';
 
 export default function ModalEstadoAviso({
@@ -6,18 +6,29 @@ export default function ModalEstadoAviso({
   onClose,
   aviso,
   modo = 'estado', // 'estado' | 'eliminar'
+  estadoInicial,
   onConfirmarEstado,
   onConfirmarEliminar
 }) {
-  const [nuevoEstado, setNuevoEstado] = useState(aviso?.estado || 'Vendido');
+  const [nuevoEstado, setNuevoEstado] = useState(
+    estadoInicial || aviso?.estado || 'Vendido'
+  );
   const [textoConfirmacion, setTextoConfirmacion] = useState('');
+
+  useEffect(() => {
+    if (abierto) {
+      setNuevoEstado(estadoInicial || aviso?.estado || 'Vendido');
+      setTextoConfirmacion('');
+    }
+  }, [abierto, estadoInicial, aviso]);
 
   if (!abierto) return null;
 
   const ofertasActivas = Number(aviso?.ofertasCount || 0);
 
   if (modo === 'eliminar') {
-    const puedeEliminar = textoConfirmacion.trim().toUpperCase() === 'ELIMINAR';
+    const puedeEliminar =
+      textoConfirmacion.trim().toUpperCase() === 'ELIMINAR';
     return (
       <div className="modal-backdrop" onClick={onClose}>
         <div className="modal-card" onClick={(e) => e.stopPropagation()}>
@@ -27,18 +38,21 @@ export default function ModalEstadoAviso({
               Eliminar aviso
             </h3>
           </div>
-          <p className="text-aux" style={{ marginBottom: '16px' }}>
+          <p className="text-aux modal-desc-mb">
             Vas a eliminar «{aviso?.titulo}». Esta acción no se puede deshacer.
           </p>
           {ofertasActivas > 0 && (
             <div className="notificacion-banner notif-error">
               <span>
-                <strong>El aviso tiene {ofertasActivas} ofertas activas.</strong> Se rechazarán automáticamente al eliminarlo.
+                <strong>El aviso tiene {ofertasActivas} ofertas activas.</strong>{' '}
+                Se rechazarán automáticamente al eliminarlo.
               </span>
             </div>
           )}
           <div className="form-group">
-            <label className="label-upper">Escribe ELIMINAR para confirmar</label>
+            <label className="label-upper">
+              Escribe ELIMINAR para confirmar
+            </label>
             <input
               type="text"
               className="form-input"
@@ -48,7 +62,11 @@ export default function ModalEstadoAviso({
             />
           </div>
           <div className="modal-footer">
-            <button type="button" className="btn btn-tertiary" onClick={onClose}>
+            <button
+              type="button"
+              className="btn btn-tertiary"
+              onClick={onClose}
+            >
               Cancelar
             </button>
             <button
@@ -71,8 +89,9 @@ export default function ModalEstadoAviso({
         <div className="modal-header">
           <h3 className="modal-title">Cambiar el estado del aviso</h3>
         </div>
-        <p className="text-aux" style={{ marginBottom: '16px' }}>
-          «{aviso?.titulo}» dejará de aparecer en el catálogo si lo marcas como vendido.
+        <p className="text-aux modal-desc-mb">
+          «{aviso?.titulo}» dejará de aparecer en el catálogo si lo marcas como
+          vendido.
         </p>
 
         <div className="modal-radio-list">
@@ -83,7 +102,9 @@ export default function ModalEstadoAviso({
           ].map((op) => (
             <label
               key={op.valor}
-              className={`modal-radio-option ${nuevoEstado === op.valor ? 'selected' : ''}`}
+              className={`modal-radio-option ${
+                nuevoEstado === op.valor ? 'selected' : ''
+              }`}
             >
               <input
                 type="radio"
@@ -99,7 +120,8 @@ export default function ModalEstadoAviso({
         {ofertasActivas > 0 && (
           <div className="notificacion-banner notif-advertencia">
             <span>
-              <strong>Atención.</strong> Las {ofertasActivas} ofertas activas de este aviso quedarán sin efecto y se avisará a los compradores.
+              <strong>Atención.</strong> Las {ofertasActivas} ofertas activas de
+              este aviso quedarán sin efecto y se avisará a los compradores.
             </span>
           </div>
         )}
@@ -111,7 +133,9 @@ export default function ModalEstadoAviso({
           <button
             type="button"
             className="btn btn-primary"
-            onClick={() => onConfirmarEstado && onConfirmarEstado(nuevoEstado)}
+            onClick={() =>
+              onConfirmarEstado && onConfirmarEstado(nuevoEstado)
+            }
           >
             Confirmar cambio
           </button>

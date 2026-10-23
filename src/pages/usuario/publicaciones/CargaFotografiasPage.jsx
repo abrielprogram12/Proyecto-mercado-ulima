@@ -1,241 +1,359 @@
-import { useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useState, useRef } from 'react';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import { useAviso } from '../../../context/AvisoContext';
+import {
+  leerArchivoImagen,
+  obtenerFotosEnriquecidasAviso,
+  obtenerImagenPorCategoria
+} from '../../../data/imagenesDatos';
 import Notificacion from '../../../components/Notificacion/Notificacion';
-import { FOTOS_INICIALES_CARGA } from './publicacionesUtils';
 import './publicaciones.css';
 
-/**
- * MÓDULO: Publicaciones (Integrante 2 · HU-2)
- * Vista 2.5 — Carga y gestión de fotografías del aviso
- */
 export default function CargaFotografiasPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { obtenerAvisoPorId, avisos, actualizarFotosAviso } = useAviso();
+  const { obtenerAvisoPorId, actualizarFotosAviso } = useAviso();
+  const inputFotosRef = useRef(null);
 
-  const aviso = obtenerAvisoPorId(id) || avisos[0];
+  const aviso = obtenerAvisoPorId(id);
 
-  const [fotos, setFotos] = useState(
-    aviso?.fotos?.length > 0 ? aviso.fotos : FOTOS_INICIALES_CARGA
-  );
-
-  const [subiendoSimulado] = useState(true);
-  const [errorTamanoSimulado, setErrorTamanoSimulado] = useState(true);
-  const [notificacion, setNotificacion] = useState({
-    tipo: 'exito',
-    mensaje:
-      'Éxito. Se guardaron 4 fotografías. La primera será la portada del aviso.'
+  const [fotos, setFotos] = useState(() => {
+    if (aviso) {
+      return obtenerFotosEnriquecidasAviso(aviso);
+    }
+    return [];
   });
 
-  const handleHacerPrincipal = (idFoto) => {
-    const elegida = fotos.find((f) => f.id === idFoto);
-    if (!elegida) return;
-    const resto = fotos.filter((f) => f.id !== idFoto);
-    const nuevoOrden = [elegida, ...resto].map((f, idx) => ({
-      ...f,
-      principal: idx === 0
-    }));
-    setFotos(nuevoOrden);
-    setNotificacion({
-      tipo: 'exito',
-      mensaje: `«${elegida.etiqueta}» es ahora la fotografía principal de portada.`
-    });
-  };
+  const [arrastrando, setArrastrando] = useState(false);
+  const [notificacion, setNotificacion] = useState(null);
 
-  const handleEliminarFoto = (idFoto) => {
-    const nuevo = fotos
-      .filter((f) => f.id !== idFoto)
-      .map((f, idx) => ({ ...f, principal: idx === 0 }));
-    setFotos(nuevo);
-  };
+  const procesarListaArchivos = async (fileList) => {
+    const archivos = Array.from(fileList || []);
+    if (archivos.length === 0) return;
 
-  const handleAgregarFoto = () => {
-    if (fotos.length >= 6) {
+    const cupo = 6 - fotos.length;
+    if (cupo <= 0) {
       setNotificacion({
         tipo: 'advertencia',
-        mensaje:
-          'Límite alcanzado. Ya tienes 6 de 6 fotografías; elimina una para agregar otra.'
+        titulo: 'Límite alcanzado.',
+        mensaje: 'Cada aviso puede tener hasta un máximo de 6 fotografías.'
       });
       return;
     }
-    const nueva = {
-      id: `f-${Date.now()}`,
-      etiqueta: `detalle ${fotos.length + 1}`,
-      principal: fotos.length === 0
-    };
-    setFotos([...fotos, nueva]);
-  };
 
-  const handleGuardar = () => {
-    if (aviso) {
-      const res = actualizarFotosAviso(aviso.id, fotos);
+    const seleccionados = archivos.slice(0, cupo);
+    const nuevas = [];
+    let errorUltimo = null;
+
+    for (const file of seleccionados) {
+      const res = await leerArchivoImagen(file);
+      if (!res.ok) {
+        errorUltimo = res.error;
+      } else {
+        nuevas.push({
+          id: `f-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+          etiqueta: res.nombre.replace(/\.[^.]+$/, ''),
+          url: res.url,
+          principal: false
+        });
+      }
+    }
+
+    if (errorUltimo) {
       setNotificacion({
-        tipo: 'exito',
-        mensaje: res.mensaje
+        tipo: 'error',
+        titulo: 'No se pudo cargar un archivo.',
+        mensaje: errorUltimo
       });
     }
-    setTimeout(() => navigate('/mis-publicaciones'), 900);
+
+    if (nuevas.length > 0) {
+      setFotos((prev) =>
+        [...prev, ...nuevas].map((f, idx) => ({
+          ...f,
+          principal: idx === 0
+        }))
+      );
+      if (!errorUltimo) {
+        setNotificacion({
+          tipo: 'exito',
+          titulo: 'Fotografía cargada.',
+          mensaje: `Se agregaron ${nuevas.length} ${
+            nuevas.length === 1 ? 'fotografía' : 'fotografías'
+          } a la galería.`
+        });
+      }
+    }
+  };
+
+  const handleSeleccionarArchivos = (e) => {
+    const files = e.target.files;
+    e.target.value = '';
+    procesarListaArchivos(files);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setArrastrando(false);
+    procesarListaArchivos(e.dataTransfer?.files);
+  };
+
+  const moverFoto = (index, direccion) => {
+    const destino = index + direccion;
+    if (destino < 0 || destino >= fotos.length) return;
+    const copia = [...fotos];
+    const [extraida] = copia.splice(index, 1);
+    copia.splice(destino, 0, extraida);
+    setFotos(copia.map((f, idx) => ({ ...f, principal: idx === 0 })));
+  };
+
+  const hacerPrincipal = (index) => {
+    if (index === 0) return;
+    const copia = [...fotos];
+    const [extraida] = copia.splice(index, 1);
+    copia.unshift(extraida);
+    setFotos(copia.map((f, idx) => ({ ...f, principal: idx === 0 })));
+  };
+
+  const eliminarFoto = (idFoto) => {
+    setFotos((prev) =>
+      prev
+        .filter((f) => f.id !== idFoto)
+        .map((f, idx) => ({ ...f, principal: idx === 0 }))
+    );
+  };
+
+  const handleGuardarFotos = () => {
+    if (fotos.length === 0) {
+      setNotificacion({
+        tipo: 'error',
+        titulo: 'Falta al menos una fotografía.',
+        mensaje: 'Agrega por lo menos 1 imagen para la portada del aviso.'
+      });
+      return;
+    }
+
+    const res = actualizarFotosAviso(id || 'av-101', fotos);
+    if (res.ok) {
+      setNotificacion({
+        tipo: 'exito',
+        titulo: 'Éxito.',
+        mensaje: res.mensaje
+      });
+      setTimeout(() => navigate('/mis-publicaciones'), 1200);
+    }
   };
 
   return (
     <div className="page-container">
+      {/* Breadcrumbs */}
       <div className="breadcrumbs">
         <Link to="/mis-publicaciones">Mis publicaciones</Link>
         <span>›</span>
-        <Link to={`/editar-aviso/${aviso?.id || 'av-101'}`}>Editar aviso</Link>
+        <Link to={`/editar-aviso/${id || 'av-101'}`}>
+          {aviso?.titulo || 'Cálculo de una variable — Stewart'}
+        </Link>
         <span>›</span>
         <span>Fotografías</span>
       </div>
 
-      <h1 className="title-screen">Fotografías del aviso</h1>
-      <p className="text-aux pub-subtitulo-pagina">
-        Máximo 6 imágenes, JPG o PNG de hasta 5 MB cada una. La primera será la
-        portada.
-      </p>
+      {notificacion && (
+        <Notificacion
+          tipo={notificacion.tipo}
+          titulo={notificacion.titulo}
+          mensaje={notificacion.mensaje}
+          onClose={() => setNotificacion(null)}
+        />
+      )}
 
-      <div className="pub-fotos-columnas">
-        {/* Panel izquierdo — Zona de carga y grilla de 6 espacios (Vista 2.5) */}
-        <div className="card-surface pub-tarjeta">
-          <div onClick={handleAgregarFoto} className="pub-dropzone-grande">
-            <div className="pub-icono-subir">↑</div>
-            <strong className="pub-consejo-titulo">
-              Arrastra tus fotografías aquí
+      {/* Grilla de 2 columnas — Vista 2.5 */}
+      <div className="pub-photos-grid">
+        {/* Columna izquierda: Zona de arrastre y casillas reordenables */}
+        <div className="card-surface pub-photos-card">
+          <h1 className="title-screen pub-photos-title">
+            Fotografías del aviso
+          </h1>
+          <p className="text-aux pub-photos-subtitle">
+            Arrastra tus imágenes o selecciónalas desde tu dispositivo. Puedes
+            subir de 1 a 6 fotos en JPG, PNG o WEBP (máximo 5 MB cada una).
+          </p>
+
+          <input
+            ref={inputFotosRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            multiple
+            className="pub-input-oculto"
+            onChange={handleSeleccionarArchivos}
+          />
+
+          {/* Dropzone */}
+          <div
+            onClick={() => inputFotosRef.current?.click()}
+            onDragOver={(e) => {
+              e.preventDefault();
+              setArrastrando(true);
+            }}
+            onDragLeave={() => setArrastrando(false)}
+            onDrop={handleDrop}
+            className={`pub-dropzone ${
+              arrastrando ? 'pub-dropzone--dragging' : ''
+            }`}
+          >
+            <div className="pub-dropzone-icon">+</div>
+            <strong className="pub-dropzone-title">
+              Suelta tus fotos aquí o haz clic para buscarlas en tu equipo
             </strong>
-            <span className="pub-dropzone-sub">
-              o búscalas en tu dispositivo
-            </span>
-          </div>
-
-          <div className="pub-fotos-cabecera">
-            <span className="label-upper">{fotos.length} DE 6 FOTOGRAFÍAS</span>
             <span className="text-aux">
-              Arrastra las miniaturas para reordenar
+              Formatos permitidos: JPG, PNG, WEBP · Peso máximo por foto: 5 MB
             </span>
           </div>
 
-          <div className="pub-fotos-grid-seis">
-            {fotos.map((foto, idx) => (
-              <div
-                key={foto.id}
-                className={`striped-placeholder pub-foto-celda ${
-                  idx === 0 ? 'es-principal' : ''
-                }`}
-              >
-                <span>{foto.etiqueta}</span>
-
-                {idx === 0 ? (
-                  <span className="pub-badge-principal-arriba">Principal</span>
-                ) : (
-                  <button
-                    type="button"
-                    className="btn btn-outline btn-sm pub-btn-hacer-principal"
-                    onClick={() => handleHacerPrincipal(foto.id)}
-                  >
-                    Hacer principal
-                  </button>
-                )}
-
-                <button
-                  type="button"
-                  onClick={() => handleEliminarFoto(foto.id)}
-                  className="pub-btn-quitar-celda"
-                >
-                  ✕
-                </button>
-              </div>
-            ))}
-
-            {subiendoSimulado && fotos.length < 6 && (
-              <div className="pub-celda-subiendo">
-                <div className="pub-progreso-pista">
-                  <div className="pub-progreso-relleno" />
-                </div>
-                <span className="text-aux">Subiendo 62 %</span>
-              </div>
-            )}
-
-            {fotos.length < 6 && (
-              <button
-                type="button"
-                onClick={handleAgregarFoto}
-                className="pub-btn-agregar-celda"
-              >
-                + Agregar
-              </button>
-            )}
-
-            {errorTamanoSimulado && (
-              <div className="pub-celda-error">
-                <strong className="pub-celda-error-titulo">
-                  No se pudo subir
-                </strong>
-                <span className="text-aux pub-celda-error-sub">
-                  La imagen supera 5 MB
-                </span>
-                <button
-                  type="button"
-                  className="btn btn-tertiary btn-sm"
-                  onClick={() => setErrorTamanoSimulado(false)}
-                >
-                  Reintentar
-                </button>
-              </div>
-            )}
+          {/* Encabezado de reordenamiento */}
+          <div className="pub-reorder-header">
+            <span className="label-upper">
+              Orden de aparición · {fotos.length} de 6 cargadas
+            </span>
+            <span className="text-aux">
+              Usa las flechas o «Hacer principal» para reordenar
+            </span>
           </div>
 
-          <div className="pub-acciones-derecha">
-            <button
-              type="button"
+          {/* 6 casillas */}
+          <div className="pub-reorder-slots">
+            {Array.from({ length: 6 }).map((_, idx) => {
+              const foto = fotos[idx];
+              if (foto) {
+                const imgSrc =
+                  foto.url ||
+                  obtenerImagenPorCategoria(aviso?.categoria, aviso?.titulo);
+                return (
+                  <div
+                    key={foto.id}
+                    className={`pub-reorder-item ${
+                      idx === 0 ? 'pub-reorder-item--principal' : ''
+                    }`}
+                  >
+                    <div className="striped-placeholder pub-reorder-preview">
+                      <img
+                        src={imgSrc}
+                        alt={foto.etiqueta}
+                        className="media-img-cover"
+                      />
+                      {idx === 0 && (
+                        <span className="pub-reorder-badge">
+                          1 · PRINCIPAL
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="pub-reorder-controls">
+                      <div className="pub-reorder-arrows">
+                        <button
+                          type="button"
+                          disabled={idx === 0}
+                          onClick={() => moverFoto(idx, -1)}
+                          className="pub-arrow-btn"
+                          title="Mover a la izquierda"
+                        >
+                          ←
+                        </button>
+                        <button
+                          type="button"
+                          disabled={idx === fotos.length - 1}
+                          onClick={() => moverFoto(idx, 1)}
+                          className="pub-arrow-btn"
+                          title="Mover a la derecha"
+                        >
+                          →
+                        </button>
+                      </div>
+
+                      <div className="pub-reorder-right">
+                        {idx > 0 && (
+                          <button
+                            type="button"
+                            onClick={() => hacerPrincipal(idx)}
+                            className="pub-btn-hacer-principal"
+                          >
+                            Principal
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => eliminarFoto(foto.id)}
+                          className="pub-btn-eliminar-foto"
+                        >
+                          Eliminar
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              }
+
+              return (
+                <button
+                  key={`slot-${idx}`}
+                  type="button"
+                  onClick={() => inputFotosRef.current?.click()}
+                  className="pub-reorder-empty"
+                >
+                  {idx + 1} · Vacío (+ Agregar)
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="pub-photos-footer">
+            <Link
+              to={`/editar-aviso/${id || 'av-101'}`}
               className="btn btn-tertiary"
-              onClick={() => navigate('/mis-publicaciones')}
             >
-              Cancelar
-            </button>
+              ← Volver al formulario
+            </Link>
             <button
               type="button"
               className="btn btn-primary"
-              onClick={handleGuardar}
+              onClick={handleGuardarFotos}
             >
               Guardar fotografías
             </button>
           </div>
         </div>
 
-        {/* Panel derecho — Reordenamiento y notificaciones (Vista 2.5) */}
-        <div className="pub-pila">
-          <div className="card-surface pub-tarjeta-compacta">
-            <span className="label-upper">Reordenamiento en curso</span>
-            <div className="pub-reordenamiento-demo">
-              <div className="striped-placeholder pub-demo-mini-activa" />
-              <div className="pub-demo-barra" />
-              <div className="striped-placeholder pub-demo-mini-inactiva" />
+        {/* Columna derecha: Recomendaciones para fotografías claras */}
+        <div className="pub-side-stack">
+          <div className="card-surface pub-card-side">
+            <h2 className="title-section pub-section-title">
+              Recomendaciones para tus fotos
+            </h2>
+            <div className="pub-tips-list">
+              <p className="text-body">
+                <strong>1. Portada nítida:</strong> Coloca como primera foto la
+                portada completa del libro, calculadora o instrumento con luz
+                natural.
+              </p>
+              <p className="text-body">
+                <strong>2. Muestra el estado real:</strong> Incluye fotos del
+                lomo, páginas interiores o cualquier detalle de uso mencionado
+                en la descripción.
+              </p>
+              <p className="text-body">
+                <strong>3. Accesorios incluidos:</strong> Si entregas estuche,
+                manual, separador o tablas impresas, súbelos en las casillas
+                adicionales.
+              </p>
             </div>
-            <p className="text-aux">
-              La barra terracota marca la posición donde se soltará la miniatura.
-            </p>
           </div>
 
-          <div className="card-surface pub-tarjeta-compacta">
-            <span className="label-upper pub-label-notif">
-              Notificaciones de resultado
-            </span>
-            {notificacion && (
-              <Notificacion
-                tipo={notificacion.tipo}
-                mensaje={notificacion.mensaje}
-              />
-            )}
-            <Notificacion
-              tipo="error"
-              titulo="Error."
-              mensaje="Una imagen no se pudo subir. Revísala e inténtalo otra vez."
-            />
-            <Notificacion
-              tipo="advertencia"
-              titulo="Límite alcanzado."
-              mensaje="Ya tienes 6 de 6 fotografías; elimina una para agregar otra."
-            />
+          <div className="card-surface pub-card-side">
+            <span className="label-upper">Requisitos técnicos</span>
+            <p className="text-aux">
+              • Mínimo 1 fotografía y máximo 6 por publicación.
+              <br />• Formatos admitidos: <strong>JPG, PNG y WEBP</strong>.
+              <br />• Tamaño máximo por archivo: <strong>5 MB</strong>.
+            </p>
           </div>
         </div>
       </div>

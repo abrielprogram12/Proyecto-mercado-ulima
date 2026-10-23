@@ -1,13 +1,17 @@
-import { useState, useEffect } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useState, useEffect, useRef } from 'react';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
 import { useAviso } from '../../../context/AvisoContext';
 import {
   CATEGORIAS,
-  CURSOS_ASOCIADOS,
-  CONDICIONES_PRODUCTO
+  CURSOS_DESTACADOS,
+  CONDICIONES_ARTICULO
 } from '../../../data/contratoDatos';
-import TarjetaAviso from '../../../components/TarjetaAviso/TarjetaAviso';
+import {
+  leerArchivoImagen,
+  obtenerFotosEnriquecidasAviso,
+  obtenerImagenPorCategoria
+} from '../../../data/imagenesDatos';
 import Notificacion from '../../../components/Notificacion/Notificacion';
 import {
   FOTOS_INICIALES_FORMULARIO,
@@ -15,120 +19,172 @@ import {
 } from './publicacionesUtils';
 import './publicaciones.css';
 
-/**
- * MÓDULO: Publicaciones (Integrante 2 · HU-2)
- * Vistas 2.3 y 2.4 — Formulario crear/editar aviso con vista previa y validación
- */
 export default function NuevoAvisoPage() {
   const { id } = useParams();
+  const esModoEdicion = Boolean(id);
   const navigate = useNavigate();
   const { usuarioActual } = useAuth();
   const { obtenerAvisoPorId, crearAviso, editarAviso } = useAviso();
+  const inputFotosRef = useRef(null);
 
-  const modoEdicion = Boolean(id);
-  const avisoExistente = modoEdicion ? obtenerAvisoPorId(id) : null;
-
-  const [titulo, setTitulo] = useState(
-    avisoExistente?.titulo || 'Cálculo de una variable — Stewart, 8.ª ed.'
-  );
-  const [descripcion, setDescripcion] = useState(
-    avisoExistente?.descripcion ||
-      'Usado un ciclo en Cálculo I. Tapa firme, sin hojas sueltas, algunas anotaciones a lápiz en los capítulos 3 y 4. Incluye el separador original.'
-  );
-  const [categoria, setCategoria] = useState(
-    avisoExistente?.categoria || 'Libros de texto'
-  );
-  const [curso, setCurso] = useState(avisoExistente?.curso || 'Cálculo I');
-  const [condicion, setCondicion] = useState(
-    avisoExistente?.condicion || 'Muy buen estado'
-  );
-  const [precio, setPrecio] = useState(avisoExistente?.precio ?? 95.0);
-  const [aceptaOfertas, setAceptaOfertas] = useState(
-    avisoExistente?.aceptaOfertas ?? true
-  );
-  const [montoMinimo, setMontoMinimo] = useState(
-    avisoExistente?.montoMinimo ?? 70.0
-  );
-  const [fotos, setFotos] = useState(
-    avisoExistente?.fotos || FOTOS_INICIALES_FORMULARIO
-  );
+  const [formData, setFormData] = useState({
+    titulo: 'Cálculo de una variable — Stewart, 8.ª ed.',
+    categoria: 'Libros de texto',
+    curso: 'Cálculo I',
+    condicion: 'Muy buen estado',
+    descripcion:
+      'Usado un ciclo en Cálculo I con el profesor Mendoza. Tapa firme, sin hojas sueltas, algunas anotaciones a lápiz en los capítulos 3 y 4. Incluye el separador original y la tabla de derivadas que reparten en clase.',
+    precio: '95.00',
+    aceptaOfertas: true,
+    montoMinimo: '70.00',
+    fotos: FOTOS_INICIALES_FORMULARIO.map((f) => ({
+      ...f,
+      url: obtenerImagenPorCategoria('Libros de texto', 'Cálculo Stewart')
+    }))
+  });
 
   const [errores, setErrores] = useState({});
   const [notificacion, setNotificacion] = useState(null);
 
   useEffect(() => {
-    if (avisoExistente) {
-      setTitulo(avisoExistente.titulo);
-      setDescripcion(avisoExistente.descripcion);
-      setCategoria(avisoExistente.categoria);
-      setCurso(avisoExistente.curso);
-      setCondicion(avisoExistente.condicion);
-      setPrecio(avisoExistente.precio);
-      setAceptaOfertas(avisoExistente.aceptaOfertas);
-      setMontoMinimo(avisoExistente.montoMinimo);
-      setFotos(avisoExistente.fotos || []);
+    if (esModoEdicion) {
+      const encontrado = obtenerAvisoPorId(id);
+      if (encontrado) {
+        const enriquecidas = obtenerFotosEnriquecidasAviso(encontrado);
+        setFormData({
+          titulo: encontrado.titulo || '',
+          categoria: encontrado.categoria || 'Libros de texto',
+          curso: encontrado.curso || 'Cálculo I',
+          condicion: encontrado.condicion || 'Muy buen estado',
+          descripcion: encontrado.descripcion || '',
+          precio: String(encontrado.precio || ''),
+          aceptaOfertas: Boolean(encontrado.aceptaOfertas),
+          montoMinimo: String(
+            encontrado.montoMinimo || encontrado.precio || ''
+          ),
+          fotos: Array.isArray(encontrado.fotos) && encontrado.fotos.length > 0
+            ? enriquecidas
+            : []
+        });
+      }
     }
-  }, [avisoExistente]);
+  }, [id, esModoEdicion]);
 
-  const handleAgregarFoto = () => {
-    if (fotos.length >= 6) return;
-    const nueva = {
-      id: `f-${Date.now()}`,
-      etiqueta: `fotografía ${fotos.length + 1}`,
-      principal: fotos.length === 0
-    };
-    const actualizadas = [...fotos, nueva];
-    setFotos(actualizadas);
-    if (errores.fotos) {
-      setErrores((prev) => {
-        const copia = { ...prev };
-        delete copia.fotos;
-        return copia;
+  const handleChange = (campo, valor) => {
+    const actualizado = { ...formData, [campo]: valor };
+    setFormData(actualizado);
+    if (Object.keys(errores).length > 0) {
+      setErrores(validarFormularioAviso(actualizado));
+    }
+  };
+
+  const handleSeleccionarArchivos = async (e) => {
+    const archivos = Array.from(e.target.files || []);
+    e.target.value = '';
+    if (archivos.length === 0) return;
+
+    const cupoRestante = 6 - formData.fotos.length;
+    if (cupoRestante <= 0) return;
+
+    const aProcesar = archivos.slice(0, cupoRestante);
+    const nuevas = [];
+    let errorDetectado = null;
+
+    for (const file of aProcesar) {
+      const res = await leerArchivoImagen(file);
+      if (!res.ok) {
+        errorDetectado = res.error;
+      } else {
+        nuevas.push({
+          id: `f-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+          etiqueta: res.nombre.replace(/\.[^.]+$/, ''),
+          url: res.url,
+          principal: false
+        });
+      }
+    }
+
+    if (errorDetectado) {
+      setNotificacion({
+        tipo: 'error',
+        titulo: 'Archivo no válido.',
+        mensaje: errorDetectado
       });
     }
+
+    if (nuevas.length > 0) {
+      const combinadas = [...formData.fotos, ...nuevas].map((f, idx) => ({
+        ...f,
+        principal: idx === 0
+      }));
+      handleChange('fotos', combinadas);
+    }
   };
 
-  const handleQuitarFoto = (idFoto) => {
-    const restantes = fotos
+  const handleMarcarPortada = (idFoto) => {
+    const objetivo = formData.fotos.find((f) => f.id === idFoto);
+    if (!objetivo) return;
+    const resto = formData.fotos.filter((f) => f.id !== idFoto);
+    const reordenadas = [objetivo, ...resto].map((f, idx) => ({
+      ...f,
+      principal: idx === 0
+    }));
+    handleChange('fotos', reordenadas);
+  };
+
+  const handleEliminarFoto = (idFoto) => {
+    const restantes = formData.fotos
       .filter((f) => f.id !== idFoto)
       .map((f, idx) => ({ ...f, principal: idx === 0 }));
-    setFotos(restantes);
+    handleChange('fotos', restantes);
   };
 
-  const handlePublicar = (e) => {
+  const handleGuardarBorrador = () => {
+    const res = esModoEdicion
+      ? editarAviso(id, { ...formData, estado: 'Borrador' })
+      : crearAviso(
+          {
+            ...formData,
+            vendedorId: usuarioActual?.id || 'u-1',
+            vendedorNombre: usuarioActual
+              ? `${usuarioActual.nombres} ${usuarioActual.apellidos}`
+              : 'Rosa María Quispe Ríos'
+          },
+          'Borrador'
+        );
+
+    if (res.ok) {
+      setNotificacion({
+        tipo: 'info',
+        mensaje:
+          'Borrador guardado. Puedes completarlo y publicarlo cuando quieras.'
+      });
+      setTimeout(() => navigate('/mis-publicaciones'), 1200);
+    }
+  };
+
+  const handleSubmit = (e) => {
     e.preventDefault();
-    const errs = validarFormularioAviso({
-      titulo,
-      categoria,
-      precio,
-      aceptaOfertas,
-      montoMinimo,
-      fotos
-    });
+    const errs = validarFormularioAviso(formData);
     setErrores(errs);
+
     if (Object.keys(errs).length > 0) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
 
-    const payload = {
-      titulo,
-      descripcion,
-      categoria,
-      curso,
-      condicion,
-      precio: Number(precio),
-      aceptaOfertas,
-      montoMinimo: aceptaOfertas ? Number(montoMinimo) : Number(precio),
-      fotos,
-      vendedorId: usuarioActual?.id || 'u-1',
-      vendedorNombre: usuarioActual
-        ? `${usuarioActual.nombres} ${usuarioActual.apellidos}`
-        : 'Rosa María Quispe Ríos'
-    };
-
-    const res = modoEdicion
-      ? editarAviso(id, { ...payload, estado: 'Publicado' })
-      : crearAviso(payload, 'Publicado');
+    const res = esModoEdicion
+      ? editarAviso(id, { ...formData, estado: 'Publicado' })
+      : crearAviso(
+          {
+            ...formData,
+            vendedorId: usuarioActual?.id || 'u-1',
+            vendedorNombre: usuarioActual
+              ? `${usuarioActual.nombres} ${usuarioActual.apellidos}`
+              : 'Rosa María Quispe Ríos'
+          },
+          'Publicado'
+        );
 
     if (res.ok) {
       setNotificacion({
@@ -139,143 +195,87 @@ export default function NuevoAvisoPage() {
     }
   };
 
-  const handleGuardarBorrador = () => {
-    setErrores({});
-    const payload = {
-      titulo: titulo || 'Borrador sin título',
-      descripcion,
-      categoria: categoria || 'Libros de texto',
-      curso,
-      condicion,
-      precio: Number(precio || 0),
-      aceptaOfertas,
-      montoMinimo: Number(montoMinimo || 0),
-      fotos,
-      vendedorId: usuarioActual?.id || 'u-1',
-      vendedorNombre: usuarioActual
-        ? `${usuarioActual.nombres} ${usuarioActual.apellidos}`
-        : 'Rosa María Quispe Ríos'
-    };
-
-    const res = modoEdicion
-      ? editarAviso(id, { ...payload, estado: 'Borrador' })
-      : crearAviso(payload, 'Borrador');
-
-    if (res.ok) {
-      setNotificacion({
-        tipo: 'exito',
-        mensaje: 'Borrador guardado correctamente en Mis publicaciones.'
-      });
-      setTimeout(() => navigate('/mis-publicaciones'), 1100);
-    }
-  };
-
-  // Botón de demostración rápida para activar la Vista 2.4 (Errores de validación)
-  const simularErroresVista24 = () => {
-    setTitulo('Libro');
-    setCategoria('');
-    setCurso('Estadística Aplicada');
-    setCondicion('Buen estado');
-    setPrecio(60);
-    setAceptaOfertas(true);
-    setMontoMinimo(85);
-    setFotos([]);
-    setErrores({
-      titulo:
-        'El título debe tener al menos 15 caracteres e incluir autor o modelo.',
-      categoria: 'Este campo es obligatorio.',
-      montoMinimo: 'El mínimo no puede ser mayor que el precio pedido.',
-      fotos: 'Necesitas al menos una fotografía para publicar.'
-    });
-  };
-
-  const listaErrores = Object.keys(errores);
+  const totalErrores = Object.keys(errores).length;
 
   return (
     <div className="page-container">
-      <div className="pub-barra-superior">
-        <div className="breadcrumbs">
-          <Link to="/mis-publicaciones">Mis publicaciones</Link>
-          <span>›</span>
-          <span>{modoEdicion ? 'Editar aviso' : 'Nuevo aviso'}</span>
-        </div>
-
-        <button
-          type="button"
-          className="chip chip-selectable"
-          onClick={simularErroresVista24}
-        >
-          Probar errores de validación (Vista 2.4)
-        </button>
+      {/* Breadcrumbs */}
+      <div className="breadcrumbs">
+        <Link to="/mis-publicaciones">Mis publicaciones</Link>
+        <span>›</span>
+        <span>{esModoEdicion ? 'Editar aviso' : 'Publicar nuevo aviso'}</span>
       </div>
 
-      <h1 className="title-screen pub-titulo-pagina">
-        {modoEdicion ? 'Editar aviso' : 'Nuevo aviso'}
-      </h1>
+      <div className="pub-form-header">
+        <div>
+          <h1 className="title-screen">
+            {esModoEdicion ? 'Editar aviso' : 'Publicar nuevo aviso'}
+          </h1>
+          <p className="text-aux pub-form-subtitle">
+            Completa los datos del artículo. Puedes guardarlo como borrador y
+            terminarlo después.
+          </p>
+        </div>
+      </div>
 
       {notificacion && (
         <Notificacion
           tipo={notificacion.tipo}
+          titulo={notificacion.titulo}
           mensaje={notificacion.mensaje}
           onClose={() => setNotificacion(null)}
         />
       )}
 
-      {listaErrores.length > 0 && (
+      {totalErrores > 0 && (
         <Notificacion
           tipo="error"
-          titulo="No pudimos publicar el aviso."
-          mensaje={`Revisa ${listaErrores.length} campos: título, categoría, monto mínimo y fotografías.`}
+          titulo={`No se pudo publicar el aviso.`}
+          mensaje={`Corrige los ${totalErrores} campos marcados en rojo antes de continuar.`}
         />
       )}
 
-      {/* Grilla de 3 columnas — Vistas 2.3 y 2.4 */}
-      <form onSubmit={handlePublicar} noValidate className="pub-form-columnas">
-        {/* Columna 1: 1 · Producto + 2 · Condición */}
-        <div className="pub-pila">
-          <div className="card-surface pub-tarjeta">
-            <h2 className="title-section pub-titulo-seccion">1 · Producto</h2>
+      <form onSubmit={handleSubmit} noValidate>
+        {/* Grilla de 2 columnas — Vista 2.3 */}
+        <div className="pub-form-grid">
+          {/* Columna izquierda: Datos del artículo */}
+          <div className="card-surface pub-card-datos">
+            <h2 className="title-section pub-section-title">
+              Datos del artículo
+            </h2>
 
+            {/* Título del aviso */}
             <div className="form-group">
-              <label className="label-upper">Título del aviso</label>
+              <label className="label-upper">Título del aviso *</label>
               <input
                 type="text"
-                maxLength={80}
                 className={`form-input ${errores.titulo ? 'input-error' : ''}`}
-                value={titulo}
-                onChange={(e) => setTitulo(e.target.value)}
+                value={formData.titulo}
+                onChange={(e) => handleChange('titulo', e.target.value)}
+                placeholder="Ej. Cálculo de una variable — Stewart, 8.ª ed."
               />
               {errores.titulo ? (
                 <span className="field-error">{errores.titulo}</span>
               ) : (
                 <span className="field-hint">
-                  Incluye autor y edición: así lo buscan tus compañeros.{' '}
-                  {titulo.length}/80 caracteres.
+                  Incluye autor y edición si es un libro ({formData.titulo.length}
+                  /80 caracteres).
                 </span>
               )}
             </div>
 
-            <div className="form-group">
-              <label className="label-upper">Descripción</label>
-              <textarea
-                rows={4}
-                className="form-textarea"
-                value={descripcion}
-                onChange={(e) => setDescripcion(e.target.value)}
-              />
-            </div>
-
-            <div className="pub-grid-dos">
-              <div>
-                <label className="label-upper">Categoría</label>
+            {/* Categoría y Curso asociado */}
+            <div className="pub-two-cols">
+              <div className="form-group">
+                <label className="label-upper">Categoría *</label>
                 <select
                   className={`form-select ${
                     errores.categoria ? 'input-error' : ''
                   }`}
-                  value={categoria}
-                  onChange={(e) => setCategoria(e.target.value)}
+                  value={formData.categoria}
+                  onChange={(e) => handleChange('categoria', e.target.value)}
                 >
-                  <option value="">Selecciona</option>
+                  <option value="">Selecciona una categoría</option>
                   {CATEGORIAS.map((cat) => (
                     <option key={cat} value={cat}>
                       {cat}
@@ -287,15 +287,14 @@ export default function NuevoAvisoPage() {
                 )}
               </div>
 
-              <div>
-                <label className="label-upper">Curso asociado</label>
+              <div className="form-group">
+                <label className="label-upper">Curso asociado (Opcional)</label>
                 <select
                   className="form-select"
-                  value={curso}
-                  onChange={(e) => setCurso(e.target.value)}
+                  value={formData.curso}
+                  onChange={(e) => handleChange('curso', e.target.value)}
                 >
-                  <option value="">Sin curso asociado</option>
-                  {CURSOS_ASOCIADOS.map((c) => (
+                  {CURSOS_DESTACADOS.map((c) => (
                     <option key={c} value={c}>
                       {c}
                     </option>
@@ -303,218 +302,243 @@ export default function NuevoAvisoPage() {
                 </select>
               </div>
             </div>
-          </div>
 
-          <div className="card-surface pub-tarjeta">
-            <h2 className="title-section pub-titulo-condicion">2 · Condición</h2>
-            <span className="label-upper">Estado del producto</span>
-            <div className="pub-chips-condicion">
-              {CONDICIONES_PRODUCTO.map((c) => (
-                <button
-                  key={c}
-                  type="button"
-                  className={`chip chip-selectable ${
-                    condicion === c ? 'active' : ''
-                  }`}
-                  onClick={() => setCondicion(c)}
-                >
-                  {c}
-                </button>
-              ))}
-            </div>
-            <span className="field-hint">
-              Sé honesto: la calificación después del acuerdo depende de esto.
-            </span>
-          </div>
-        </div>
-
-        {/* Columna 2: 3 · Precio + 4 · Fotografías */}
-        <div className="pub-pila">
-          <div className="card-surface pub-tarjeta">
-            <h2 className="title-section pub-titulo-seccion">3 · Precio</h2>
-
+            {/* Estado del artículo */}
             <div className="form-group">
-              <label className="label-upper">Precio pedido (S/)</label>
-              <input
-                type="number"
-                step="0.50"
-                min="1"
-                className={`form-input ${errores.precio ? 'input-error' : ''}`}
-                value={precio}
-                onChange={(e) => setPrecio(e.target.value)}
-              />
-              <span className="field-hint">
-                Rango sugerido para este título: S/ 80 – S/ 110.
-              </span>
-            </div>
-
-            <div className="form-group pub-grupo-check">
-              <label className="pub-check-label">
-                <input
-                  type="checkbox"
-                  checked={aceptaOfertas}
-                  onChange={(e) => setAceptaOfertas(e.target.checked)}
-                  className="pub-check-input"
-                />
-                <span>Acepto ofertas por un monto menor</span>
-              </label>
-            </div>
-
-            {aceptaOfertas && (
-              <div className="form-group pub-grupo-sin-margen">
-                <label className="label-upper">
-                  Monto mínimo que aceptarás (S/)
-                </label>
-                <input
-                  type="number"
-                  step="0.50"
-                  min="1"
-                  className={`form-input ${
-                    errores.montoMinimo ? 'input-error' : ''
-                  }`}
-                  value={montoMinimo}
-                  onChange={(e) => setMontoMinimo(e.target.value)}
-                />
-                {errores.montoMinimo && (
-                  <span className="field-error">{errores.montoMinimo}</span>
-                )}
+              <label className="label-upper">Estado del artículo *</label>
+              <div className="pub-condicion-chips">
+                {CONDICIONES_ARTICULO.map((cond) => (
+                  <button
+                    key={cond}
+                    type="button"
+                    className={`chip chip-selectable ${
+                      formData.condicion === cond ? 'active' : ''
+                    }`}
+                    onClick={() => handleChange('condicion', cond)}
+                  >
+                    {cond}
+                  </button>
+                ))}
               </div>
-            )}
-          </div>
+              {errores.condicion && (
+                <span className="field-error">{errores.condicion}</span>
+              )}
+            </div>
 
-          <div className="card-surface pub-tarjeta">
-            <h2 className="title-section pub-titulo-seccion">4 · Fotografías</h2>
-
-            {fotos.length === 0 ? (
-              <div
-                className={`pub-dropzone-vacia ${
-                  errores.fotos ? 'con-error' : ''
+            {/* Descripción */}
+            <div className="form-group">
+              <label className="label-upper">Descripción *</label>
+              <textarea
+                rows={4}
+                className={`form-textarea ${
+                  errores.descripcion ? 'input-error' : ''
                 }`}
-              >
-                <p className="pub-dropzone-titulo">
-                  Arrastra tus fotografías aquí o selecciónalas
-                </p>
-                {errores.fotos && (
-                  <span className="field-error pub-error-bloque">
-                    {errores.fotos}
+                value={formData.descripcion}
+                onChange={(e) => handleChange('descripcion', e.target.value)}
+                placeholder="Describe el estado real del artículo, si tiene anotaciones o accesorios incluidos..."
+              />
+              <div className="pub-desc-meta">
+                {errores.descripcion ? (
+                  <span className="field-error">{errores.descripcion}</span>
+                ) : (
+                  <span className="field-hint">
+                    Mínimo 40 caracteres. Sé honesto sobre el estado real del
+                    artículo.
                   </span>
                 )}
-                <button
-                  type="button"
-                  className="btn btn-secondary btn-sm"
-                  onClick={handleAgregarFoto}
-                >
-                  + Agregar fotografía
-                </button>
+                <span className="field-hint">
+                  {formData.descripcion.length}/600
+                </span>
               </div>
-            ) : (
-              <>
-                <div className="pub-miniaturas-grid">
-                  {fotos.map((f, idx) => (
-                    <div
-                      key={f.id}
-                      className={`striped-placeholder pub-miniatura-item ${
-                        idx === 0 ? 'es-principal' : ''
-                      }`}
-                    >
-                      {idx === 0 && (
-                        <span className="pub-badge-principal-abajo">
-                          Principal
-                        </span>
-                      )}
-                      <button
-                        type="button"
-                        onClick={() => handleQuitarFoto(f.id)}
-                        className="pub-btn-quitar-mini"
-                      >
-                        ✕
-                      </button>
-                    </div>
-                  ))}
+            </div>
+          </div>
 
-                  {fotos.length < 6 && (
+          {/* Columna derecha: Fotografías + Precio y condiciones */}
+          <div className="pub-side-stack">
+            {/* Tarjeta de Fotografías */}
+            <div className="card-surface pub-card-side">
+              <div className="pub-side-header">
+                <h2 className="title-section pub-side-title">Fotografías *</h2>
+                {esModoEdicion && (
+                  <Link
+                    to={`/aviso/${id}/fotografias`}
+                    className="pub-link-ordenar"
+                  >
+                    Ordenar en pantalla completa →
+                  </Link>
+                )}
+              </div>
+
+              <p className="text-aux pub-side-note">
+                Sube entre 1 y 6 fotos desde tu dispositivo (JPG, PNG o WEBP ·
+                máx. 5 MB). La primera será la portada.
+              </p>
+
+              <input
+                ref={inputFotosRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                multiple
+                className="pub-input-oculto"
+                onChange={handleSeleccionarArchivos}
+              />
+
+              <div className="pub-slots-grid">
+                {Array.from({ length: 6 }).map((_, idx) => {
+                  const foto = formData.fotos[idx];
+                  if (foto) {
+                    const imgSrc =
+                      foto.url ||
+                      obtenerImagenPorCategoria(
+                        formData.categoria,
+                        formData.titulo
+                      );
+                    return (
+                      <div
+                        key={foto.id}
+                        className={`striped-placeholder pub-slot-card ${
+                          idx === 0 ? 'pub-slot-card--principal' : ''
+                        }`}
+                      >
+                        <img
+                          src={imgSrc}
+                          alt={foto.etiqueta}
+                          className="pub-slot-img"
+                        />
+                        {idx === 0 ? (
+                          <span className="pub-slot-badge">PORTADA</span>
+                        ) : (
+                          <button
+                            type="button"
+                            className="pub-slot-btn-portada"
+                            onClick={() => handleMarcarPortada(foto.id)}
+                          >
+                            Hacer portada
+                          </button>
+                        )}
+                        <span className="pub-slot-label">{foto.etiqueta}</span>
+                        <button
+                          type="button"
+                          onClick={() => handleEliminarFoto(foto.id)}
+                          className="pub-slot-remove"
+                          title="Eliminar fotografía"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    );
+                  }
+
+                  return (
                     <button
+                      key={`empty-${idx}`}
                       type="button"
-                      onClick={handleAgregarFoto}
-                      className="pub-btn-agregar-mini"
+                      onClick={() => inputFotosRef.current?.click()}
+                      className="pub-slot-empty"
                     >
                       + Agregar foto
                     </button>
+                  );
+                })}
+              </div>
+
+              {errores.fotos && (
+                <span className="field-error">{errores.fotos}</span>
+              )}
+            </div>
+
+            {/* Tarjeta de Precio y condiciones */}
+            <div className="card-surface pub-card-side">
+              <h2 className="title-section pub-section-title">
+                Precio y condiciones
+              </h2>
+
+              <div className="form-group">
+                <label className="label-upper">Precio de venta (S/) *</label>
+                <input
+                  type="number"
+                  step="0.50"
+                  className={`form-input ${
+                    errores.precio ? 'input-error' : ''
+                  }`}
+                  value={formData.precio}
+                  onChange={(e) => handleChange('precio', e.target.value)}
+                />
+                {errores.precio && (
+                  <span className="field-error">{errores.precio}</span>
+                )}
+              </div>
+
+              <div className="pub-ofertas-box">
+                <label className="pub-ofertas-check-label">
+                  <input
+                    type="checkbox"
+                    checked={formData.aceptaOfertas}
+                    onChange={(e) =>
+                      handleChange('aceptaOfertas', e.target.checked)
+                    }
+                    className="pub-ofertas-checkbox"
+                  />
+                  <div>
+                    <strong className="pub-ofertas-check-title">
+                      Acepto ofertas de otros estudiantes
+                    </strong>
+                    <span className="text-aux">
+                      Los interesados podrán proponerte un monto menor.
+                    </span>
+                  </div>
+                </label>
+              </div>
+
+              {formData.aceptaOfertas && (
+                <div className="form-group pub-minimo-group">
+                  <label className="label-upper">
+                    Monto mínimo que aceptarías (S/)
+                  </label>
+                  <input
+                    type="number"
+                    step="0.50"
+                    className={`form-input ${
+                      errores.montoMinimo ? 'input-error' : ''
+                    }`}
+                    value={formData.montoMinimo}
+                    onChange={(e) =>
+                      handleChange('montoMinimo', e.target.value)
+                    }
+                  />
+                  {errores.montoMinimo ? (
+                    <span className="field-error">{errores.montoMinimo}</span>
+                  ) : (
+                    <span className="field-hint">
+                      Las ofertas por debajo de S/{' '}
+                      {Number(formData.montoMinimo || 0).toFixed(2)} se
+                      rechazarán solas.
+                    </span>
                   )}
                 </div>
-                <span className="field-hint">
-                  {fotos.length} de 6 fotografías. Arrastra las miniaturas para
-                  reordenarlas.
-                </span>
-              </>
-            )}
+              )}
+            </div>
           </div>
         </div>
 
-        {/* Columna 3: Resumen de errores (2.4) + Vista previa en vivo + Botones */}
-        <div className="pub-pila-compacta">
-          {listaErrores.length > 0 && (
-            <div className="card-surface pub-tarjeta-errores">
-              <span className="label-upper">Campos por corregir</span>
-              <ul className="pub-lista-errores">
-                {errores.titulo && <li>Título del aviso</li>}
-                {errores.categoria && <li>Categoría</li>}
-                {errores.montoMinimo && <li>Monto mínimo</li>}
-                {errores.fotos && <li>Fotografías</li>}
-              </ul>
-            </div>
-          )}
-
-          <div>
-            <span className="label-upper pub-label-preview">
-              Vista previa de la tarjeta
-            </span>
-            <TarjetaAviso
-              modoVistaPrevia
-              aviso={{
-                id: 'preview',
-                titulo: titulo || 'Sin título',
-                precio: Number(precio || 0),
-                condicion,
-                curso,
-                fotos
-              }}
-            />
-          </div>
-
-          <div className="card-surface pub-tarjeta-consejo">
-            <strong className="pub-consejo-titulo">Antes de publicar</strong>
-            <p className="text-aux">
-              Toma las fotos con luz natural, muestra la portada y el estado real
-              de las hojas. Un aviso con 3 fotografías recibe el doble de ofertas.
-            </p>
-          </div>
-
-          <button type="submit" className="btn btn-primary pub-btn-bloque">
-            Publicar
-          </button>
-
-          <button
-            type="button"
-            className="btn btn-secondary pub-btn-bloque"
-            onClick={handleGuardarBorrador}
-          >
-            Guardar borrador
-          </button>
-
-          {listaErrores.length > 0 && (
-            <span className="field-hint pub-hint-centrado">
-              El borrador sí se guarda con errores.
-            </span>
-          )}
-
-          <button
-            type="button"
-            className="btn btn-tertiary pub-btn-bloque"
-            onClick={() => navigate('/mis-publicaciones')}
-          >
+        {/* Barra inferior de acciones */}
+        <div className="pub-form-footer">
+          <Link to="/mis-publicaciones" className="btn btn-tertiary">
             Cancelar
-          </button>
+          </Link>
+
+          <div className="pub-form-footer-actions">
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={handleGuardarBorrador}
+            >
+              Guardar como borrador
+            </button>
+            <button type="submit" className="btn btn-primary">
+              Publicar aviso
+            </button>
+          </div>
         </div>
       </form>
     </div>
